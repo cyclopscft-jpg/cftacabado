@@ -2461,62 +2461,33 @@ console.log("🔵 ALUMNOS FINALES PARA MOSTRAR:", alumnosFiltrados.length);
 }
 async function marcarAsistencia(alumnoId, estado) {
 
+    console.log("========================================");
+    console.log("🟢 MARCAR ASISTENCIA");
+    console.log("Alumno ID:", alumnoId);
+    console.log("Estado solicitado:", estado);
+    console.log("========================================");
+
     const fecha =
-    document.getElementById("fechaAsistencia").value;
-const fechaSupabase = fecha;
-if (!fecha) {
-    alert("Selecciona una fecha.");
-    return;
-}
+        document.getElementById("fechaAsistencia").value;
 
-const horario = prompt(
-    "🕐 ¿A qué horario asiste el alumno?\n\n" +
-    "1 = 8:00 AM\n" +
-    "2 = 4:00 PM\n" +
-    "3 = 5:00 PM\n" +
-    "4 = 6:00 PM\n" +
-    "5 = 7:00 PM\n" +
-    "6 = 8:00 PM"
-);
+    if (!fecha) {
+        alert("Selecciona una fecha.");
+        return;
+    }
 
-if (horario === null) {
-    return;
-}
+    // ==========================================
+    // BUSCAR ALUMNO
+    // ==========================================
 
-const horarios = {
-    "1": "8:00 AM",
-    "2": "4:00 PM",
-    "3": "5:00 PM",
-    "4": "6:00 PM",
-    "5": "7:00 PM",
-    "6": "8:00 PM"
-};
-
-if (!horarios[horario]) {
-    alert("⚠️ Selecciona un horario válido del 1 al 6.");
-    return;
-}
-
-const horarioSeleccionado = horarios[horario];
-
-    // ==============================
-    // BUSCAR ALUMNO EN SUPABASE
-    // ==============================
-
-
-const { data: alumno, error: errorAlumno } =
-    await supabaseClient
-        .from("Alumnos")
-        .select("id, DNI, NOMBRE")
-        .eq("id", alumnoId)
-        .maybeSingle();
+    const { data: alumno, error: errorAlumno } =
+        await supabaseClient
+            .from("Alumnos")
+            .select("id, DNI, NOMBRE")
+            .eq("id", alumnoId)
+            .maybeSingle();
 
     if (errorAlumno) {
-
-        console.error(
-            "ERROR BUSCANDO ALUMNO:",
-            errorAlumno
-        );
+        console.error("❌ ERROR BUSCANDO ALUMNO:", errorAlumno);
 
         alert(
             "No se pudo buscar el alumno.\n\n" +
@@ -2527,50 +2498,56 @@ const { data: alumno, error: errorAlumno } =
     }
 
     if (!alumno) {
-
-        alert(
-            "No se encontró el alumno en Supabase."
-        );
-
+        alert("No se encontró el alumno en Supabase.");
         return;
     }
 
-    // ==============================
-    // COMPROBAR SI YA EXISTE
-    // ==============================
-
     const dniAlumno = alumno["DNI"] || null;
-const nombreAlumno = alumno["NOMBRE"] || "";
+    const nombreAlumno = alumno["NOMBRE"] || "";
 
-let consultaExistente =
-    supabaseClient
-        .from("Asistencias")
-        .select("id, ESTADO, DNI, NOMBRE")
-        .eq("FECHA", fechaSupabase);
+    console.log("👤 ALUMNO:", alumno);
 
-if (dniAlumno) {
-    consultaExistente =
-        consultaExistente.eq("DNI", dniAlumno);
-} else {
-    consultaExistente =
-        consultaExistente.is("DNI", null)
-        .eq("NOMBRE", nombreAlumno);
-}
+    // ==========================================
+    // LA FECHA YA VIENE COMO YYYY-MM-DD
+    // NO SE DEBE HACER reverse()
+    // ==========================================
 
-const { data: existentes, error: errorExistente } =
-    await consultaExistente;
+    const fechaSupabase = fecha;
 
-const existente =
-    existentes && existentes.length > 0
-        ? existentes[0]
-        : null;
-        console.log("🔎 ASISTENCIA EXISTENTE:", existentes);
-console.log("🔎 ALUMNO:", alumno);
-console.log("🔎 FECHA:", fecha);
+    // ==========================================
+    // BUSCAR TODAS LAS ASISTENCIAS DEL ALUMNO
+    // ==========================================
+
+    let consultaExistente =
+        supabaseClient
+            .from("Asistencias")
+            .select(
+                "id, ESTADO, DNI, NOMBRE, FECHA, HORARIO"
+            )
+            .eq("FECHA", fechaSupabase);
+
+    if (dniAlumno) {
+
+        consultaExistente =
+            consultaExistente.eq("DNI", dniAlumno);
+
+    } else {
+
+        consultaExistente =
+            consultaExistente
+                .is("DNI", null)
+                .eq("NOMBRE", nombreAlumno);
+    }
+
+    const {
+        data: existentes,
+        error: errorExistente
+    } = await consultaExistente;
+
     if (errorExistente) {
 
         console.error(
-            "ERROR COMPROBANDO ASISTENCIA:",
+            "❌ ERROR COMPROBANDO ASISTENCIA:",
             errorExistente
         );
 
@@ -2582,33 +2559,220 @@ console.log("🔎 FECHA:", fecha);
         return;
     }
 
-    // ==============================
-    // SI YA EXISTE → ACTUALIZAR
-    // ==============================
+    console.log(
+        "🔎 ASISTENCIAS ENCONTRADAS:",
+        existentes
+    );
 
-    if (existente) {
-console.log("🟢 SE VA A ACTUALIZAR:", existente);
-console.log("🟢 NUEVO ESTADO:", estado);
-    let consultaActualizar =
-    supabaseClient
+    // ==========================================
+    // NO EXISTE → CREAR
+    // ==========================================
+
+    if (!existentes || existentes.length === 0) {
+
+        console.log(
+            "🆕 NO EXISTE ASISTENCIA → CREAR"
+        );
+
+        const horario = prompt(
+            "🕐 ¿A qué horario asiste el alumno?\n\n" +
+            "1 = 8:00 AM\n" +
+            "2 = 4:00 PM\n" +
+            "3 = 5:00 PM\n" +
+            "4 = 6:00 PM\n" +
+            "5 = 7:00 PM\n" +
+            "6 = 8:00 PM"
+        );
+
+        if (horario === null) return;
+
+        const horarios = {
+            "1": "8:00 AM",
+            "2": "4:00 PM",
+            "3": "5:00 PM",
+            "4": "6:00 PM",
+            "5": "7:00 PM",
+            "6": "8:00 PM"
+        };
+
+        if (!horarios[horario]) {
+
+            alert(
+                "⚠️ Selecciona un horario válido del 1 al 6."
+            );
+
+            return;
+        }
+
+        const registro = {
+
+            DNI: alumno["DNI"],
+            NOMBRE: alumno["NOMBRE"],
+            FECHA: fechaSupabase,
+            ESTADO: estado,
+            HORARIO: horarios[horario]
+
+        };
+
+        const {
+            data: insertado,
+            error: errorInsertar
+        } = await supabaseClient
+            .from("Asistencias")
+            .insert([registro])
+            .select();
+
+        if (errorInsertar) {
+
+            console.error(
+                "❌ ERROR GUARDANDO ASISTENCIA:",
+                errorInsertar
+            );
+
+            alert(
+                "No se pudo guardar la asistencia.\n\n" +
+                errorInsertar.message
+            );
+
+            return;
+        }
+
+        console.log(
+            "✅ ASISTENCIA CREADA:",
+            insertado
+        );
+
+        await cargarListaAsistencia();
+        await mostrarEstadisticasAsistencia();
+
+        return;
+    }
+
+    // ==========================================
+    // MISMO ESTADO → ELIMINAR
+    // SIN PREGUNTAR HORARIO
+    // ==========================================
+
+    if (
+        existentes.every(
+            a => a["ESTADO"] === estado
+        )
+    ) {
+
+        console.log(
+            "🗑️ MISMO ESTADO → ELIMINANDO TODOS LOS REGISTROS"
+        );
+
+        const ids =
+            existentes.map(
+                a => a["id"]
+            );
+
+        for (const id of ids) {
+
+            const {
+                data: eliminado,
+                error: errorEliminar
+            } = await supabaseClient
+                .from("Asistencias")
+                .delete()
+                .eq("id", id)
+                .select();
+
+            if (errorEliminar) {
+
+                console.error(
+                    "❌ ERROR ELIMINANDO ID:",
+                    id,
+                    errorEliminar
+                );
+
+                alert(
+                    "No se pudo eliminar la asistencia.\n\n" +
+                    errorEliminar.message
+                );
+
+                return;
+            }
+
+            console.log(
+                "🗑️ ELIMINADO ID:",
+                id,
+                eliminado
+            );
+        }
+
+        console.log(
+            "✅ TODOS LOS REGISTROS ELIMINADOS"
+        );
+
+        await cargarListaAsistencia();
+        await mostrarEstadisticasAsistencia();
+
+        return;
+    }
+
+    // ==========================================
+    // ESTADO DIFERENTE → ACTUALIZAR
+    // AQUÍ SÍ PREGUNTA HORARIO
+    // ==========================================
+
+    console.log(
+        "🔄 ESTADO DIFERENTE → ACTUALIZANDO"
+    );
+
+    const principal = existentes[0];
+
+    const horario = prompt(
+        "🕐 ¿A qué horario asiste el alumno?\n\n" +
+        "1 = 8:00 AM\n" +
+        "2 = 4:00 PM\n" +
+        "3 = 5:00 PM\n" +
+        "4 = 6:00 PM\n" +
+        "5 = 7:00 PM\n" +
+        "6 = 8:00 PM"
+    );
+
+    if (horario === null) return;
+
+    const horarios = {
+
+        "1": "8:00 AM",
+        "2": "4:00 PM",
+        "3": "5:00 PM",
+        "4": "6:00 PM",
+        "5": "7:00 PM",
+        "6": "8:00 PM"
+
+    };
+
+    if (!horarios[horario]) {
+
+        alert(
+            "⚠️ Selecciona un horario válido del 1 al 6."
+        );
+
+        return;
+    }
+
+    const {
+        data: actualizado,
+        error: errorActualizar
+    } = await supabaseClient
         .from("Asistencias")
         .update({
-    ESTADO: estado,
-    HORARIO: horarioSeleccionado
-})
-        .eq("id", existente["id"]);
 
+            ESTADO: estado,
+            HORARIO: horarios[horario]
 
-    const { data: actualizado, error: errorActualizar } =
-    await consultaActualizar
-        .select("id, DNI, NOMBRE, FECHA, ESTADO");
-
-console.log("🟣 RESULTADO DE ACTUALIZACIÓN:", actualizado);
+        })
+        .eq("id", principal["id"])
+        .select();
 
     if (errorActualizar) {
 
         console.error(
-            "ERROR ACTUALIZANDO ASISTENCIA:",
+            "❌ ERROR ACTUALIZANDO:",
             errorActualizar
         );
 
@@ -2620,50 +2784,43 @@ console.log("🟣 RESULTADO DE ACTUALIZACIÓN:", actualizado);
         return;
     }
 
-    await cargarListaAsistencia();
-    await mostrarEstadisticasAsistencia();
-
-    return;
-}
-
-    // ==============================
-    // CREAR NUEVA ASISTENCIA
-    // ==============================
-
-    const registro = {
-
-    DNI: alumno["DNI"],
-    NOMBRE: alumno["NOMBRE"],
-    FECHA: fechaSupabase,
-    ESTADO: estado,
-    HORARIO: horarioSeleccionado
-
-};
-
-    const { error: errorInsertar } =
-        await supabaseClient
-            .from("Asistencias")
-            .insert([registro]);
-
-    if (errorInsertar) {
-
-        console.error(
-            "ERROR GUARDANDO ASISTENCIA:",
-            errorInsertar
-        );
-
-        alert(
-            "No se pudo guardar la asistencia.\n\n" +
-            errorInsertar.message
-        );
-
-        return;
-    }
-
     console.log(
-        "ASISTENCIA GUARDADA EN SUPABASE:",
-        registro
+        "✅ ASISTENCIA ACTUALIZADA:",
+        actualizado
     );
+
+    // ==========================================
+    // ELIMINAR DUPLICADOS
+    // ==========================================
+
+    const duplicados =
+        existentes.slice(1);
+
+    for (const duplicado of duplicados) {
+
+        const {
+            error: errorEliminarDuplicado
+        } = await supabaseClient
+            .from("Asistencias")
+            .delete()
+            .eq("id", duplicado["id"]);
+
+        if (errorEliminarDuplicado) {
+
+            console.error(
+                "⚠️ ERROR ELIMINANDO DUPLICADO:",
+                duplicado["id"],
+                errorEliminarDuplicado
+            );
+
+        } else {
+
+            console.log(
+                "🧹 DUPLICADO ELIMINADO:",
+                duplicado["id"]
+            );
+        }
+    }
 
     await cargarListaAsistencia();
     await mostrarEstadisticasAsistencia();
@@ -6432,7 +6589,8 @@ if (elementoUltimosPagosDashboard) {
 
     const ultimosPagosDashboard =
     listaPagos.filter(pago => Number(pago["MONTO"] || 0) > 0).slice(0, 5);
-    
+
+
     if (ultimosPagosDashboard.length === 0) {
 
         elementoUltimosPagosDashboard.innerHTML =
