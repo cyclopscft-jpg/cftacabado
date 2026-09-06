@@ -6431,8 +6431,8 @@ console.log(
 if (elementoUltimosPagosDashboard) {
 
     const ultimosPagosDashboard =
-        listaPagos.slice(0, 5);
-
+    listaPagos.filter(pago => Number(pago["MONTO"] || 0) > 0).slice(0, 5);
+    
     if (ultimosPagosDashboard.length === 0) {
 
         elementoUltimosPagosDashboard.innerHTML =
