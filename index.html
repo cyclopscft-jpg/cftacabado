@@ -1,0 +1,753 @@
+ <!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CFT Manager</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="./logocft.jpeg">
+</head>
+<body>
+<div class="app">
+
+    <header class="header">
+
+    <div class="logo-cft-container">
+        <img
+            src="logocft.jpeg"
+            alt="Cyclops Fight Team"
+            class="logo-cft">
+    </div>
+
+    <div class="subtitle">
+        Administración
+    </div>
+
+</header>
+
+    <main class="content">
+
+        <div id="dashboardPrincipal">
+
+        <div class="greeting">
+            Hola, Héctor 👊
+        </div>
+
+        <section class="stats">
+
+            <div class="card">
+                <div class="card-title">
+                    ALUMNOS ACTIVOS
+                </div>
+
+                <div class="card-number">
+               <span id="totalAlumnos">0</span>
+              </div>
+                
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    INGRESOS DEL MES
+                </div>
+
+                <div class="card-number">
+                S/ <span id="ingresosMes">0</span>
+              </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    POR VENCER
+                </div>
+
+                <div class="card-number">
+               <span id="alumnosPorVencer">0</span>
+              </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    VENCIDOS
+                </div>
+
+                <div class="card-number">
+                <span id="alumnosVencidos">0</span>
+              </div>
+            </div>
+
+        </section>
+
+        <section class="section">
+
+            <div class="section-title">
+                ⚠️ Atención
+            </div>
+
+            <div
+   
+    id="alertaVencidos"
+    class="alert alert-danger"
+    onclick="mostrarAlumnosVencidos()"
+    style="cursor: pointer;">
+    🔴 0 membresías vencidas
+</div>
+
+<div id="listaAlumnosVencidos"></div>
+
+<div
+    id="alertaPorVencer"
+    class="alert"
+    onclick="mostrarAlumnosPorVencer()"
+    style="cursor: pointer;">
+    🟡 0 membresías vencen en 7 días
+</div>
+
+<div id="listaAlumnosPorVencer"></div>
+
+<div
+    id="alertaSinAsistencia"
+    class="alert alert-info"
+    onclick="mostrarAlumnosSinAsistencia()"
+    style="cursor: pointer;">
+    🔵 0 alumnos sin asistir +7 días
+</div>
+
+<div id="listaAlumnosSinAsistencia"></div>
+
+        </section>
+
+        <section class="section">
+
+    <div class="section-title">
+        📅 Clases de hoy
+    </div>
+
+    <div class="row">
+        MMA — 8:00 AM
+    </div>
+
+    <div class="row">
+        MMA — 4:00 PM
+    </div>
+
+    <div class="row">
+        MMA — 5:00 PM
+    </div>
+
+    <div class="row">
+        MMA — 6:00 PM
+    </div>
+
+    <div class="row">
+        MMA — 7:00 PM
+    </div>
+
+    <div class="row">
+        MMA — 8:00 PM
+    </div>
+
+
+        </section>
+
+        <section class="section">
+
+            <div class="section-title">
+                💰 Últimos pagos
+            </div>
+
+            <div id="ultimosPagos"></div>
+
+        </section>
+
+        <section class="section">
+
+           <button
+    type="button"
+    onclick="abrirFormulario()"
+    style="display:block !important; background:#111 !important; color:#fff !important; width:100% !important; height:55px !important; font-size:18px !important; font-weight:bold !important; text-align:center !important;">
+    + NUEVO ALUMNO
+</button>
+
+        </section>
+ <div id="formularioAlumno" class="section" style="display: none;">
+
+    <div class="section-title">
+        🥊 Nuevo alumno
+    </div>
+
+    <label>Nombre y apellido</label>
+    <input type="text" id="nombre" placeholder="Nombre completo">
+
+    <label>DNI</label>
+    <input type="text" id="dni" placeholder="DNI">
+
+    <label>Celular</label>
+    <input type="tel" id="celular" placeholder="999 999 999">
+
+
+    <label>Correo electrónico</label>
+    <input
+        type="email"
+        id="correo"
+        placeholder="correo@ejemplo.com">
+
+    <label>Fecha de nacimiento</label>
+    <input type="date" id="fechaNacimiento">
+
+    <label>Monto</label>
+
+<input
+    type="number"
+    id="plan"
+    placeholder="Ej: 600"
+    min="1"
+    step="0.01">
+
+<label>Duración del plan (meses)</label>
+
+<input
+    type="number"
+    id="duracionPlan"
+    placeholder="Ej: 5"
+    min="1"
+    step="1">
+    
+<label>Fecha de inicio del ciclo</label>
+
+<select id="fechaInicio">
+    <option value="">Seleccionar ciclo</option>
+    <option value="1">Día 1</option>
+    <option value="15">Día 15</option>
+</select>
+
+<label>Apoderado</label>
+<input type="text" id="apoderado" placeholder="Nombre del apoderado">
+
+<label>Teléfono del apoderado</label>
+<input type="tel" id="telefonoApoderado" placeholder="999 999 999">
+
+    <button
+        class="primary-button"
+        type="button"
+        onclick="crearAlumno()">
+        🥊 Crear alumno
+    </button>
+
+    <button
+        type="button"
+        onclick="cerrarFormulario()">
+        Cancelar
+    </button>
+
+</div>
+
+</section>
+
+        </div>
+
+<section id="pantallaAlumnos" class="section" style="display: none;">
+
+    <div class="section-title">
+        👥 Alumnos
+    </div>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirInicio()">
+        ← Volver al Dashboard
+    </button>
+
+    <input
+        type="text"
+        id="buscarAlumno"
+        placeholder="🔎 Buscar alumno..."
+        oninput="mostrarAlumnos()">
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="mostrarAlumnosPorRenovar()">
+        📲 Avisar renovaciones
+    </button>
+
+    <div id="listaAlumnos"></div>
+
+</section>
+
+<section id="pantallaFichaAlumno" class="section" style="display: none;">
+
+    <div class="section-title">
+        👤 Ficha del alumno
+    </div>
+<button
+    type="button"
+    class="primary-button"
+    onclick="abrirInicio()">
+    ← Volver al Dashboard
+</button>
+    <div id="contenidoFichaAlumno"></div>
+
+    <div id="resumenMembresiaAlumno"></div>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="editarAlumno()">
+        ✏️ Editar alumno
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="renovarMembresia()">
+        🔄 Renovar membresía
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="registrarPagoDesdeFicha()">
+        💰 Registrar pago
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="enviarWhatsAppDesdeFicha()">
+        📲 WhatsApp
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="verAsistenciaDesdeFicha()">
+        📋 Ver asistencia
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="cerrarFichaAlumno()">
+        ← Volver
+    </button>
+
+</section>
+
+
+<section id="pantallaEditarAlumno" class="section" style="display: none;">
+
+    <div class="section-title">
+        ✏️ Editar alumno
+    </div>
+<button
+    type="button"
+    class="primary-button"
+    onclick="abrirInicio()">
+    ← Volver al Dashboard
+</button>
+    <label>Nombre y apellido</label>
+    <input type="text" id="editarNombre">
+
+    <label>DNI</label>
+    <input type="text" id="editarDni">
+
+    <label>Celular</label>
+    <input type="tel" id="editarCelular">
+
+    <label>Correo electrónico</label>
+    <input type="email" id="editarCorreo">
+
+    <label>Fecha de nacimiento</label>
+    <input type="date" id="editarFechaNacimiento">
+
+    <label>Monto</label>
+
+<input
+    type="number"
+    id="editarPlan"
+    placeholder="Ej: 150"
+    min="1"
+    step="0.01">
+
+<label>Duración del plan (meses)</label>
+
+<input
+    type="number"
+    id="editarDuracionPlan"
+    placeholder="Ej: 3"
+    min="1"
+    step="1">
+    
+
+    <label>Fecha de inicio</label>
+    <input type="date" id="editarFechaInicio">
+
+    <label>Apoderado</label>
+<input
+    type="text"
+    id="editarApoderado"
+    placeholder="Nombre del apoderado">
+
+<label>Teléfono del apoderado</label>
+<input
+    type="tel"
+    id="editarTelefonoApoderado"
+    placeholder="999 999 999">
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="guardarEdicionAlumno()">
+        💾 Guardar cambios
+    </button>
+
+    <button
+        type="button"
+        onclick="cancelarEdicionAlumno()">
+        Cancelar
+    </button>
+
+</section>
+<section id="pantallaPagos" class="section" style="display: none;">
+
+    <div class="section-title">
+        💰 Pagos
+    </div>
+<button
+    type="button"
+    class="primary-button"
+    onclick="abrirInicio()">
+    ← Volver al Dashboard
+</button>
+    <input
+        type="text"
+        id="buscarPago"
+        placeholder="🔎 Buscar alumno...">
+<select id="alumnoPago">
+    <option value="">Seleccionar alumno</option>
+</select>
+
+<label>Monto</label>
+
+<input
+    type="number"
+    id="planPago"
+    placeholder="Ej: 150"
+    min="1"
+    step="0.01">
+    
+<label>Duración del plan (meses)</label>
+
+<input
+    type="number"
+    id="duracionPago"
+    placeholder="Ej: 5"
+    min="1"
+    step="1">
+
+<label>Fecha de inicio del ciclo</label>
+
+<select id="diaCicloPago">
+    <option value="">Seleccionar ciclo</option>
+    <option value="1">Día 1</option>
+    <option value="15">Día 15</option>
+</select>
+
+<label>Fecha del pago</label>
+
+<input
+    type="date"
+    id="fechaPago">
+    
+<button
+    type="button"
+    class="primary-button"
+    onclick="registrarPago()">
+    💰 Registrar pago
+</button>
+
+<div id="mensajePago"></div>
+    <div id="listaPagos"></div>
+
+</section>
+<section id="pantallaAsistencia" class="section" style="display: none;">
+
+   <div class="section-title">
+    📋 Asistencia
+</div>
+<button
+    type="button"
+    class="primary-button"
+    onclick="abrirInicio()">
+    ← Volver al Dashboard
+</button>
+<button
+    type="button"
+    class="primary-button"
+    onclick="volverDeAsistencia()">
+    ← Volver
+</button>
+
+<div id="tituloAlumnoAsistencia"></div>
+
+<input
+    type="date"
+    id="fechaAsistencia">
+
+    <div id="listaAsistencia"></div>
+    <div id="estadisticasAsistencia"></div>
+
+</section>
+<section id="pantallaMas" class="section" style="display: none;">
+
+    <div class="section-title">
+        ☰ Más
+    </div>
+    <button
+    type="button"
+    class="primary-button"
+    onclick="mostrarResumenDashboard()">
+    📊 Resumen
+</button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="exportarDatos()">
+        💾 Exportar datos
+    </button>
+<button
+    type="button"
+    class="primary-button"
+    onclick="document.getElementById('archivoImportar').click()">
+    📥 Importar datos
+</button>
+
+<input
+    type="file"
+    id="archivoImportar"
+    accept=".json"
+    style="display: none;"
+    onchange="importarDatos(event)">
+
+</section>
+
+<section id="pantallaInicio" class="section" style="display: none;">
+
+    <div class="section-title">
+    🏠 CFT Manager
+</div>
+
+<!-- ESTADO DE MEMBRESÍAS -->
+<div class="card">
+
+    <h3>💳 Estado de membresías</h3>
+
+    <p>
+        🟢 Activos:
+        <strong id="inicioActivos">0</strong>
+    </p>
+
+    <p>
+        🟠 Por vencer:
+        <strong id="inicioPorVencer">0</strong>
+    </p>
+
+    <p>
+        🔴 Vencidos:
+        <strong id="inicioVencidos">0</strong>
+    </p>
+
+    <p>
+        👥 Total de alumnos:
+        <strong id="inicioTotalAlumnos">0</strong>
+    </p>
+
+    <p>
+        💰 Pagos registrados:
+        <strong id="inicioTotalPagos">0</strong>
+    </p>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirAlumnos(); mostrarAlumnosPorRenovar();">
+        📲 Ver renovaciones
+    </button>
+
+</div>
+
+
+<!-- ASISTENCIA DE HOY -->
+<div class="card">
+
+    <h3>📋 Asistencia de hoy</h3>
+
+    <p>
+        ✅ Presentes:
+        <strong id="inicioPresentesHoy">0</strong>
+    </p>
+
+    <p>
+        ❌ Faltas:
+        <strong id="inicioFaltasHoy">0</strong>
+    </p>
+
+    <p>
+        📊 Asistencia:
+        <strong id="inicioPorcentajeHoy">0%</strong>
+    </p>
+
+</div>
+
+
+<!-- INGRESOS DEL MES -->
+<div class="card">
+
+    <h3>💰 Ingresos del mes</h3>
+
+    <p>
+        💵 Total:
+        <strong id="inicioIngresosMes">S/0</strong>
+    </p>
+
+    <p>
+        💳 Pagos este mes:
+        <strong id="inicioPagosMes">0</strong>
+    </p>
+
+    <p>
+        📅 Mes anterior:
+        <strong id="inicioIngresosMesAnterior">S/0</strong>
+    </p>
+
+    <p>
+        📈 Diferencia:
+        <strong id="inicioDiferenciaIngresos">S/0</strong>
+    </p>
+
+    <p>
+        <strong id="inicioTendenciaIngresos">
+            ➖ Sin cambios
+        </strong>
+    </p>
+
+    <p>
+        📊 Crecimiento:
+        <strong id="inicioCrecimientoIngresos">
+            Sin referencia
+        </strong>
+    </p>
+
+</div>
+
+
+<!-- ÚLTIMOS PAGOS -->
+<div class="card">
+
+    <h3>💰 Últimos pagos</h3>
+
+    <div id="inicioUltimosPagos"></div>
+
+</div>
+
+
+<!-- ACCIONES RÁPIDAS -->
+<div class="card">
+
+    <h3>⚡ Acciones rápidas</h3>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirNuevoAlumnoDesdeInicio();">
+        ➕ Nuevo alumno
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirPagos();">
+        💳 Registrar pago
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirAsistencia();">
+        ✅ Registrar asistencia
+    </button>
+
+    <button
+        type="button"
+        class="primary-button"
+        onclick="abrirAlumnos(); mostrarAlumnosPorRenovar();">
+        📲 Renovaciones pendientes
+    </button>
+
+</section>
+
+</section>
+
+</main>
+
+    <nav class="bottom-nav">
+
+        <button
+    class="nav-item"
+    type="button"
+    onclick="abrirInicio()">
+    🏠<br>
+    Inicio
+</button>
+
+<button
+    class="nav-item"
+    type="button"
+    onclick="mostrarResumenDashboard()">
+    📊<br>
+    Resumen
+</button>
+
+        <button class="nav-item" onclick="abrirAlumnos()">
+            👥<br>
+            Alumnos
+        </button>
+
+        <button class="nav-item" onclick="abrirPagos()">
+            💳<br>
+            Pagos
+        </button>
+
+        <button class="nav-item" onclick="abrirAsistencia()">
+            ✅<br>
+            Asistencia
+        </button>
+
+        <button class="nav-item" onclick="abrirMas()">
+        ☰<br>
+         Más
+       </button>
+
+    </nav>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("CFT Manager: Service Worker registrado"))
+        .catch((error) => console.error("CFT Manager: error en Service Worker", error));
+    });
+  }
+</script>
+</body>
+</html>

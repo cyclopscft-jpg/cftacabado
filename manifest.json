@@ -1,0 +1,23 @@
+{
+  "name": "CFT Manager",
+  "short_name": "CFT Manager",
+  "description": "Administración de Cyclops Fight Team",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "./logocft.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "./logocft.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
