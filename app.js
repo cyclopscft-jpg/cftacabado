@@ -241,7 +241,7 @@ console.log(
     "| MONTO =", nuevoAlumno.MONTO,
     "| DURACIONPLAN =", nuevoAlumno.DURACIONPLAN,
     "| DIA CICLO =", nuevoAlumno["DIA CICLO"]
-); 
+);
 
    const { error } =
     await supabaseClient
@@ -328,7 +328,7 @@ if (monto !== null && monto > 0) {
     // ==============================
     // ÉXITO
     // ==============================
-    
+
     await actualizarIngresosMes();
     console.log("🔥 TERMINÓ DE ACTUALIZAR INGRESOS");
 await actualizarTotalAlumnos();
@@ -585,7 +585,7 @@ if (fechaOriginal) {
         const estado =
     obtenerEstadoMembresia(
         fechaOriginal
-    
+
             );
 
         // COMPROBAR DNI QUE RECIBE CADA TARJETA
@@ -1436,7 +1436,7 @@ function calcularAsistenciaAlumno(dni) {
     return (!alumnoFiltro || a.dni === alumnoFiltro) &&
            a.estado === "Falta";
      }).length;
-     
+
     const total = presentes + faltas;
 
     const porcentaje = total > 0
@@ -1480,7 +1480,7 @@ async function registrarPago() {
     !duracionPlan ||
     !diaCiclo ||
     !fechaPago
-) { 
+) {
         alert("⚠️ Completa todos los campos.");
         return;
     }
@@ -1645,7 +1645,7 @@ const vencimientoAlumno =
 
 "FECHA VENCIMIENTO":
     vencimientoAlumno
-    
+
     };
 console.log("📅 FECHA INICIO QUE SE VA A GUARDAR:", fechaInicioTexto);
 console.log("📅 FECHA VENCIMIENTO QUE SE VA A GUARDAR:", vencimientoTexto);
@@ -1931,7 +1931,7 @@ async function registrarRenovacion(plan, diaCiclo, duracionPlan) {
 
 "FECHA VENCIMIENTO":
     vencimientoTexto.split("-").reverse().join("-")
-    
+
     };
 
     const { error: errorActualizar } =
@@ -2040,7 +2040,278 @@ if (typeof actualizarDashboardInicio === "function") {
     await actualizarDashboardInicio();
 }
 
-// Volver a cargar la ficha
+// Volver a cargar la fichaasync function registrarRenovacion(
+    plan,
+    fechaInicioTextoUsuario,
+    duracionPlan,
+    diaCiclo
+ {
+
+    // ==============================
+    // BUSCAR ALUMNO EN SUPABASE
+    // ==============================
+
+    const { data: alumno, error: errorAlumno } =
+        await supabaseClient
+            .from("Alumnos")
+            .select("*")
+            .eq("id", alumnoEditando)
+            .maybeSingle();
+
+    if (errorAlumno) {
+        console.error(
+            "ERROR BUSCANDO ALUMNO:",
+            errorAlumno
+        );
+
+        alert(
+            "No se pudo buscar el alumno.\n\n" +
+            errorAlumno.message
+        );
+
+        return;
+    }
+
+    if (!alumno) {
+        alert("No se encontró el alumno.");
+        return;
+    }
+
+    // ==============================
+    // FECHA DE PAGO REAL
+    // ==============================
+
+    const hoy = new Date();
+
+    hoy.setHours(0, 0, 0, 0);
+
+    // ==============================
+    // FECHA DE INICIO ELEGIDA
+    // ==============================
+
+    const partesFecha =
+        fechaInicioTextoUsuario.split("/");
+
+    const diaInicio =
+        Number(partesFecha[0]);
+
+    const mesInicio =
+        Number(partesFecha[1]);
+
+    const anioInicio =
+        Number(partesFecha[2]);
+
+    const fechaInicio =
+        new Date(
+            anioInicio,
+            mesInicio - 1,
+            diaInicio
+        );
+
+    fechaInicio.setHours(0, 0, 0, 0);
+
+    // ==============================
+    // VENCIMIENTO
+    // ==============================
+
+    const vencimiento =
+        new Date(fechaInicio);
+
+    vencimiento.setMonth(
+        vencimiento.getMonth() +
+        Number(duracionPlan)
+    );
+
+    // ==============================
+    // FORMATO FECHAS
+    // ==============================
+
+    function formatearFechaSQL(fecha) {
+
+        const anio =
+            fecha.getFullYear();
+
+        const mes =
+            String(
+                fecha.getMonth() + 1
+            ).padStart(2, "0");
+
+        const dia =
+            String(
+                fecha.getDate()
+            ).padStart(2, "0");
+
+        return `${anio}-${mes}-${dia}`;
+    }
+
+    const fechaPagoTexto =
+        formatearFechaSQL(hoy);
+
+    const fechaInicioSQL =
+        formatearFechaSQL(fechaInicio);
+
+    const vencimientoTexto =
+        formatearFechaSQL(vencimiento);
+
+    // ==============================
+    // ACTUALIZAR ALUMNO EN SUPABASE
+    // ==============================
+
+    const datosAlumno = {
+
+        PLAN:
+            Number(plan),
+
+        MONTO:
+            Number(plan),
+
+        DURACIONPLAN:
+            Number(duracionPlan),
+
+        "DIA CICLO":
+            Number(diaCiclo),
+
+        "FECHA INICIO":
+            fechaInicioSQL
+                .split("-")
+                .reverse()
+                .join("-"),
+
+        "FECHA VENCIMIENTO":
+            vencimientoTexto
+                .split("-")
+                .reverse()
+                .join("-")
+    };
+
+    const { error: errorActualizar } =
+        await supabaseClient
+            .from("Alumnos")
+            .update(datosAlumno)
+            .eq("id", alumnoEditando);
+
+    if (errorActualizar) {
+
+        console.error(
+            "ERROR ACTUALIZANDO ALUMNO:",
+            errorActualizar
+        );
+
+        alert(
+            "No se pudo actualizar la membresía.\n\n" +
+            errorActualizar.message
+        );
+
+        return;
+    }
+
+    // ==============================
+    // REGISTRAR PAGO EN SUPABASE
+    // ==============================
+
+    const pago = {
+
+        DNI:
+            alumno["DNI"],
+
+        NOMBRE:
+            alumno["NOMBRE"],
+
+        MONTO:
+            Number(plan),
+
+        PLAN:
+            Number(plan),
+
+        DURACIONPLAN:
+            Number(duracionPlan),
+
+        "DIA CICLO":
+            Number(diaCiclo),
+
+        FECHA:
+            fechaPagoTexto
+    };
+
+    const { error: errorPago } =
+        await supabaseClient
+            .from("Pagos")
+            .insert([pago]);
+
+    if (errorPago) {
+
+        console.error(
+            "ERROR REGISTRANDO PAGO:",
+            errorPago
+        );
+
+        alert(
+            "La membresía se actualizó, pero no se pudo registrar el pago.\n\n" +
+            errorPago.message
+        );
+
+        return;
+    }
+
+    console.log(
+        "PAGO GUARDADO EN SUPABASE:",
+        pago
+    );
+
+    // ==============================
+    // CONFIRMACIÓN
+    // ==============================
+
+    alert(
+        "✅ Renovación registrada.\n\n" +
+        "Alumno: " +
+        alumno["NOMBRE"] +
+        "\nMonto: S/" +
+        Number(plan).toFixed(2) +
+        "\nDuración: " +
+        duracionPlan +
+        " meses" +
+        "\nFecha de pago: " +
+        fechaPagoTexto
+            .split("-")
+            .reverse()
+            .join("-") +
+        "\nInicio: " +
+        fechaInicioSQL
+            .split("-")
+            .reverse()
+            .join("-") +
+        "\nVencimiento: " +
+        vencimientoTexto
+            .split("-")
+            .reverse()
+            .join("-") +
+        "\nDía de ciclo: " +
+        diaCiclo
+    );
+
+    // ==============================
+    // ACTUALIZAR DASHBOARD
+    // ==============================
+
+    await actualizarIngresosMes();
+    await actualizarTotalAlumnos();
+    await actualizarAlumnosVencidos();
+    await actualizarAlumnosPorVencer();
+    await actualizarAlertasMembresias();
+    await actualizarAlumnosSinAsistencia();
+
+    if (typeof actualizarDashboardInicio === "function") {
+        await actualizarDashboardInicio();
+    }
+
+    // ==============================
+    // VOLVER A CARGAR LA FICHA
+    // ==============================
+
+    await verAlumno(alumno["id"]);
+}
+
 await verAlumno(alumno["id"]);
 }
 
@@ -2984,7 +3255,7 @@ async function actualizarTotalAlumnos() {
 
     elemento.textContent = activos;
 
-} 
+}
 
 async function actualizarAlumnosVencidos() {
 
@@ -3683,36 +3954,91 @@ function renovarMembresia() {
         return;
     }
 
-    const ciclo = prompt(
-        "📅 Selecciona el ciclo de renovación\n\n" +
-        "1 = Día 1\n" +
-        "2 = Día 15"
+    const fechaInicio = prompt(
+        "📅 Fecha de inicio de la nueva membresía\n\n" +
+        "Ingresa la fecha que deseas para iniciar el ciclo.\n\n" +
+        "Formato: DD/MM/AAAA\n\n" +
+        "Ejemplo: 01/09/2026"
     );
 
-    if (ciclo === null) return;
+    if (fechaInicio === null) return;
 
-    if (ciclo !== "1" && ciclo !== "2") {
-        alert("⚠️ Selecciona 1 o 2.");
+    const fechaInicioLimpia = fechaInicio.trim();
+
+    const partesFecha = fechaInicioLimpia.split("/");
+
+    if (partesFecha.length !== 3) {
+        alert(
+            "⚠️ Fecha no válida.\n\n" +
+            "Usa el formato DD/MM/AAAA.\n" +
+            "Ejemplo: 01/09/2026"
+        );
         return;
     }
 
-    const diaCiclo = ciclo === "1" ? 1 : 15;
+    const dia = Number(partesFecha[0]);
+    const mes = Number(partesFecha[1]);
+    const anio = Number(partesFecha[2]);
+
+    if (
+        !Number.isInteger(dia) ||
+        !Number.isInteger(mes) ||
+        !Number.isInteger(anio) ||
+        dia < 1 ||
+        dia > 31 ||
+        mes < 1 ||
+        mes > 12 ||
+        anio < 2000 ||
+        anio > 2100
+    ) {
+        alert(
+            "⚠️ Fecha no válida.\n\n" +
+            "Usa el formato DD/MM/AAAA.\n" +
+            "Ejemplo: 01/09/2026"
+        );
+        return;
+    }
+
+    const fechaInicioDate =
+        new Date(anio, mes - 1, dia);
+
+    if (
+        fechaInicioDate.getFullYear() !== anio ||
+        fechaInicioDate.getMonth() !== mes - 1 ||
+        fechaInicioDate.getDate() !== dia
+    ) {
+        alert(
+            "⚠️ La fecha ingresada no existe.\n\n" +
+            "Verifica el día, mes y año."
+        );
+        return;
+    }
+
+    const diaCiclo = dia;
 
     const confirmar = confirm(
         "¿Confirmar renovación?\n\n" +
-        "Monto: S/" + Number(montoLimpio).toFixed(2) + "\n" +
-        "Duración: " + Number(duracionLimpia) + " meses\n" +
-        "Ciclo: Día " + diaCiclo
+        "Monto: S/" +
+        Number(montoLimpio).toFixed(2) +
+        "\nDuración: " +
+        Number(duracionLimpia) +
+        " meses" +
+        "\nFecha de inicio: " +
+        fechaInicioLimpia +
+        "\nDía de ciclo: " +
+        diaCiclo
     );
 
     if (!confirmar) return;
 
     registrarRenovacion(
         montoLimpio,
-        diaCiclo,
-        Number(duracionLimpia)
+        fechaInicioLimpia,
+        Number(duracionLimpia),
+        diaCiclo
     );
 }
+
 async function verAsistenciaDesdeFicha() {
 
     if (!alumnoEditando) {
@@ -3959,7 +4285,7 @@ async function actualizarAlertasMembresias() {
         " membresías vencidas";
 
     alertaPorVencer.textContent =
-    
+
     console.log("🟡 CONTADOR CALCULADO:", porVencer);
     alertaPorVencer.textContent =
         "🟡 " +
@@ -4419,7 +4745,7 @@ async function enviarWhatsAppRenovacion(dni) {
     }
 
     let numero =
-        alumno["CELULAR"]
+        String(alumno["CELULAR"])
             .replace(/\D/g, "");
 
     if (numero.length === 9) {
@@ -4435,6 +4761,21 @@ async function enviarWhatsAppRenovacion(dni) {
         return;
     }
 
+    let fechaVencimientoTexto =
+        alumno["FECHA VENCIMIENTO"] || "";
+
+    if (
+        /^\d{4}-\d{2}-\d{2}$/.test(
+            fechaVencimientoTexto
+        )
+    ) {
+        fechaVencimientoTexto =
+            fechaVencimientoTexto
+                .split("-")
+                .reverse()
+                .join("/");
+    }
+
     const mensaje =
         "Hola " +
         (alumno["NOMBRE"] || "") +
@@ -4442,9 +4783,9 @@ async function enviarWhatsAppRenovacion(dni) {
 
         "Te escribimos de CFT - Cyclops Fight Team 🥊\n\n" +
 
-        "Tu membresía se encuentra vencida desde el " +
-        (alumno["FECHA VENCIMIENTO"] || "") +
-        ".\n\n" +
+        "Tu membresía se encuentra vencida (" +
+        fechaVencimientoTexto +
+        ").\n\n" +
 
         "Si deseas renovar tu membresía, escríbenos para coordinar tu renovación. 💪🥊\n\n" +
 
@@ -4512,7 +4853,7 @@ contenedor.dataset.abierto = "true";
 
         return estado.clase === "por-vencer";
     });
-    
+
     if (porVencer.length === 0) {
 
         contenedor.innerHTML =
@@ -5061,318 +5402,344 @@ async function enviarWhatsAppDesdeFicha() {
 }
 async function guardarEdicionAlumno() {
 
-    if (alumnoEditando === null || alumnoEditando === undefined) {
-        alert("No se ha seleccionado ningún alumno.");
+    const botonGuardar = [...document.querySelectorAll("button")]
+        .find(b => b.innerText.trim() === "💾 Guardar cambios");
+
+    if (botonGuardar?.disabled) {
+        console.log("🚫 Guardado ya en proceso. Segundo clic ignorado.");
         return;
     }
 
-    const nombre =
-        document.getElementById("editarNombre").value.trim();
-
-    const nuevoDniTexto =
-    document.getElementById("editarDni").value.trim();
-
-const nuevoDni =
-    nuevoDniTexto !== ""
-        ? Number(nuevoDniTexto)
-        : null;
-
-    const celular =
-        document.getElementById("editarCelular").value.trim();
-
-    const correo =
-        document.getElementById("editarCorreo").value.trim();
-
-    const fechaNacimientoValor =
-    document.getElementById("editarFechaNacimiento").value;
-
-const fechaNacimiento =
-    fechaNacimientoValor || null;
-
-const plan =
-    Number(
-        document.getElementById("editarPlan").value
-    );
-
-const duracionPlan =
-    Number(
-        document.getElementById("editarDuracionPlan").value
-    );
-
-const fechaInicioValor =
-    document.getElementById("editarFechaInicio").value;
-
-const fechaInicio =
-    fechaInicioValor || null;
-
-// =========================
-// CALCULAR FECHA DE VENCIMIENTO
-// =========================
-
-let fechaVencimiento = null;
-
-if (fechaInicio && duracionPlan) {
-
-    const partes = fechaInicio.split("-");
-
-    const anio = Number(partes[0]);
-    const mes = Number(partes[1]);
-    const dia = Number(partes[2]);
-
-    const fecha = new Date(
-        anio,
-        mes - 1,
-        dia
-    );
-
-    fecha.setMonth(
-        fecha.getMonth() + duracionPlan
-    );
-
-    const diaVencimiento =
-        String(fecha.getDate()).padStart(2, "0");
-
-    const mesVencimiento =
-        String(fecha.getMonth() + 1).padStart(2, "0");
-
-    const anioVencimiento =
-        fecha.getFullYear();
-
-    fechaVencimiento =
-        `${diaVencimiento}/${mesVencimiento}/${anioVencimiento}`;
-}
-
-    const apoderado =
-        document.getElementById("editarApoderado").value.trim();
-
-    const telefonoApoderadoTexto =
-    document.getElementById("editarTelefonoApoderado").value.trim();
-
-const telefonoApoderado =
-    telefonoApoderadoTexto !== ""
-        ? Number(telefonoApoderadoTexto)
-        : null;
-
-    if (!nombre) {
-        alert("El nombre es obligatorio.");
-        return;
+    if (botonGuardar) {
+        botonGuardar.disabled = true;
+        botonGuardar.innerText = "⏳ Guardando...";
     }
 
+    try {
 
-    /* =========================
-       OBTENER ALUMNO ACTUAL
-    ========================= */
+        if (alumnoEditando === null || alumnoEditando === undefined) {
+            alert("No se ha seleccionado ningún alumno.");
+            return;
+        }
 
-    const { data: alumnoActual, error: errorAlumno } =
-        await supabaseClient
-            .from("Alumnos")
-            .select("*")
-            .eq("id", alumnoEditando)
-            .maybeSingle();
+        const nombre =
+            document.getElementById("editarNombre").value.trim();
 
+        const nuevoDniTexto =
+            document.getElementById("editarDni").value.trim();
 
-    if (errorAlumno) {
+        const nuevoDni =
+            nuevoDniTexto !== ""
+                ? Number(nuevoDniTexto)
+                : null;
 
-        console.error(
-            "Error obteniendo alumno:",
-            errorAlumno
-        );
+        const celular =
+            document.getElementById("editarCelular").value.trim();
 
-        alert("No se pudo obtener el alumno.");
-        return;
-    }
+        const correo =
+            document.getElementById("editarCorreo").value.trim();
 
+        const fechaNacimientoValor =
+            document.getElementById("editarFechaNacimiento").value;
 
-    if (!alumnoActual) {
+        const fechaNacimiento =
+            fechaNacimientoValor || null;
 
-       alert("NO ENCONTRÓ ALUMNO EN GUARDAR EDICIÓN. ID: " + alumnoEditando);
-        return;
-    }
+        const plan =
+            Number(
+                document.getElementById("editarPlan").value
+            );
 
+        const duracionPlan =
+            Number(
+                document.getElementById("editarDuracionPlan").value
+            );
 
-    const dniAnterior =
-        alumnoActual["DNI"] || "";
+        const fechaInicioValor =
+            document.getElementById("editarFechaInicio").value;
 
+        const fechaInicio =
+            fechaInicioValor || null;
 
-    /* =========================
-       DATOS A ACTUALIZAR
-    ========================= */
+        // =========================
+        // CALCULAR FECHA DE VENCIMIENTO
+        // =========================
 
-    const datosActualizados = {
+        let fechaVencimiento = null;
 
-    NOMBRE: nombre,
+        if (fechaInicio && duracionPlan) {
 
-    DNI: nuevoDni,
+            const partes = fechaInicio.split("-");
 
-    CELULAR: celular,
+            const anio = Number(partes[0]);
+            const mes = Number(partes[1]);
+            const dia = Number(partes[2]);
 
-    CORREO: correo,
+            const fecha = new Date(
+                anio,
+                mes - 1,
+                dia
+            );
 
-    "FECHA DE NACIMIENTO":
-        fechaNacimiento,
+            fecha.setMonth(
+                fecha.getMonth() + duracionPlan
+            );
 
-    PLAN: plan,
+            const diaVencimiento =
+                String(fecha.getDate()).padStart(2, "0");
 
-    MONTO: plan,
+            const mesVencimiento =
+                String(fecha.getMonth() + 1).padStart(2, "0");
 
-    DURACIONPLAN: duracionPlan,
+            const anioVencimiento =
+                fecha.getFullYear();
 
-    "FECHA INICIO":
-        fechaInicio,
+            fechaVencimiento =
+                `${diaVencimiento}/${mesVencimiento}/${anioVencimiento}`;
+        }
 
-    "FECHA VENCIMIENTO":
-        fechaVencimiento,
+        const apoderado =
+            document.getElementById("editarApoderado").value.trim();
 
-    APODERADO:
-        apoderado,
+        const telefonoApoderadoTexto =
+            document.getElementById("editarTelefonoApoderado").value.trim();
 
-    "TELEFONO APODERADO":
-        telefonoApoderado
-};
+        const telefonoApoderado =
+            telefonoApoderadoTexto !== ""
+                ? Number(telefonoApoderadoTexto)
+                : null;
 
+        if (!nombre) {
+            alert("El nombre es obligatorio.");
+            return;
+        }
 
-    console.log(
-        "Datos que se van a guardar:",
-        datosActualizados
-    );
+        /* =========================
+           OBTENER ALUMNO ACTUAL
+        ========================= */
 
+        const { data: alumnoActual, error: errorAlumno } =
+            await supabaseClient
+                .from("Alumnos")
+                .select("*")
+                .eq("id", alumnoEditando)
+                .maybeSingle();
 
-    /* =========================
-       GUARDAR EN SUPABASE
-    ========================= */
+        if (errorAlumno) {
 
-    const { error: errorUpdate } =
-        await supabaseClient
-            .from("Alumnos")
-            .update(datosActualizados)
-            .eq("id", alumnoEditando);
+            console.error(
+                "Error obteniendo alumno:",
+                errorAlumno
+            );
 
+            alert("No se pudo obtener el alumno.");
+            return;
+        }
 
-    if (errorUpdate) {
+        if (!alumnoActual) {
 
-        console.error(
-            "ERROR AL GUARDAR:",
-            errorUpdate
-        );
+            alert(
+                "NO ENCONTRÓ ALUMNO EN GUARDAR EDICIÓN. ID: " +
+                alumnoEditando
+            );
 
-        alert(
-            "No se pudieron guardar los cambios: " +
-            errorUpdate.message
-        );
+            return;
+        }
 
-        return;
-    }
+        const dniAnterior =
+            alumnoActual["DNI"] || "";
 
+        /* =========================
+           DATOS A ACTUALIZAR
+        ========================= */
 
-    /* =========================
-       SI CAMBIÓ EL DNI
-    ========================= */
+        const datosActualizados = {
 
-    if (
-        dniAnterior &&
-        nuevoDni &&
-        dniAnterior !== nuevoDni
-    ) {
+            NOMBRE: nombre,
 
-        await supabaseClient
-            .from("Pagos")
-            .update({
-                DNI: nuevoDni
-            })
-            .eq("DNI", dniAnterior);
+            DNI: nuevoDni,
 
+            CELULAR: celular,
 
-        await supabaseClient
-            .from("Asistencias")
-            .update({
-                DNI: nuevoDni
-            })
-            .eq("DNI", dniAnterior);
-    }
+            CORREO: correo,
 
-// =========================
-// REGISTRAR NUEVO PAGO
-// SOLO SI CAMBIÓ EL MONTO
-// =========================
+            "FECHA DE NACIMIENTO":
+                fechaNacimiento,
 
-const montoAnterior =
-    Number(alumnoActual["MONTO"] || 0);
+            PLAN: plan,
 
-const montoNuevo =
-    Number(plan || 0);
+            MONTO: plan,
 
-if (montoAnterior !== montoNuevo) {
+            DURACIONPLAN: duracionPlan,
 
-    const { error: errorNuevoPago } =
-        await supabaseClient
-            .from("Pagos")
-            .insert([{
+            "FECHA INICIO":
+                fechaInicio,
 
-                DNI: nuevoDni,
+            "FECHA VENCIMIENTO":
+                fechaVencimiento,
 
-                NOMBRE: nombre,
+            APODERADO:
+                apoderado,
 
-                MONTO: montoNuevo,
-
-                PLAN: montoNuevo,
-
-                FECHA:
-                    new Date()
-                        .toISOString()
-                        .split("T")[0]
-
-            }]);
-
-    if (errorNuevoPago) {
-
-        console.error(
-            "ERROR CREANDO NUEVO PAGO:",
-            errorNuevoPago
-        );
-
-        alert(
-            "⚠️ El alumno se actualizó, pero no se pudo registrar el nuevo pago.\n\n" +
-            errorNuevoPago.message
-        );
-
-    } else {
+            "TELEFONO APODERADO":
+                telefonoApoderado
+        };
 
         console.log(
-            "✅ NUEVO PAGO REGISTRADO:",
-            nombre,
-            montoNuevo
+            "Datos que se van a guardar:",
+            datosActualizados
         );
+
+        /* =========================
+           GUARDAR EN SUPABASE
+        ========================= */
+
+        const { error: errorUpdate } =
+            await supabaseClient
+                .from("Alumnos")
+                .update(datosActualizados)
+                .eq("id", alumnoEditando);
+
+        if (errorUpdate) {
+
+            console.error(
+                "ERROR AL GUARDAR:",
+                errorUpdate
+            );
+
+            alert(
+                "No se pudieron guardar los cambios: " +
+                errorUpdate.message
+            );
+
+            return;
+        }
+
+        /* =========================
+           SI CAMBIÓ EL DNI
+        ========================= */
+
+        if (
+            dniAnterior &&
+            nuevoDni &&
+            dniAnterior !== nuevoDni
+        ) {
+
+            await supabaseClient
+                .from("Pagos")
+                .update({
+                    DNI: nuevoDni
+                })
+                .eq("DNI", dniAnterior);
+
+            await supabaseClient
+                .from("Asistencias")
+                .update({
+                    DNI: nuevoDni
+                })
+                .eq("DNI", dniAnterior);
+        }
+
+        // =========================
+        // REGISTRAR NUEVO PAGO
+        // SOLO SI CAMBIÓ EL MONTO
+        // =========================
+
+        const montoAnterior =
+            Number(alumnoActual["MONTO"] || 0);
+
+        const montoNuevo =
+            Number(plan || 0);
+
+        if (montoAnterior !== montoNuevo) {
+
+            const { error: errorNuevoPago } =
+                await supabaseClient
+                    .from("Pagos")
+                    .insert([{
+
+                        DNI: nuevoDni,
+
+                        NOMBRE: nombre,
+
+                        MONTO: montoNuevo,
+
+                        PLAN: montoNuevo,
+
+                        FECHA:
+                            new Date()
+                                .toISOString()
+                                .split("T")[0]
+
+                    }]);
+
+            if (errorNuevoPago) {
+
+                console.error(
+                    "ERROR CREANDO NUEVO PAGO:",
+                    errorNuevoPago
+                );
+
+                alert(
+                    "⚠️ El alumno se actualizó, pero no se pudo registrar el nuevo pago.\n\n" +
+                    errorNuevoPago.message
+                );
+
+            } else {
+
+                console.log(
+                    "✅ NUEVO PAGO REGISTRADO:",
+                    nombre,
+                    montoNuevo
+                );
+            }
+
+        } else {
+
+            console.log(
+                "ℹ️ El monto no cambió. No se creó un nuevo pago."
+            );
+        }
+
+        // =========================
+        // ACTUALIZAR DASHBOARD
+        // =========================
+
+        await actualizarIngresosMes();
+
+        if (typeof actualizarDashboardInicio === "function") {
+            await actualizarDashboardInicio();
+        }
+
+        alert(
+            "✅ Cambios guardados correctamente."
+        );
+
+        document.getElementById("pantallaEditarAlumno").style.display =
+            "none";
+
+        document.getElementById("pantallaFichaAlumno").style.display =
+            "block";
+
+        await verAlumno(alumnoEditando);
+
+    } finally {
+
+        const botonActual = [...document.querySelectorAll("button")]
+            .find(b =>
+                b.innerText.trim() === "⏳ Guardando..." ||
+                b.innerText.trim() === "💾 Guardar cambios"
+            );
+
+        if (botonActual) {
+            botonActual.disabled = false;
+            botonActual.innerText = "💾 Guardar cambios";
+        }
+
+        console.log("🔓 Guardado de edición terminado.");
     }
-
-} else {
-
-    console.log(
-        "ℹ️ El monto no cambió. No se creó un nuevo pago."
-    );
 }
 
-// =========================
-// ACTUALIZAR DASHBOARD
-// =========================
-
-await actualizarIngresosMes();
-
-if (typeof actualizarDashboardInicio === "function") {
-    await actualizarDashboardInicio();
-}
-
-alert(
-    "✅ Cambios guardados correctamente."
-);
-
-document.getElementById("pantallaEditarAlumno").style.display =
-    "none";
-
-document.getElementById("pantallaFichaAlumno").style.display =
-    "block";
-
-await verAlumno(alumnoEditando);
-}
 
 function cancelarEdicionAlumno() {
 
@@ -5664,6 +6031,21 @@ async function whatsappRenovacion(id) {
         return;
     }
 
+    let fechaVencimientoTexto =
+        alumno["FECHA VENCIMIENTO"] || "";
+
+    if (
+        /^\d{4}-\d{2}-\d{2}$/.test(
+            fechaVencimientoTexto
+        )
+    ) {
+        fechaVencimientoTexto =
+            fechaVencimientoTexto
+                .split("-")
+                .reverse()
+                .join("/");
+    }
+
     const estado =
         obtenerEstadoMembresia(
             alumno["FECHA VENCIMIENTO"]
@@ -5679,7 +6061,9 @@ async function whatsappRenovacion(id) {
             " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
             "Tu membresía está vencida. 🔴 " +
             estado.detalle +
-            ". " +
+            " (" +
+            fechaVencimientoTexto +
+            "). " +
             "Te invitamos a renovarla para continuar entrenando con nosotros. 💪🥊";
 
     } else if (
@@ -5692,7 +6076,9 @@ async function whatsappRenovacion(id) {
             " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
             "Tu membresía está próxima a vencer. 🟠 " +
             estado.detalle +
-            ". " +
+            " (" +
+            fechaVencimientoTexto +
+            "). " +
             "Te recordamos que puedes renovarla para continuar entrenando con nosotros. 💪🥊";
 
     } else {
@@ -5703,7 +6089,9 @@ async function whatsappRenovacion(id) {
             " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
             "Tu membresía está activa. 🟢 " +
             estado.detalle +
-            ". " +
+            " (" +
+            fechaVencimientoTexto +
+            "). " +
             "¡Te esperamos en tus próximos entrenamientos! 💪🥊";
     }
 
@@ -5718,6 +6106,7 @@ async function whatsappRenovacion(id) {
         "_blank"
     );
 }
+
 
 function abrirInicio() {
 
@@ -6551,7 +6940,7 @@ asistenciasHoy.forEach(function(registro) {
 
                     elementoUltimosPagos
                         .appendChild(fila);
-                        
+
                 }
             );
         }
