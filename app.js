@@ -34,6 +34,23 @@ function cerrarFormulario() {
 }
 async function crearAlumno() {
 
+    const botonCrear = document.querySelector('button[onclick="crearAlumno()"]');
+
+    if (!botonCrear) {
+        console.error("❌ No se encontró el botón Crear alumno.");
+        return;
+    }
+
+    if (botonCrear.disabled) {
+        console.log("🚫 Guardado ya en proceso. Segundo clic ignorado.");
+        return;
+    }
+
+    botonCrear.disabled = true;
+    botonCrear.innerText = "⏳ Guardando...";
+
+    try {
+
     const nombre = document.getElementById("nombre").value.trim();
     const dni = document.getElementById("dni").value.trim();
     const celular = document.getElementById("celular").value.trim();
@@ -343,8 +360,23 @@ if (typeof cerrarFormulario === "function") {
 
 abrirInicio();
 
+    } finally {
+
+        const botonActual = document.querySelector(
+            'button[onclick="crearAlumno()"]'
+        );
+
+        if (botonActual) {
+            botonActual.disabled = false;
+            botonActual.innerText = "🥊 Crear alumno";
+        }
+
+        console.log("🔓 Proceso de creación de alumno terminado.");
+    }
 
 }
+
+
 async function mostrarAlumnos() {
 
     const lista = document.getElementById("listaAlumnos");
@@ -1226,7 +1258,7 @@ function abrirWhatsApp(celular, nombre) {
         return;
     }
 
-    const numero = celular.replace(/\D/g, "");
+    const numero = String(celular).replace(/\D/g, "");
 
     if (numero.length < 9) {
         alert("El número de celular no es válido.");
@@ -1238,50 +1270,11 @@ function abrirWhatsApp(celular, nombre) {
             ? numero
             : "51" + numero;
 
-    const alumnos = JSON.parse(
-        localStorage.getItem("alumnosCFT")
-    ) || [];
-
-    const alumno = alumnos.find(function(a) {
-        return a.celular === celular;
-    });
-
-    if (!alumno) {
-        alert("No se encontró el alumno.");
-        return;
-    }
-
-    const estado =
-    obtenerEstadoMembresia(
-        fechaOriginal
-    );
-
-    let mensaje = "";
-
-    if (estado.clase === "vencido") {
-
-        mensaje =
-            "Hola " + nombre +
-            " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
-            "Vemos que tu membresía se encuentra vencida. " +
-            "Cuando gustes, puedes acercarte para renovarla y continuar entrenando con nosotros. 💪";
-
-    } else if (estado.clase === "por-vencer") {
-
-        mensaje =
-            "Hola " + nombre +
-            " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
-            "Tu membresía está próxima a vencer. 🟠 " +
-            "Te recordamos que puedes renovarla para continuar entrenando con nosotros. 💪🥊";
-
-    } else {
-
-        mensaje =
-            "Hola " + nombre +
-            " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
-            "Tu membresía está activa. 🟢 " +
-            "¡Te esperamos en tus próximos entrenamientos! 💪🥊";
-    }
+    const mensaje =
+        "Hola " + nombre +
+        " 👋, te escribimos de CFT - Cyclops Fight Team 🥊. " +
+        "Queríamos comunicarnos contigo. " +
+        "Si necesitas información sobre tus entrenamientos o tu membresía, estamos aquí para ayudarte. 💪🥊";
 
     const url =
         "https://web.whatsapp.com/send?phone=" +
