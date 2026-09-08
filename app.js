@@ -1430,7 +1430,7 @@ function abrirWhatsApp(celular, nombre) {
     window.location.href = url;
 }
 
-function abrirPagos() {
+async function abrirPagos() {
 
     const pantallas = document.querySelectorAll(".section");
 
@@ -1447,7 +1447,7 @@ function abrirPagos() {
 
     pantalla.style.display = "block";
 
-    cargarAlumnosEnPagos();
+    await cargarAlumnosEnPagos();
     mostrarHistorialPagos();
 
     pantalla.scrollIntoView({
