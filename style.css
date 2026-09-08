@@ -2,19 +2,13 @@
     box-sizing: border-box;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #e0dada;
-    color: #0f0f0f;
-}
-
 .app {
     max-width: 480px;
-    min-height: 100vh;
+    height: 100vh;
     margin: 0 auto;
-    padding-bottom: 99px;
+    padding-bottom: 0;
     background: white;
+    overflow: hidden;
 }
 
 .header {
@@ -36,8 +30,15 @@ body {
 }
 
 .content {
+    height: 100vh;
+    max-height: 100vh;
     padding: 20px;
+    padding-bottom: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
+
 
 .greeting {
     font-size: 24px;
@@ -121,12 +122,18 @@ body {
     justify-content: space-between !important;
     align-items: center !important;
 
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
     width: 100% !important;
-    height: 65px !important;
+    max-width: 480px !important;
+    height: 70px !important;
 
     box-sizing: border-box !important;
     padding: 5px 2px !important;
-    margin: 20px 0 100px 0 !important;
+    margin: 0 !important;
 
     background-color: #111 !important;
     color: white !important;
@@ -135,7 +142,9 @@ body {
     border-radius: 12px !important;
 
     overflow: hidden !important;
+    z-index: 9999 !important;
 }
+
 .bottom-nav .nav-item {
     flex: 0 1 auto !important;
     min-width: 1 !important;
