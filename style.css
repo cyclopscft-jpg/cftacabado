@@ -7,14 +7,18 @@
     height: 100vh;
     margin: 0 auto;
     padding-bottom: 0;
-    background: white;
+    background: #080808;
     overflow: hidden;
 }
 
 .header {
+
     background: #111;
     color: white;
     padding: 25px 20px;
+    position: sticky;
+top: 0;
+z-index: 10000;
 }
 
 .logo {
@@ -146,26 +150,33 @@
 }
 
 .bottom-nav .nav-item {
-    flex: 0 1 auto !important;
-    min-width: 1 !important;
-    width: 15% !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
 
-    height: 50px !important;
-    padding: 8px 0 !important;
-    margin: 8 !important;
+    height: 62px !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
 
-    border: 3px solid #dfd9d9 !important;
-border-radius: 8px !important;
-background: transparent !important;
-box-sizing: border-box !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
 
-    color: white !important;
-    font-size: 12px !important;
-    line-height: 16px !important;
+    color: #fff !important;
+    font-size: 10px !important;
+    line-height: 14px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 3px !important;
 
     text-align: center !important;
     white-space: nowrap !important;
 }
+
 #formularioAlumno {
     background: white;
     padding: 20px;
@@ -249,14 +260,14 @@ box-sizing: border-box !important;
 }
 .logo-cft-container {
     width: 100%;
-    height:10%
-    display flex;
+    height: 10%;
+    display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
     margin: 0;
-     
 }
+
 
 .logo-cft {
     width: 100%;
@@ -264,4 +275,1734 @@ box-sizing: border-box !important;
     object-fit: contain;
     display: block;
 }
- 
+ .icono-smooth {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icono-smooth svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.texto-smooth {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 14px;
+}
+/* NAV INFERIOR - ESTADO ACTIVO */
+.bottom-nav .nav-item.activo {
+    color: #2f80ed !important;
+}
+
+.bottom-nav .nav-item.activo .icono-smooth {
+    color: #2f80ed !important;
+}
+
+.bottom-nav .nav-item.activo .icono-smooth svg {
+    stroke: currentColor !important;
+}
+/* =========================================
+   CFT MANAGER — DASHBOARD MODERNO
+========================================= */
+
+.cft-dashboard {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18px 16px 95px;
+    background: #080808;
+    color: #fff;
+}
+
+.cft-brand {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.cft-brand-title {
+    color: #ff6a00;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.cft-brand-subtitle {
+    color: #888;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-top: 3px;
+}
+
+.cft-greeting {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 8px 0 20px;
+    line-height: 1.1;
+}
+
+.cft-greeting span {
+    font-size: 26px;
+}
+
+.cft-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.cft-stat {
+    background: #111;
+    border: 1px solid #202020;
+    border-radius: 14px;
+    padding: 15px;
+    min-height: 82px;
+    box-sizing: border-box;
+}
+
+.cft-stat-title {
+    color: #888;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    margin-bottom: 8px;
+}
+
+.cft-stat-number {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.cft-section-title {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    margin: 20px 0 10px;
+}
+
+.cft-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.cft-actions button {
+    border: 1px solid #292929;
+    border-radius: 12px;
+    background: #111;
+    color: #fff;
+    min-height: 64px;
+    padding: 8px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cft-actions button:active,
+.cft-stat:active {
+    transform: scale(.97);
+}
+
+.cft-payments {
+    background: #111;
+    border: 1px solid #202020;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cft-payments .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+    border-bottom: 1px solid #202020;
+    color: #fff;
+    font-size: 12px;
+}
+
+.cft-payments .row:last-child {
+    border-bottom: none;
+}
+
+.cft-payments .row small {
+    color: #777;
+    font-size: 10px;
+}
+
+.cft-payments .row strong {
+    color: #ff6a00;
+    white-space: nowrap;
+}
+
+.cft-empty {
+    padding: 18px;
+    color: #777;
+    text-align: center;
+    font-size: 12px;
+}
+
+@media (max-width: 360px) {
+
+    .cft-dashboard {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .cft-greeting,
+    .cft-greeting span {
+        font-size: 23px;
+    }
+
+    .cft-stat-number {
+        font-size: 21px;
+    }
+}
+/* ==============================
+   RESUMEN — TARJETAS
+   ============================== */
+
+#pantallaInicio .card {
+    border: 1px solid rgba(255, 102, 0, 0.35);
+}
+/* =========================================================
+   CFT MANAGER — RESUMEN MODERNO
+   SOLO #pantallaInicio
+   ========================================================= */
+
+#pantallaInicio {
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(255,102,0,.13),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 0% 40%,
+            rgba(255,102,0,.06),
+            transparent 25%
+        ),
+        #080808 !important;
+
+    color: #fff !important;
+    padding: 24px !important;
+}
+
+/* TÍTULO */
+
+#pantallaInicio .section-title {
+    font-size: 25px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.5px !important;
+    color: #fff !important;
+    margin-bottom: 22px !important;
+}
+
+/* TARJETAS */
+
+#pantallaInicio .card {
+    position: relative !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1b1b1b 0%,
+            #0b0b0b 100%
+        ) !important;
+
+    color: #fff !important;
+
+    border: 1px solid rgba(255,102,0,.35) !important;
+
+    border-radius: 22px !important;
+
+    padding: 22px !important;
+
+    margin-bottom: 18px !important;
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.42) !important;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease !important;
+}
+
+/* IMAGEN DE FONDO */
+
+#pantallaInicio .card::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(8,8,8,.78) 0%,
+            rgba(8,8,8,.52) 55%,
+            rgba(8,8,8,.30) 100%
+        ),
+        url("https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&fm=jpg&q=80&w=1000");
+
+    background-size: cover;
+
+    background-position: center 35%;
+
+    opacity: .75;
+
+    z-index: -1;
+}
+
+/* LÍNEA NARANJA SUPERIOR */
+
+#pantallaInicio .card {
+    border-top: 2px solid rgba(255,102,0,.55) !important;
+}
+
+/* EMOJIS DECORATIVOS */
+
+#pantallaInicio .card:nth-of-type(1)::after {
+    content: "🥊";
+}
+
+#pantallaInicio .card:nth-of-type(2)::after {
+    content: "✅";
+}
+
+#pantallaInicio .card:nth-of-type(3)::after {
+    content: "💰";
+}
+
+#pantallaInicio .card:nth-of-type(4)::after {
+    content: "💳";
+}
+
+#pantallaInicio .card:nth-of-type(5)::after {
+    content: "⚡";
+}
+
+#pantallaInicio .card:nth-of-type(1)::after,
+#pantallaInicio .card:nth-of-type(2)::after,
+#pantallaInicio .card:nth-of-type(3)::after,
+#pantallaInicio .card:nth-of-type(4)::after,
+#pantallaInicio .card:nth-of-type(5)::after {
+
+    position: absolute;
+
+    right: 18px;
+    top: 14px;
+
+    font-size: 30px;
+
+    opacity: .24;
+
+    z-index: 1;
+}
+
+/* CONTENIDO POR ENCIMA DE LA IMAGEN */
+
+#pantallaInicio .card h3,
+#pantallaInicio .card p,
+#pantallaInicio .card button,
+#pantallaInicio .card #inicioUltimosPagos {
+
+    position: relative;
+
+    z-index: 2;
+}
+
+/* TÍTULOS */
+
+#pantallaInicio .card h3 {
+
+    color: #fff !important;
+
+    font-size: 16px !important;
+
+    font-weight: 750 !important;
+
+    margin-bottom: 18px !important;
+
+    letter-spacing: .2px !important;
+}
+
+/* DATOS */
+
+#pantallaInicio .card p {
+
+    display: flex !important;
+
+    justify-content: space-between !important;
+
+    align-items: center !important;
+
+    color: #aaa !important;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.06) !important;
+
+    padding: 11px 0 !important;
+
+    margin: 0 !important;
+}
+
+#pantallaInicio .card p:last-of-type {
+
+    border-bottom: none !important;
+}
+
+/* NÚMEROS */
+
+#pantallaInicio .card p strong {
+
+    color: #fff !important;
+
+    font-size: 18px !important;
+
+    font-weight: 800 !important;
+}
+
+/* ESTADOS */
+
+#pantallaInicio #inicioActivos {
+
+    color: #65d66f !important;
+}
+
+#pantallaInicio #inicioPorVencer {
+
+    color: #ff9f43 !important;
+}
+
+#pantallaInicio #inicioVencidos {
+
+    color: #ff5757 !important;
+}
+
+/* TOTAL DE ALUMNOS */
+
+#pantallaInicio #inicioTotalAlumnos {
+
+    font-size: 24px !important;
+}
+
+/* INGRESOS */
+
+#pantallaInicio #inicioIngresosMes {
+
+    color: #ff6600 !important;
+
+    font-size: 30px !important;
+
+    font-weight: 900 !important;
+}
+
+/* ASISTENCIA */
+
+#pantallaInicio #inicioPorcentajeHoy {
+
+    color: #ff6600 !important;
+
+    font-size: 26px !important;
+}
+
+/* ÚLTIMOS PAGOS */
+
+#pantallaInicio #inicioUltimosPagos {
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    gap: 8px !important;
+}
+
+#pantallaInicio #inicioUltimosPagos .row {
+
+    background:
+        rgba(255,255,255,.035) !important;
+
+    border:
+        1px solid rgba(255,255,255,.055) !important;
+
+    border-radius: 13px !important;
+
+    padding: 12px 14px !important;
+
+    color: #ddd !important;
+}
+
+#pantallaInicio #inicioUltimosPagos .row strong {
+
+    color: #ff6600 !important;
+}
+
+/* BOTONES */
+
+#pantallaInicio .primary-button {
+
+    border-radius: 13px !important;
+
+    min-height: 46px !important;
+
+    font-weight: 750 !important;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease !important;
+}
+
+#pantallaInicio .primary-button:hover {
+
+    transform: translateY(-2px) !important;
+}
+
+#pantallaInicio .primary-button:active {
+
+    transform: scale(.97) !important;
+
+    opacity: .88 !important;
+}
+
+/* EFECTO AL PASAR EL MOUSE */
+
+#pantallaInicio .card:hover {
+
+    transform: translateY(-3px) !important;
+
+    border-color:
+        rgba(255,102,0,.55) !important;
+}
+
+/* =========================================================
+   COMPUTADORA / PANTALLA GRANDE
+   ========================================================= */
+
+@media (min-width: 700px) {
+
+    #pantallaInicio {
+
+        display: grid !important;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+
+        gap: 18px !important;
+
+        align-items: start !important;
+    }
+
+    #pantallaInicio .section-title {
+
+        grid-column: 1 / -1 !important;
+    }
+
+    #pantallaInicio .card {
+
+        margin-bottom: 0 !important;
+    }
+
+    #pantallaInicio .card:nth-of-type(3) {
+
+        grid-column: 1 / -1 !important;
+    }
+
+    #pantallaInicio .card:nth-of-type(4) {
+
+        grid-column: 1 / -1 !important;
+    }
+}
+/* =========================================================
+   CFT MANAGER — RESUMEN / IMÁGENES MMA
+   Diseño permanente
+   ========================================================= */
+
+#pantallaInicio .card {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+#pantallaInicio .card::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(8, 8, 8, .48),
+            rgba(8, 8, 8, .22)
+        ),
+        var(--imagen-mma) !important;
+
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-position: center center !important;
+
+    filter:
+        grayscale(25%)
+        brightness(.88)
+        contrast(.98) !important;
+
+    opacity: .27 !important;
+    z-index: 0 !important;
+}
+
+#pantallaInicio .card > * {
+    position: relative !important;
+    z-index: 2 !important;
+}
+/* =========================================================
+   IMÁGENES MMA PERMANENTES — RESUMEN
+   ========================================================= */
+
+#pantallaInicio > .card:nth-child(2) {
+    --imagen-mma: url("https://www.pz-news.de/cms_media/module_img/5983/2991997_1_articledetailxl_5f6e246c9bc4e.jpg");
+}
+
+#pantallaInicio > .card:nth-child(3) {
+    --imagen-mma: url("https://www.fight-live.cz/obrazek/67bf04419d54c4/takedown-v-zpase-ufc.jpg");
+}
+
+#pantallaInicio > .card:nth-child(4) {
+    --imagen-mma: url("https://mpics-cdn.mgronline.com/pics/Images/560000008529001.JPEG");
+}
+
+#pantallaInicio > .card:nth-child(5) {
+    --imagen-mma: url("https://assets.oktagonmma.com/NEWS_MAIN_IMAGE/788f1a4a-04cb-4768-8c60-10bb805602c2/cs.1713457790451.jpg");
+}
+
+#pantallaInicio > .card:nth-child(6) {
+    --imagen-mma: url("https://www.shooto-mma.com/images/61e0f35f7d48c.jpeg");
+}
+/* =========================================================
+   CFT MANAGER — ALUMNOS MODERNOS
+   Diseño permanente
+   ========================================================= */
+
+#pantallaAlumnos .cft-alumno-moderno {
+    background: rgba(8,8,8,.78) !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    border-radius: 18px !important;
+    padding: 15px 17px !important;
+    margin-bottom: 10px !important;
+    box-shadow: 0 7px 22px rgba(0,0,0,.28) !important;
+    backdrop-filter: blur(7px) !important;
+    transition:
+        transform .15s ease,
+        border-color .15s ease,
+        background .15s ease !important;
+}
+
+#pantallaAlumnos .cft-alumno-moderno:hover {
+    border-color: rgba(255,102,0,.32) !important;
+    background: rgba(12,12,12,.88) !important;
+}
+
+/* NOMBRE */
+#pantallaAlumnos .cft-alumno-moderno strong {
+    color: #fff !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.25 !important;
+    font-weight: 800 !important;
+    letter-spacing: .1px !important;
+}
+
+/* DATOS SECUNDARIOS */
+#pantallaAlumnos .cft-alumno-moderno small {
+    color: rgba(255,255,255,.48) !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+}
+
+#pantallaAlumnos .cft-alumno-moderno p,
+#pantallaAlumnos .cft-alumno-moderno span {
+    color: rgba(255,255,255,.58) !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+    margin: 3px 0 !important;
+}
+
+/* VER FICHA */
+#pantallaAlumnos .cft-alumno-moderno
+button[onclick^="verAlumno("] {
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 13px !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    gap: 6px !important;
+
+    background: rgba(10,10,10,.88) !important;
+    border: 1px solid rgba(255,102,0,.75) !important;
+    border-radius: 10px !important;
+
+    color: #fff !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.25) !important;
+}
+
+#pantallaAlumnos .cft-alumno-moderno
+button[onclick^="verAlumno("]::before {
+    content: "◉" !important;
+    color: #ff6600 !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+}
+
+/* WHATSAPP */
+#pantallaAlumnos .cft-alumno-moderno
+button[onclick*="whatsappRenovacion"] {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    font-size: 0 !important;
+}
+
+#pantallaAlumnos .cft-alumno-moderno
+button[onclick*="whatsappRenovacion"]::before {
+    content: "" !important;
+    width: 21px !important;
+    height: 21px !important;
+    display: block !important;
+
+    background-image: url(
+        "https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/whatsapp/default.svg"
+    ) !important;
+
+    background-size: contain !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* TOQUE */
+#pantallaAlumnos .cft-alumno-moderno button:active {
+    transform: scale(.96) !important;
+    opacity: .88 !important;
+}
+/* =========================================================
+   CFT MANAGER — FONDO ALUMNOS
+   ========================================================= */
+
+#pantallaAlumnos {
+    background:
+        linear-gradient(
+            rgba(8,8,8,.72),
+            rgba(8,8,8,.72)
+        ),
+        url("https://bellator-mma.com/assets/hero-bg-CTGWnLPd.jpg")
+        center center / 125% auto no-repeat !important;
+
+    background-attachment: fixed !important;
+    color: #fff !important;
+}
+
+
+/* =========================================================
+   CFT MANAGER — BUSCADOR ALUMNOS
+   ========================================================= */
+
+#pantallaAlumnos #buscarAlumno {
+    width: 100% !important;
+    height: 52px !important;
+
+    padding: 0 18px 0 50px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(18,18,18,.96),
+            rgba(7,7,7,.96)
+        ) !important;
+
+    border: 1px solid rgba(255,102,0,.55) !important;
+    border-radius: 16px !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.28) !important;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23ff6600' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='16.65' y1='16.65' x2='21' y2='21'/%3E%3C/svg%3E") !important;
+
+    background-repeat: no-repeat !important;
+    background-position: 17px center !important;
+    background-size: 21px 21px !important;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease !important;
+}
+
+#pantallaAlumnos #buscarAlumno::placeholder {
+    color: rgba(255,255,255,.45) !important;
+}
+
+#pantallaAlumnos #buscarAlumno:focus {
+    border-color: #ff6600 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255,102,0,.12),
+        0 8px 25px rgba(0,0,0,.35) !important;
+}
+/* =========================================================
+   CFT MANAGER — SCROLL ULTRA DISCRETO
+   ========================================================= */
+
+#pantallaAlumnos::-webkit-scrollbar {
+    width: 3px !important;
+}
+
+#pantallaAlumnos::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#pantallaAlumnos::-webkit-scrollbar-thumb {
+    background: rgba(255,102,0,.38) !important;
+    border-radius: 10px !important;
+}
+
+#pantallaAlumnos::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,102,0,.70) !important;
+}
+
+#pantallaAlumnos {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255,102,0,.38) transparent !important;
+}
+
+/* =========================================================
+   CFT MANAGER — PAGOS MODERNOS
+   Diseño permanente
+   ========================================================= */
+
+#pantallaPagos {
+    position: relative !important;
+
+    background:
+        linear-gradient(
+            rgba(8,8,8,.78),
+            rgba(8,8,8,.78)
+        ),
+        url("https://d2e6542ncrlh0f.cloudfront.net/6738dd57268d647e80d781ce/blog-post-default-background/c5ba39f4-bd76-4061-a9ed-c329a9ba692f.webp?format=.webp&height=675&width=1200")
+        center center / cover no-repeat !important;
+
+    background-attachment: fixed !important;
+
+    color: #fff !important;
+
+    padding: 24px !important;
+
+    font-family: Inter, sans-serif !important;
+}
+
+
+/* =========================================================
+   TÍTULO
+   ========================================================= */
+
+#pantallaPagos .section-title {
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 24px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: -.3px !important;
+
+    margin-bottom: 22px !important;
+}
+
+
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
+#pantallaPagos #buscarPago {
+
+    width: 100% !important;
+
+    height: 52px !important;
+
+    box-sizing: border-box !important;
+
+    padding: 0 18px 0 50px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(20,20,20,.97),
+            rgba(7,7,7,.97)
+        ) !important;
+
+    border:
+        1px solid rgba(255,102,0,.55) !important;
+
+    border-radius: 16px !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 14px !important;
+
+    font-weight: 500 !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.28) !important;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23ff6600' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='16.65' y1='16.65' x2='21' y2='21'/%3E%3C/svg%3E") !important;
+
+    background-repeat: no-repeat !important;
+
+    background-position: 17px center !important;
+
+    background-size: 21px 21px !important;
+}
+
+
+#pantallaPagos #buscarPago::placeholder {
+    color: rgba(255,255,255,.40) !important;
+}
+
+
+#pantallaPagos #buscarPago:focus {
+
+    border-color:
+        #ff6600 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255,102,0,.10),
+        0 8px 25px rgba(0,0,0,.35) !important;
+}
+
+
+/* =========================================================
+   LABELS
+   ========================================================= */
+
+#pantallaPagos label {
+
+    display: block !important;
+
+    margin-top: 18px !important;
+
+    margin-bottom: 7px !important;
+
+    color:
+        rgba(255,255,255,.62) !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+
+    letter-spacing: .6px !important;
+
+    text-transform: uppercase !important;
+}
+
+
+/* =========================================================
+   CAMPOS
+   ========================================================= */
+
+#pantallaPagos input:not(#buscarPago),
+#pantallaPagos select {
+
+    width: 100% !important;
+
+    height: 50px !important;
+
+    box-sizing: border-box !important;
+
+    padding: 0 16px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(20,20,20,.97),
+            rgba(8,8,8,.97)
+        ) !important;
+
+    border:
+        1px solid rgba(255,255,255,.10) !important;
+
+    border-radius: 14px !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 14px !important;
+
+    font-weight: 500 !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.22) !important;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease !important;
+}
+
+
+#pantallaPagos input:not(#buscarPago)::placeholder {
+    color: rgba(255,255,255,.35) !important;
+}
+
+
+#pantallaPagos input:not(#buscarPago):focus,
+#pantallaPagos select:focus {
+
+    border-color:
+        rgba(255,102,0,.85) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255,102,0,.10),
+        0 8px 22px rgba(0,0,0,.30) !important;
+}
+
+
+/* =========================================================
+   SELECTS
+   ========================================================= */
+
+#pantallaPagos select {
+
+    appearance: none !important;
+
+    -webkit-appearance: none !important;
+
+    cursor: pointer !important;
+
+    padding-right: 42px !important;
+
+    background-image:
+        linear-gradient(
+            45deg,
+            transparent 50%,
+            #ff6600 50%
+        ),
+        linear-gradient(
+            135deg,
+            #ff6600 50%,
+            transparent 50%
+        ) !important;
+
+    background-position:
+        calc(100% - 19px) 21px,
+        calc(100% - 13px) 21px !important;
+
+    background-size:
+        6px 6px,
+        6px 6px !important;
+
+    background-repeat:
+        no-repeat !important;
+}
+
+
+/* =========================================================
+   BOTÓN REGISTRAR PAGO
+   ========================================================= */
+
+#pantallaPagos button[onclick="registrarPago()"] {
+
+    width: 100% !important;
+
+    height: 52px !important;
+
+    margin-top: 24px !important;
+
+    margin-bottom: 20px !important;
+
+    padding: 0 18px !important;
+
+    border: none !important;
+
+    border-radius: 15px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7200,
+            #ff4d00
+        ) !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 14px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: .2px !important;
+
+    box-shadow:
+        0 8px 22px rgba(255,102,0,.22) !important;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease !important;
+}
+
+
+#pantallaPagos button[onclick="registrarPago()"]:active {
+
+    transform: scale(.97) !important;
+
+    opacity: .90 !important;
+}
+
+
+/* =========================================================
+   BOTÓN VOLVER
+   ========================================================= */
+
+#pantallaPagos > button.primary-button:first-of-type {
+
+    width: auto !important;
+
+    height: auto !important;
+
+    margin: 0 0 20px 0 !important;
+
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    color:
+        rgba(255,255,255,.55) !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 12px !important;
+
+    font-weight: 600 !important;
+
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   MENSAJE
+   ========================================================= */
+
+#pantallaPagos #mensajePago {
+
+    margin-top: 10px !important;
+
+    border-radius: 14px !important;
+}
+
+
+/* =========================================================
+   LISTA DE PAGOS
+   ========================================================= */
+
+#pantallaPagos #listaPagos {
+
+    margin-top: 28px !important;
+
+    color: #fff !important;
+}
+
+
+/* =========================================================
+   SCROLL
+   ========================================================= */
+
+#pantallaPagos::-webkit-scrollbar {
+    width: 3px !important;
+}
+
+#pantallaPagos::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#pantallaPagos::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(255,102,0,.38) !important;
+
+    border-radius: 10px !important;
+}
+
+#pantallaPagos::-webkit-scrollbar-thumb:hover {
+
+    background:
+        rgba(255,102,0,.70) !important;
+}
+
+#pantallaPagos {
+
+    scrollbar-width: thin !important;
+
+    scrollbar-color:
+        rgba(255,102,0,.38)
+        transparent !important;
+}
+
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    #pantallaPagos {
+
+        padding: 18px !important;
+    }
+
+    #pantallaPagos .section-title {
+
+        font-size: 21px !important;
+    }
+
+}
+/* =========================================================
+   CFT MANAGER — ASISTENCIA
+   DISEÑO MODERNO / MMA / CROSS TRAINING
+   ========================================================= */
+
+#pantallaAsistencia {
+    position: relative !important;
+
+    background:
+        linear-gradient(
+            rgba(8, 8, 8, .82),
+            rgba(8, 8, 8, .82)
+        ),
+        url("https://d2e6542ncrlh0f.cloudfront.net/6738dd57268d647e80d781ce/blog-post-default-background/c5ba39f4-bd76-4061-a9ed-c329a9ba692f.webp?format=.webp&height=675&width=1200")
+        center center / cover no-repeat !important;
+
+    background-attachment: fixed !important;
+
+    color: #fff !important;
+
+    padding: 24px !important;
+
+    font-family: Inter, sans-serif !important;
+}
+
+
+/* =========================================================
+   CABECERA
+   ========================================================= */
+
+#pantallaAsistencia .section-title {
+    color: #A7A7A7 !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 22px !important;
+
+    font-weight: 800 !important;
+
+    letter-spacing: .2px !important;
+
+    padding: 12px 16px !important;
+
+    margin: 0 0 18px 0 !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+
+    border-left: 2px solid rgba(255,102,0,.65) !important;
+
+    border-radius: 12px !important;
+
+    background: rgba(18,18,18,.88) !important;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.28) !important;
+}
+
+
+/* =========================================================
+   BOTONES VOLVER
+   ========================================================= */
+
+#pantallaAsistencia > button.primary-button {
+    width: auto !important;
+
+    height: 38px !important;
+
+    min-height: 38px !important;
+
+    margin: 0 8px 18px 0 !important;
+
+    padding: 0 14px !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    background: rgba(12,12,12,.88) !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+
+    border-radius: 11px !important;
+
+    color: rgba(255,255,255,.70) !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 12px !important;
+
+    font-weight: 700 !important;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.25) !important;
+}
+
+#pantallaAsistencia > button.primary-button:active {
+    transform: scale(.97) !important;
+
+    opacity: .88 !important;
+}
+
+
+/* =========================================================
+   FECHA
+   ========================================================= */
+
+#pantallaAsistencia #fechaAsistencia {
+    width: 100% !important;
+
+    height: 50px !important;
+
+    box-sizing: border-box !important;
+
+    padding: 0 16px !important;
+
+    background: rgba(10,10,10,.92) !important;
+
+    border: 1px solid rgba(255,102,0,.50) !important;
+
+    border-radius: 14px !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 14px !important;
+
+    font-weight: 600 !important;
+
+    outline: none !important;
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,.28) !important;
+}
+
+#pantallaAsistencia #fechaAsistencia:focus {
+    border-color: #ff6600 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255,102,0,.10),
+        0 8px 22px rgba(0,0,0,.30) !important;
+}
+
+
+/* =========================================================
+   LISTA DE ALUMNOS
+   ========================================================= */
+
+#pantallaAsistencia #listaAsistencia {
+    width: 100% !important;
+
+    margin-top: 18px !important;
+}
+
+
+/* Cada fila */
+
+#pantallaAsistencia #listaAsistencia > * {
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: flex-start !important;
+
+    gap: 10px !important;
+
+    width: 100% !important;
+
+    min-height: 52px !important;
+
+    padding: 8px 10px 8px 14px !important;
+
+    margin-bottom: 8px !important;
+
+    box-sizing: border-box !important;
+
+    background: rgba(8,8,8,.82) !important;
+
+    border: 1px solid rgba(255,255,255,.08) !important;
+
+    border-radius: 14px !important;
+
+    box-shadow:
+        0 5px 16px rgba(0,0,0,.22) !important;
+
+    white-space: nowrap !important;
+}
+
+
+/* Nombre */
+
+#pantallaAsistencia #listaAsistencia strong,
+#pantallaAsistencia #listaAsistencia span,
+#pantallaAsistencia #listaAsistencia label {
+    min-width: 0 !important;
+
+    overflow: hidden !important;
+
+    text-overflow: ellipsis !important;
+
+    white-space: nowrap !important;
+
+    color: #fff !important;
+
+    font-family: Inter, sans-serif !important;
+
+    font-size: 13px !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* El contenido del alumno ocupa todo el espacio disponible */
+
+#pantallaAsistencia #listaAsistencia > * > *:first-child {
+    min-width: 0 !important;
+
+    flex: 1 1 auto !important;
+}
+
+
+/* =========================================================
+   BOTONES PRESENTE / FALTA
+   ========================================================= */
+
+#pantallaAsistencia #listaAsistencia button {
+    flex: 0 0 34px !important;
+
+    width: 34px !important;
+
+    min-width: 34px !important;
+
+    height: 34px !important;
+
+    min-height: 34px !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    border-radius: 10px !important;
+
+    font-size: 0 !important;
+
+    font-family: Inter, sans-serif !important;
+
+    box-shadow: none !important;
+}
+
+
+/* Presente */
+
+#pantallaAsistencia #listaAsistencia
+button[onclick*="presente"],
+#pantallaAsistencia #listaAsistencia
+button[onclick*="Presente"] {
+    background: rgba(30,180,90,.12) !important;
+
+    border: 1px solid rgba(30,180,90,.45) !important;
+}
+
+#pantallaAsistencia #listaAsistencia
+button[onclick*="presente"]::before,
+#pantallaAsistencia #listaAsistencia
+button[onclick*="Presente"]::before {
+    content: "✓" !important;
+
+    font-size: 17px !important;
+
+    font-weight: 900 !important;
+
+    color: #35d477 !important;
+}
+
+
+/* Falta */
+
+#pantallaAsistencia #listaAsistencia
+button[onclick*="falta"],
+#pantallaAsistencia #listaAsistencia
+button[onclick*="Falta"] {
+    background: rgba(255,70,70,.10) !important;
+
+    border: 1px solid rgba(255,70,70,.40) !important;
+}
+
+#pantallaAsistencia #listaAsistencia
+button[onclick*="falta"]::before,
+#pantallaAsistencia #listaAsistencia
+button[onclick*="Falta"]::before {
+    content: "✕" !important;
+
+    font-size: 17px !important;
+
+    font-weight: 900 !important;
+
+    color: #ff5c5c !important;
+}
+
+
+/* Toque */
+
+#pantallaAsistencia #listaAsistencia button:active {
+    transform: scale(.90) !important;
+
+    opacity: .82 !important;
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS
+   ========================================================= */
+
+#pantallaAsistencia #estadisticasAsistencia {
+    margin-top: 18px !important;
+
+    padding: 18px !important;
+
+    background: rgba(8,8,8,.86) !important;
+
+    border: 1px solid rgba(255,255,255,.08) !important;
+
+    border-radius: 16px !important;
+
+    color: rgba(255,255,255,.72) !important;
+
+    font-family: Inter, sans-serif !important;
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,.25) !important;
+}
+
+
+/* =========================================================
+   SCROLL
+   ========================================================= */
+
+#pantallaAsistencia::-webkit-scrollbar {
+    width: 3px !important;
+}
+
+#pantallaAsistencia::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+#pantallaAsistencia::-webkit-scrollbar-thumb {
+    background: rgba(255,102,0,.38) !important;
+
+    border-radius: 10px !important;
+}
+
+#pantallaAsistencia {
+    scrollbar-width: thin !important;
+
+    scrollbar-color:
+        rgba(255,102,0,.38)
+        transparent !important;
+}
+
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    #pantallaAsistencia {
+        padding: 16px !important;
+    }
+
+    #pantallaAsistencia .section-title {
+        font-size: 20px !important;
+
+        padding: 11px 14px !important;
+    }
+
+    #pantallaAsistencia #listaAsistencia > * {
+        min-height: 50px !important;
+
+        padding: 7px 8px 7px 12px !important;
+
+        gap: 7px !important;
+    }
+
+    #pantallaAsistencia #listaAsistencia strong,
+    #pantallaAsistencia #listaAsistencia span,
+    #pantallaAsistencia #listaAsistencia label {
+        font-size: 12px !important;
+    }
+
+    #pantallaAsistencia #listaAsistencia button {
+        width: 33px !important;
+
+        min-width: 33px !important;
+
+        height: 33px !important;
+
+        min-height: 33px !important;
+    }
+
+}
+/* =====================================================
+   CFT MANAGER — ESTILO MODERNO PANTALLA "MÁS"
+   ===================================================== */
+
+/* Botones de Más */
+#pantallaMas button[onclick*="Resumen" i],
+#pantallaMas button[onclick*="Exportar" i],
+#pantallaMas button[onclick*="Importar" i] {
+    font-family: Inter, sans-serif !important;
+    font-weight: 700 !important;
+    color: #A7A7A7 !important;
+
+    background: rgba(18, 18, 18, .82) !important;
+    border: 1px solid rgba(255, 255, 255, .10) !important;
+
+    border-radius: 12px !important;
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, .28),
+        inset 0 1px 0 rgba(255, 255, 255, .03) !important;
+
+    transition:
+        transform .18s ease,
+        background .18s ease,
+        border-color .18s ease !important;
+
+    margin-bottom: 6px !important;
+}
+
+#pantallaMas button[onclick*="Resumen" i]:hover,
+#pantallaMas button[onclick*="Exportar" i]:hover,
+#pantallaMas button[onclick*="Importar" i]:hover {
+    background: rgba(30, 30, 30, .92) !important;
+    border-color: rgba(255, 102, 0, .45) !important;
+}
+
+#pantallaMas button[onclick*="Resumen" i]:active,
+#pantallaMas button[onclick*="Exportar" i]:active,
+#pantallaMas button[onclick*="Importar" i]:active {
+    transform: scale(.97) !important;
+}
+
+
+/* =====================================================
+   TÍTULOS PRINCIPALES — MISMO ESTILO QUE ASISTENCIA
+   ===================================================== */
+
+#pantallaAsistencia .section-title,
+#pantallaPagos .section-title,
+#pantallaAlumnos .section-title,
+#pantallaMas .section-title {
+    font-family: Inter, sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+
+    color: rgb(167, 167, 167) !important;
+
+    background: rgba(18, 18, 18, 0.88) !important;
+
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    border-left: 2px solid rgba(255, 102, 0, 0.65) !important;
+
+    border-radius: 12px !important;
+
+    padding: 11px 14px !important;
+
+    height: 51px !important;
+    min-height: 51px !important;
+    max-height: 51px !important;
+
+    box-sizing: border-box !important;
+
+    margin-top: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    box-shadow:
+        rgba(0, 0, 0, 0.28) 0px 5px 18px 0px !important;
+}
