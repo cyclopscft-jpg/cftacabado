@@ -745,7 +745,7 @@ if (fechaOriginal) {
             document.createElement("div");
 
         tarjeta.className =
-            "alumno-card";
+    "alumno-card cft-alumno-moderno";
 
         // Convertimos el DNI a una cadena segura
         // para enviarlo al botón
@@ -822,6 +822,7 @@ function abrirAlumnos() {
 
     pantallas.forEach(function(pantalla) {
         pantalla.style.display = "none";
+        document.getElementById("dashboardPrincipal").style.display = "none";
     });
 
     const pantalla = document.getElementById("pantallaAlumnos");
@@ -832,13 +833,11 @@ function abrirAlumnos() {
     }
 
     pantalla.style.display = "block";
+document.querySelector("main.content").scrollTop = 0;
 
+0
     mostrarAlumnos();
-
-    pantalla.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    
 }
 
 
@@ -1375,6 +1374,8 @@ const vencimientoMostrar =
     ).style.display = "none";
 
     pantalla.style.display = "block";
+    
+0
 }
 
 
@@ -1438,6 +1439,8 @@ async function abrirPagos() {
         pantalla.style.display = "none";
     });
 
+    document.getElementById("dashboardPrincipal").style.display = "none";
+
     const pantalla = document.getElementById("pantallaPagos");
 
     if (!pantalla) {
@@ -1447,14 +1450,13 @@ async function abrirPagos() {
 
     pantalla.style.display = "block";
 
+    document.querySelector("main.content").scrollTop = 0;
+
     await cargarAlumnosEnPagos();
     mostrarHistorialPagos();
 
-    pantalla.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
 }
+
 async function cargarAlumnosEnPagos() {
 
     const selector =
@@ -2348,7 +2350,9 @@ function abrirAsistencia() {
     const pantallas = document.querySelectorAll(".section");
 
     pantallas.forEach(function(pantalla) {
+        
         pantalla.style.display = "none";
+        document.getElementById("dashboardPrincipal").style.display = "none";
     });
 
     const pantalla = document.getElementById("pantallaAsistencia");
@@ -2378,14 +2382,11 @@ function abrirAsistencia() {
     }
 
     pantalla.style.display = "block";
-
+    
+document.querySelector("main.content").scrollTop = 0;
     cargarListaAsistencia();
     mostrarEstadisticasAsistencia();
 
-    pantalla.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
 }
 let cargandoListaAsistencia = false;
 
@@ -3478,13 +3479,27 @@ function exportarDatos() {
 }
 function abrirMas() {
 
+    const pantallas = document.querySelectorAll(".section");
+
+    pantallas.forEach(function(pantalla) {
+        pantalla.style.display = "none";
+    });
+
+    document.getElementById("dashboardPrincipal").style.display = "none";
+
     const pantalla = document.getElementById("pantallaMas");
 
-    if (pantalla) {
-        pantalla.style.display = "block";
+    if (!pantalla) {
+        alert("No se encontró la pantalla de Más.");
+        return;
     }
 
+    pantalla.style.display = "block";
+
+    document.querySelector("main.content").scrollTop = 0;
+
 }
+
 function importarDatos(event) {
 
     const archivo = event.target.files[0];
@@ -6037,7 +6052,6 @@ async function whatsappRenovacion(id) {
     );
 }
 
-
 function abrirInicio() {
 
     const pantallas = [
@@ -6057,6 +6071,7 @@ function abrirInicio() {
 
         if (pantalla) {
             pantalla.style.display = "none";
+            
         }
     });
 
@@ -6075,6 +6090,11 @@ function abrirInicio() {
     }
 
     dashboard.style.display = "block";
+    const contenido = document.querySelector("main.content");
+
+if (contenido) {
+    contenido.scrollTop = 0;
+}
     // Mostrar nuevamente las secciones del Dashboard
     const seccionesDashboard =
         dashboard.querySelectorAll(".section");
@@ -6092,7 +6112,25 @@ function abrirInicio() {
     }
 
       // Actualizar Dashboard principal
-if (
+if (typeof dashboardModerno === "function") {
+    dashboardModerno();
+}
+
+const dashboardAjuste =
+    document.getElementById("dashboardPrincipal");
+
+const volverDesdeOtraPantalla = regresoDesdePantalla;
+
+regresoDesdePantalla = false;
+
+if (dashboardAjuste) {
+    dashboardAjuste.style.transform =
+        volverDesdeOtraPantalla
+            ? "translateY(150px)"
+            : "";
+}
+
+      if (
     typeof actualizarDashboardInicio ===
     "function"
 ) {
@@ -6100,50 +6138,733 @@ if (
 }
 
 }
+function dashboardModerno() {
 
-async function actualizarDashboard() {
+    const dashboard =
+        document.getElementById("dashboardPrincipal");
 
-    await actualizarAlertasMembresias();
-
-    await actualizarAlumnosSinAsistencia();
-
-    await actualizarTotalAlumnos();
-
-    await actualizarAlumnosVencidos();
-
-    await actualizarAlumnosPorVencer();
-
-    await actualizarIngresosMes();
-
-    if (
-        typeof mostrarAlumnosVencidos ===
-        "function"
-    ) {
-        await mostrarAlumnosVencidos();
+    if (!dashboard) {
+        console.error("❌ No existe #dashboardPrincipal");
+        return;
     }
 
-    if (
-        typeof mostrarAlumnosPorVencer ===
-        "function"
-    ) {
-        await mostrarAlumnosPorVencer();
-    }
+    dashboard.innerHTML = `
 
-    if (
-        typeof mostrarAlumnosSinAsistencia ===
-        "function"
-    ) {
-        await mostrarAlumnosSinAsistencia();
-    }
+        <style id="cftMMAUltraStyle">
+
+            #dashboardPrincipal {
+                background:
+                    radial-gradient(
+                        circle at top right,
+                        rgba(255, 102, 0, .14),
+                        transparent 35%
+                    ),
+                    #050505 !important;
+                min-height: 100%;
+            }
+#dashboardPrincipal {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+            .cft-app {
+                width: 100%;
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 20px;
+                box-sizing: border-box;
+                color: #fff;
+            }
+
+            .cft-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 22px;
+            }
+
+            .cft-logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .cft-logo-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: 14px;
+                background: #ff6500;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                box-shadow: 0 8px 25px rgba(255, 101, 0, .25);
+            }
+
+            .cft-logo-title {
+                font-size: 16px;
+                font-weight: 900;
+                letter-spacing: 1.2px;
+            }
+
+            .cft-logo-subtitle {
+                font-size: 9px;
+                color: #888;
+                letter-spacing: 1px;
+                margin-top: 2px;
+            }
+
+            .cft-avatar {
+                width: 42px;
+                height: 42px;
+                border-radius: 50%;
+                background: #151515;
+                border: 1px solid #292929;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+            }
+
+            .cft-hero {
+                position: relative;
+                overflow: hidden;
+                min-height: 260px;
+                border-radius: 24px;
+                margin-bottom: 22px;
+                background:
+                    linear-gradient(
+                        90deg,
+                        rgba(0,0,0,.94) 0%,
+                        rgba(0,0,0,.72) 48%,
+                        rgba(0,0,0,.25) 100%
+                    ),
+                    url("https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&fm=jpg&q=80&w=1600")
+                    center / cover no-repeat;
+                box-shadow: 0 18px 50px rgba(0,0,0,.35);
+                display: flex;
+                align-items: center;
+            }
+
+            .cft-hero-content {
+                position: relative;
+                z-index: 2;
+                max-width: 580px;
+                padding: 32px;
+            }
+
+            .cft-kicker {
+                color: #ff6500;
+                font-size: 11px;
+                font-weight: 900;
+                letter-spacing: 2px;
+                margin-bottom: 10px;
+            }
+
+            .cft-hero h1 {
+                margin: 0;
+                font-size: clamp(30px, 5vw, 48px);
+                line-height: 1;
+                font-weight: 950;
+                letter-spacing: -1.5px;
+            }
+
+            .cft-hero p {
+                color: #c5c5c5;
+                font-size: 14px;
+                line-height: 1.6;
+                margin: 15px 0 22px;
+                max-width: 470px;
+            }
+
+            .cft-main-button {
+                border: 0;
+                border-radius: 14px;
+                padding: 13px 19px;
+                background: #ff6500;
+                color: #fff;
+                font-weight: 900;
+                font-size: 13px;
+                cursor: pointer;
+                box-shadow: 0 10px 28px rgba(255,101,0,.25);
+                transition:
+                    transform .12s ease,
+                    opacity .12s ease;
+            }
+
+            .cft-main-button:active {
+                transform: scale(.97);
+                opacity: .88;
+            }
+
+            .cft-stats {
+                display: grid;
+                grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+                gap: 12px;
+                margin-bottom: 26px;
+            }
+
+            .cft-stat {
+                background: #101010;
+                border: 1px solid #202020;
+                border-radius: 18px;
+                padding: 18px;
+                min-height: 105px;
+                box-sizing: border-box;
+                transition:
+                    transform .12s ease,
+                    opacity .12s ease;
+            }
+
+            .cft-stat:active {
+                transform: scale(.97);
+                opacity: .88;
+            }
+
+            .cft-stat-title {
+                color: #777;
+                font-size: 9px;
+                font-weight: 900;
+                letter-spacing: 1.2px;
+                margin-bottom: 12px;
+            }
+
+            .cft-stat-number {
+                color: #fff;
+                font-size: 27px;
+                font-weight: 950;
+                line-height: 1;
+            }
+
+            .cft-stat-number span {
+                color: #fff;
+            }
+
+            .cft-section-title {
+                color: #fff;
+                font-size: 12px;
+                font-weight: 900;
+                letter-spacing: 1.5px;
+                margin: 26px 0 12px;
+            }
+
+            .cft-actions {
+                display: grid;
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .cft-action {
+                min-height: 78px;
+                border: 1px solid #242424;
+                background: #111;
+                border-radius: 18px;
+                color: #fff;
+                font-size: 13px;
+                font-weight: 800;
+                cursor: pointer;
+                transition:
+                    transform .12s ease,
+                    opacity .12s ease,
+                    box-shadow .12s ease;
+            }
+
+            .cft-action:hover {
+                box-shadow: 0 10px 30px rgba(0,0,0,.25);
+            }
+
+            .cft-action:active {
+                transform: scale(.97);
+                opacity: .88;
+            }
+
+            .cft-panel-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 14px;
+                margin-top: 14px;
+            }
+
+            .cft-panel {
+                background: #101010;
+                border: 1px solid #202020;
+                border-radius: 20px;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            .cft-panel-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 14px;
+            }
+
+            .cft-panel-title {
+                font-size: 13px;
+                font-weight: 900;
+            }
+
+            .cft-panel-link {
+                color: #ff6500;
+                font-size: 10px;
+                font-weight: 900;
+                cursor: pointer;
+            }
+
+            .cft-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 15px;
+                padding: 13px 0;
+                border-bottom: 1px solid #1c1c1c;
+                font-size: 12px;
+            }
+
+            .cft-row:last-child {
+                border-bottom: 0;
+            }
+
+            .cft-row-name {
+                color: #ddd;
+                font-weight: 700;
+            }
+
+            .cft-row-date {
+                color: #666;
+                font-size: 10px;
+                margin-top: 3px;
+            }
+
+            .cft-row-amount {
+                color: #fff;
+                font-weight: 900;
+                white-space: nowrap;
+            }
+
+            .cft-mma-card {
+                min-height: 180px;
+                border-radius: 20px;
+                overflow: hidden;
+                position: relative;
+                background:
+                    linear-gradient(
+                        0deg,
+                        rgba(0,0,0,.9),
+                        rgba(0,0,0,.2)
+                    ),
+                    url("https://www.vecernji.hr/media/img/35/ea/b61a9fe20e8a1422bd75.jpeg")
+                    center / cover no-repeat;
+                display: flex;
+                align-items: flex-end;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+.cft-mma-card:nth-child(1) {
+    background:
+        linear-gradient(
+            0deg,
+            rgba(0,0,0,.9),
+            rgba(0,0,0,.2)
+        ),
+        url("https://images.unsplash.com/photo-1741732311355-808c468deb4e?auto=format&fit=crop&fm=jpg&q=80&w=1200")
+        center 20% / cover no-repeat;
+}
+
+
+.cft-mma-card:nth-child(2) {
+    background:
+        linear-gradient(
+            0deg,
+            rgba(0,0,0,.9),
+            rgba(0,0,0,.2)
+        ),
+        url("https://www.vecernji.hr/media/img/35/ea/b61a9fe20e8a1422bd75.jpeg")
+        center / cover no-repeat;
+}
+
+            .cft-mma-text {
+                position: relative;
+                z-index: 2;
+            }
+
+            .cft-mma-kicker {
+                color: #ff6500;
+                font-size: 9px;
+                font-weight: 900;
+                letter-spacing: 2px;
+                margin-bottom: 7px;
+            }
+
+            .cft-mma-title {
+                font-size: 23px;
+                font-weight: 950;
+                line-height: 1;
+            }
+
+            .cft-mma-subtitle {
+                color: #bbb;
+                font-size: 10px;
+                margin-top: 7px;
+            }
+
+            .cft-empty {
+                color: #666;
+                font-size: 12px;
+                padding: 10px 0;
+            }
+
+            @media (max-width: 760px) {
+
+                .cft-app {    
+                font-family: "Inter", sans-serif;
+                    padding: 14px;
+                }
+
+                .cft-stats {
+                    grid-template-columns:
+                        repeat(2, minmax(0, 1fr));
+                }
+
+                .cft-actions {
+                    grid-template-columns:
+                        1fr;
+                }
+
+                .cft-panel-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .cft-hero {
+                    min-height: 300px;
+                }
+
+                .cft-hero-content {
+                    padding: 24px;
+                }
+            }
+
+            @media (max-width: 430px) {
+
+                .cft-stat {
+                    padding: 15px;
+                    min-height: 95px;
+                }
+
+                .cft-stat-number {
+                    font-size: 23px;
+                }
+
+                .cft-hero h1 {
+                    font-size: 31px;
+                }
+            }
+
+        </style>
+
+        <div class="cft-app">
+
+            <div class="cft-top">
+
+                <div class="cft-logo">
+
+                    <div class="cft-logo-icon">
+                        🥊
+                    </div>
+
+                    <div>
+                        <div class="cft-logo-title">
+                            CFT MANAGER
+                        </div>
+
+                        <div class="cft-logo-subtitle">
+                            COMBAT FITNESS TECHNOLOGY
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="cft-avatar">
+                    👊
+                </div>
+
+            </div>
+
+
+            <div class="cft-hero">
+
+                <div class="cft-hero-content">
+
+                    <div class="cft-kicker">
+                        ⚡ CONTROL CENTER
+                    </div>
+
+                    <h1>
+                        Hola, CYCLOPS 👊
+                    </h1>
+
+                    <p>
+                        Controla alumnos, pagos y asistencia
+                        desde un solo lugar.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="cft-main-button"
+                        onclick="abrirAlumnos()"
+                    >
+                        ＋ NUEVO ALUMNO
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="cft-stats">
+
+                <div class="cft-stat">
+
+                    <div class="cft-stat-title">
+                        ALUMNOS ACTIVOS
+                    </div>
+
+                    <div class="cft-stat-number">
+                        <span id="totalAlumnos">0</span>
+                    </div>
+
+                </div>
+
+
+                <div class="cft-stat">
+
+                    <div class="cft-stat-title">
+                        INGRESOS DEL MES
+                    </div>
+
+                    <div class="cft-stat-number">
+                        S/<span id="ingresosMes">0</span>
+                    </div>
+
+                </div>
+
+
+                <div class="cft-stat">
+
+                    <div class="cft-stat-title">
+                        POR VENCER
+                    </div>
+
+                    <div class="cft-stat-number">
+                        <span id="alumnosPorVencer">0</span>
+                    </div>
+
+                </div>
+
+
+                <div class="cft-stat">
+
+                    <div class="cft-stat-title">
+                        VENCIDOS
+                    </div>
+
+                    <div class="cft-stat-number">
+                        <span id="alumnosVencidos">0</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="cft-section-title">
+                ACCIONES RÁPIDAS
+            </div>
+
+
+            <div class="cft-actions">
+
+                <button
+                    type="button"
+                    class="cft-action"
+                    onclick="abrirAlumnos()"
+                >
+                    👥 Alumnos
+                </button>
+
+                <button
+                    type="button"
+                    class="cft-action"
+                    onclick="abrirPagos()"
+                >
+                    💰 Registrar pago
+                </button>
+
+                <button
+                    type="button"
+                    class="cft-action"
+                    onclick="abrirAsistencia()"
+                >
+                    ✓ Asistencia
+                </button>
+
+            </div>
+
+
+            <div class="cft-panel-grid">
+
+                <div class="cft-panel">
+
+                    <div class="cft-panel-header">
+
+                        <div class="cft-panel-title">
+                            📅 Clases de hoy
+                        </div>
+
+                        <div class="cft-panel-link">
+                            VER TODAS
+                        </div>
+
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 8:00 AM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 4:00 PM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 5:00 PM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 6:00 PM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 7:00 PM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="cft-row">
+                        <div class="cft-row-name">
+                            MMA — 8:00 PM
+                        </div>
+                        <strong>0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="cft-panel">
+
+                    <div class="cft-panel-header">
+
+                        <div class="cft-panel-title">
+                            💰 Últimos pagos
+                        </div>
+
+                        <div class="cft-panel-link">
+                            VER MÁS
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="ultimosPagos"
+                        class="cft-payments"
+                    >
+
+                        <div class="cft-empty">
+                            Cargando pagos...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="cft-panel-grid">
+
+                <div class="cft-mma-card">
+
+                    <div class="cft-mma-text">
+
+                        <div class="cft-mma-kicker">
+                            FIGHT CAMP
+                        </div>
+
+                        <div class="cft-mma-title">
+                            DISCIPLINE
+                        </div>
+
+                        <div class="cft-mma-subtitle">
+                            TRAIN HARD • STAY READY
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="cft-mma-card cft-mma-card-bag">
+
+                    <div class="cft-mma-text">
+
+                        <div class="cft-mma-kicker">
+                            CFT MANAGER
+                        </div>
+
+                        <div class="cft-mma-title">
+                            NO EXCUSES
+                        </div>
+
+                        <div class="cft-mma-subtitle">
+                            COMBAT • FITNESS • TEAM
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
 
     if (
         typeof actualizarDashboardInicio ===
         "function"
     ) {
-        await actualizarDashboardInicio();
+        actualizarDashboardInicio();
     }
-}
 
+
+    console.log("✅ Dashboard moderno creado");
+
+}
 
 function volverAlDashboard() {
 
@@ -7191,3 +7912,75 @@ function volverDeAsistencia() {
         dashboard.style.display = "block";
     }
 }
+function configurarNavegacionInferior() {
+
+    const nav = document.querySelector(".bottom-nav");
+
+    if (!nav) {
+        console.warn("⚠️ No se encontró .bottom-nav");
+        return;
+    }
+
+    const iconos = [
+        `<svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>`,
+
+        `<svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16V5M20 16V3"/></svg>`,
+
+        `<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.4-4 2.4-6 6-6s5.6 2 6 6M14 14c3-.3 5.2 1.5 6 6"/></svg>`,
+
+        `<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>`,
+
+        `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.7 2.7L16 9.5"/></svg>`,
+
+        `<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>`
+    ];
+
+    const navItems = nav.querySelectorAll(".nav-item");
+
+    navItems.forEach((item, i) => {
+
+        if (!iconos[i]) return;
+
+        const textoOriginal =
+            item.querySelector(".texto-smooth")?.textContent ||
+            item.innerText.trim().split("\n").pop().trim();
+
+        item.innerHTML = `
+            <span class="icono-smooth">
+                ${iconos[i]}
+            </span>
+            <span class="texto-smooth">
+                ${textoOriginal}
+            </span>
+        `;
+
+        item.classList.remove("activo");
+    });
+
+    function activarNav(item) {
+
+        navItems.forEach(x => {
+            x.classList.remove("activo");
+        });
+
+        item.classList.add("activo");
+    }
+
+    navItems.forEach(item => {
+
+        item.addEventListener("click", function () {
+            activarNav(this);
+        });
+
+    });
+
+    // Inicio queda seleccionado al cargar
+    if (navItems[0]) {
+        activarNav(navItems[0]);
+    }
+
+    console.log("✅ Navegación inferior configurada");
+}
+window.addEventListener("load", function () {
+    configurarNavegacionInferior();
+});
