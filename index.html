@@ -291,12 +291,7 @@
         placeholder="🔎 Buscar alumno..."
         oninput="mostrarAlumnos()">
 
-    <button
-        type="button"
-        class="primary-button"
-        onclick="mostrarAlumnosPorRenovar()">
-        📲 Avisar renovaciones
-    </button>
+
 
     <div id="listaAlumnos"></div>
 
@@ -596,15 +591,6 @@
         <strong id="inicioTotalPagos">0</strong>
     </p>
 
-    <button
-        type="button"
-        class="primary-button"
-        onclick="abrirAlumnos(); mostrarAlumnosPorRenovar();">
-        📲 Ver renovaciones
-    </button>
-
-</div>
-
 
 <!-- ASISTENCIA DE HOY -->
 <div class="card">
@@ -736,5 +722,39 @@
     });
   }
 </script>
+<script src="app.js"></script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("CFT Manager: Service Worker registrado"))
+        .catch((error) => console.error("CFT Manager: error en Service Worker", error));
+    });
+  }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const inicio = document.getElementById("pantallaInicio");
+
+    if (!inicio) return;
+
+    const cards = [...inicio.querySelectorAll(".card")];
+
+    if (cards.length < 4) return;
+
+    cards.slice(1).forEach(card => {
+        inicio.appendChild(card);
+    });
+
+    cards[0].style.setProperty("height", "auto", "important");
+    cards[0].style.setProperty("min-height", "0", "important");
+
+    console.log("✅ Resumen CFT: 4 cuadros independientes");
+});
+</script>
+
 </body>
 </html>
