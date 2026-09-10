@@ -177,55 +177,7 @@ z-index: 10000;
     white-space: nowrap !important;
 }
 
-#formularioAlumno {
-    background: white;
-    padding: 20px;
-    border-radius: 18px;
-    margin-top: 20px;
-    border: 1px solid #e5e5e5;
-}
 
-#formularioAlumno label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
-}
-
-#formularioAlumno input,
-#formularioAlumno select {
-    width: 100%;
-    height: 48px;
-    padding: 0 12px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background: white;
-    font-size: 15px;
-}
-
-#formularioAlumno input:focus,
-#formularioAlumno select:focus {
-    outline: none;
-    border-color: #111;
-}
-
-#formularioAlumno .primary-button {
-    margin-top: 22px;
-    margin-bottom: 10px;
-}
-
-#formularioAlumno button[type="button"]:not(.primary-button) {
-    width: 100%;
-    height: 48px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background: white;
-    color: #333;
-    font-size: 15px;
-    cursor: pointer;
-}
 .activo {
     color: green;
 }
@@ -2005,4 +1957,895 @@ button[onclick*="Falta"]::before {
 
     box-shadow:
         rgba(0, 0, 0, 0.28) 0px 5px 18px 0px !important;
+}
+/* =====================================================
+   CFT MANAGER — FORMULARIO NUEVO ALUMNO
+   DISEÑO MODERNO OSCURO
+   ===================================================== */
+
+#formularioAlumno {
+    display: block;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: #080808 !important;
+    color: #fff !important;
+    padding: 0 !important;
+    margin-top: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* TÍTULO NUEVO ALUMNO */
+#formularioAlumno .section-title {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 51px !important;
+    min-height: 51px !important;
+    box-sizing: border-box !important;
+
+    margin: 0 0 20px 0 !important;
+    padding: 11px 14px !important;
+
+    background: rgba(18,18,18,.88) !important;
+    color: #4a4a4a !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-left: 2px solid #ff6600 !important;
+    border-radius: 12px !important;
+
+    font-family: Inter, sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+
+    box-shadow: 0 5px 18px rgba(0,0,0,.28) !important;
+}
+
+/* ETIQUETAS */
+#formularioAlumno label {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+
+    margin: 16px 0 7px 0 !important;
+
+    color: rgba(255,255,255,.62) !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: .5px !important;
+}
+
+/* CAMPOS */
+#formularioAlumno input,
+#formularioAlumno select {
+    display: block !important;
+    width: 100% !important;
+    height: 50px !important;
+    box-sizing: border-box !important;
+
+    padding: 0 16px !important;
+
+    background: linear-gradient(
+        135deg,
+        rgba(20,20,20,.97),
+        rgba(8,8,8,.97)
+    ) !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 14px !important;
+
+    color: #fff !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+
+    outline: none !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.22) !important;
+}
+
+/* PLACEHOLDER */
+#formularioAlumno input::placeholder {
+    color: rgba(255,255,255,.35) !important;
+}
+
+/* FOCUS */
+#formularioAlumno input:focus,
+#formularioAlumno select:focus {
+    border-color: rgba(255,102,0,.85) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(255,102,0,.10),
+        0 8px 22px rgba(0,0,0,.30) !important;
+}
+
+/* SELECT */
+#formularioAlumno select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    cursor: pointer !important;
+}
+
+/* BOTÓN CREAR ALUMNO */
+#formularioAlumno .primary-button {
+    display: block !important;
+    width: 100% !important;
+    height: 52px !important;
+
+    margin: 24px 0 20px 0 !important;
+    padding: 0 18px !important;
+
+    background: linear-gradient(
+        135deg,
+        #ff7200,
+        #ff4d00
+    ) !important;
+
+    color: #fff !important;
+
+    border: none !important;
+    border-radius: 15px !important;
+
+    font-family: Inter, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+
+    cursor: pointer !important;
+
+    box-shadow:
+        0 8px 22px rgba(255,102,0,.22) !important;
+}
+
+/* BOTÓN SECUNDARIO */
+#formularioAlumno button[type="button"]:not(.primary-button) {
+    display: block !important;
+    width: 100% !important;
+    height: 48px !important;
+
+    margin: 10px 0 !important;
+    padding: 0 16px !important;
+
+    background: rgba(18,18,18,.90) !important;
+    color: rgba(255,255,255,.70) !important;
+
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 12px !important;
+
+    font-family: Inter, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+
+    cursor: pointer !important;
+}
+
+/* TOQUE */
+#formularioAlumno button:active {
+    transform: scale(.97) !important;
+    opacity: .88 !important;
+}
+/* Fondo de las listas desplegadas de semáforos */
+.cft-semaforo #listaAlumnosPorVencer .card {
+    background: #111 !important;
+    color: #fff !important;
+}
+/* Fondos de todas las listas desplegadas de semáforos */
+.cft-semaforo .card {
+    background: #111 !important;
+    color: #fff !important;
+}
+/* =========================================
+   SEMÁFOROS - TEXTOS EN COLOR GRAFITO
+   ========================================= */
+
+.cft-semaforo,
+.cft-semaforo * {
+    color: #b8b8b8 !important;
+}
+
+/* =========================================
+   BOTÓN VER FICHA
+   ========================================= */
+
+.cft-semaforo .row button[onclick^="verAlumno"] {
+    font-size: 0 !important;
+    font-weight: 600 !important;
+    color: #b8b8b8 !important;
+
+    background: transparent !important;
+    border: 1px solid #ff7a00 !important;
+    border-radius: 7px !important;
+
+    box-shadow: none !important;
+
+    width: 88px !important;
+    height: 34px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    vertical-align: middle !important;
+}
+
+.cft-semaforo .row button[onclick^="verAlumno"]::before {
+    content: "";
+
+    width: 7px;
+    height: 7px;
+    min-width: 7px;
+
+    border-radius: 50%;
+    background: #ff7a00 !important;
+
+    display: inline-block;
+
+    margin-right: -6px;
+
+    box-shadow: 0 0 5px rgba(255, 122, 0, .4);
+}
+
+.cft-semaforo .row button[onclick^="verAlumno"]::after {
+    content: "Ver ficha";
+
+    font-size: 13px;
+    font-weight: 600;
+
+    color: #b8b8b8 !important;
+    line-height: 1;
+}
+
+/* =========================================
+   LOGO WHATSAPP
+   ========================================= */
+
+.cft-semaforo .row button[onclick^="whatsappRenovacion"] {
+    font-size: 0 !important;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    vertical-align: middle !important;
+}
+
+.cft-semaforo .row button[onclick^="whatsappRenovacion"]::before {
+    content: "";
+
+    width: 30px;
+    height: 30px;
+
+    display: block;
+
+    background-color: #25D366 !important;
+
+    -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg");
+    mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg");
+
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+
+    -webkit-mask-position: center;
+    mask-position: center;
+
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
+/* =========================================
+   ALINEACIÓN DE LOS DOS BOTONES
+   ========================================= */
+
+.cft-semaforo .row button[onclick^="whatsappRenovacion"],
+.cft-semaforo .row button[onclick^="verAlumno"] {
+    vertical-align: middle !important;
+}
+
+/* Efecto táctil */
+.cft-semaforo .row button[onclick^="verAlumno"]:active,
+.cft-semaforo .row button[onclick^="whatsappRenovacion"]:active {
+    transform: scale(.96);
+}
+/* =========================================================
+   BOTONES DE ACCIÓN — LOS 3 SEMÁFOROS
+   ========================================================= */
+
+/* WHATSAPP — solo logo */
+.cft-semaforo .row button[onclick^="whatsappRenovacion"] {
+    font-size: 0 !important;
+    color: transparent !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 38px !important;
+    height: 34px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+}
+
+/* =========================================================
+   LOGO WHATSAPP VERDE — LOS 3 SEMÁFOROS
+   ========================================================= */
+
+.cft-semaforo .row button[onclick^="whatsappRenovacion"]::before,
+.cft-semaforo .row button[onclick^="enviarWhatsAppInasistencia"]::before {
+
+    content: "" !important;
+
+    width: 22px !important;
+    height: 22px !important;
+
+    min-width: 30px !important;
+    min-height: 30px !important;
+
+    display: block !important;
+
+    background-color: #25D366 !important;
+
+    -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg") !important;
+    mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg") !important;
+
+    -webkit-mask-repeat: no-repeat !important;
+    mask-repeat: no-repeat !important;
+
+    -webkit-mask-position: center !important;
+    mask-position: center !important;
+
+    -webkit-mask-size: contain !important;
+    mask-size: contain !important;
+}/* =========================================================
+   VER FICHA — ALINEADO Y CON EL PUNTO SEPARADO
+   ========================================================= */
+
+.cft-semaforo .row button[onclick^="verAlumno"] {
+    font-size: 0 !important;
+    font-weight: 600 !important;
+    color: #b8b8b8 !important;
+    background: transparent !important;
+    border: 1px solid #ff7a00 !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+
+    width: 81px !important;
+    height: 30px !important;
+
+    padding: 0 !important;
+    margin: 0 8px 0 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    vertical-align: middle !important;
+}
+
+/* Punto naranja */
+.cft-semaforo .row button[onclick^="verAlumno"]::before {
+    content: "" !important;
+
+    width: 7px !important;
+    height: 7px !important;
+    min-width: 7px !important;
+
+    border-radius: 50% !important;
+    background: #ff7a00 !important;
+
+    display: inline-block !important;
+
+    margin-right: 6px !important;
+
+    box-shadow: 0 0 5px rgba(255, 122, 0, .4) !important;
+}
+
+/* Texto Ver ficha */
+.cft-semaforo .row button[onclick^="verAlumno"]::after {
+    content: "Ver ficha" !important;
+
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #b8b8b8 !important;
+
+    line-height: 1 !important;
+}
+/* =========================================================
+   WHATSAPP — SIN ASISTENCIA +7 DÍAS
+   ========================================================= */
+
+.cft-semaforo .row button[onclick^="enviarWhatsAppInasistencia"] {
+    font-size: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    width: 50px !important;
+    height: 31px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    vertical-align: middle !important;
+}
+
+.cft-semaforo .row button[onclick^="enviarWhatsAppInasistencia"]::before {
+    content: "" !important;
+
+    width: 26px !important;
+    height: 26px !important;
+
+    display: block !important;
+
+    background-color: #25D366 !important;
+
+    -webkit-mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg") !important;
+    mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/whatsapp.svg") !important;
+
+    -webkit-mask-repeat: no-repeat !important;
+    mask-repeat: no-repeat !important;
+
+    -webkit-mask-position: center !important;
+    mask-position: center !important;
+
+    -webkit-mask-size: contain !important;
+    mask-size: contain !important;
+}
+/* =====================================================
+   FICHA DEL ALUMNO — PANTALLA COMPLETA
+   ===================================================== */
+
+#pantallaFichaAlumno {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
+    width: min(480px, 100vw) !important;
+    height: 100vh !important;
+
+    z-index: 999999 !important;
+
+    background: #080808 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    padding: 20px 15px 40px !important;
+
+    box-sizing: border-box !important;
+}
+
+#pantallaFichaAlumno .section-title {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+
+    background: #080808 !important;
+
+    padding: 10px 0 15px !important;
+}
+/* =====================================================
+   FICHA DEL ALUMNO — DISEÑO MODERNO CFT
+   ===================================================== */
+
+#pantallaFichaAlumno {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
+    width: min(480px, 100vw) !important;
+    height: 100vh !important;
+
+    z-index: 999999 !important;
+
+    background: #080808 !important;
+    color: #b8b8b8 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    padding: 0 15px 40px !important;
+
+    box-sizing: border-box !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+}
+
+/* TÍTULO */
+
+#pantallaFichaAlumno .section-title {
+    position: sticky !important;
+    top: 174px  !important;
+    z-index: 20 !important;
+
+    background: #080808 !important;
+    color: #b8b8b8 !important;
+
+    padding: 18px 0 15px !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+
+    border-bottom: 1px solid #252525 !important;
+}
+
+/* CONTENEDOR */
+
+#pantallaFichaAlumno #contenidoFichaAlumno {
+    padding-top: 12px !important;
+}
+
+/* TARJETAS */
+
+#pantallaFichaAlumno .card {
+    background: #111111 !important;
+    color: #b8b8b8 !important;
+
+    border: 1px solid #ff7a00 !important;
+    border-radius: 12px !important;
+
+    box-shadow: none !important;
+
+    padding: 17px !important;
+    margin: 0 0 14px 0 !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+}
+
+/* TÍTULOS DE TARJETA */
+
+#pantallaFichaAlumno .card h3 {
+    color: #c4c4c4 !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    margin: 0 0 14px 0 !important;
+}
+
+/* TEXTOS */
+
+#pantallaFichaAlumno .card p {
+    color: #a9a9a9 !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+
+    margin: 8px 0 !important;
+}
+
+/* NEGRITAS */
+
+#pantallaFichaAlumno .card strong {
+    color: #c2c2c2 !important;
+    font-weight: 600 !important;
+}
+
+/* ESTADO DE MEMBRESÍA */
+
+#pantallaFichaAlumno .estado-membresia {
+    background: #181818 !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+}
+
+/* BOTONES DE LA FICHA */
+
+#pantallaFichaAlumno .primary-button {
+    font-family: "Inter", Arial, sans-serif !important;
+
+    background: #151515 !important;
+    color: #b8b8b8 !important;
+
+    border: 1px solid #ff7a00 !important;
+    border-radius: 8px !important;
+
+    font-size: 13px !important;
+    font-weight: 600 !important;
+
+    padding: 10px 14px !important;
+
+    box-shadow: none !important;
+}
+
+/* EFECTO AL PRESIONAR */
+
+#pantallaFichaAlumno .primary-button:active {
+    transform: scale(.97) !important;
+    opacity: .85 !important;
+}
+
+/* VOLVER */
+
+#pantallaFichaAlumno > .primary-button:first-of-type {
+    margin: 12px 0 5px 0 !important;
+}
+
+/* BOTONES INFERIORES */
+
+#pantallaFichaAlumno > .primary-button {
+    margin: 4px 4px 8px 0 !important;
+}
+
+/* HISTORIAL DE PAGOS */
+
+#pantallaFichaAlumno .card .row {
+    background: #181818 !important;
+    border-bottom: 1px solid #292929 !important;
+
+    color: #a9a9a9 !important;
+
+    padding: 9px 0 !important;
+}
+
+/* SCROLL */
+
+#pantallaFichaAlumno::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+#pantallaFichaAlumno::-webkit-scrollbar-track {
+    background: #080808 !important;
+}
+
+#pantallaFichaAlumno::-webkit-scrollbar-thumb {
+    background: #333 !important;
+    border-radius: 10px !important;
+}
+/* =====================================================
+   AJUSTE FINAL — ENCABEZADO + FICHA
+   ===================================================== */
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.header {
+    top: 0 !important;
+    margin: 0 !important;
+    z-index: 1000000 !important;
+}
+
+#pantallaFichaAlumno {
+    top: 0 !important;
+    height: 100vh !important;
+    padding-top: 174px !important;
+    z-index: 999999 !important;
+}
+
+#pantallaFichaAlumno .section-title {
+    top: 0 !important;
+}
+/* =====================================================
+   EDITAR ALUMNO + PAGOS — DISEÑO MODERNO CFT
+   ===================================================== */
+
+#pantallaEditarAlumno,
+#pantallaPagos {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
+    width: min(480px, 100vw) !important;
+    height: 100vh !important;
+
+    z-index: 999999 !important;
+
+    background: #080808 !important;
+    color: #b8b8b8 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    padding: 174px 15px 40px !important;
+
+    box-sizing: border-box !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+}
+
+/* TÍTULO */
+#pantallaEditarAlumno .section-title,
+#pantallaPagos .section-title {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+
+    background: #080808 !important;
+    color: #b8b8b8 !important;
+
+    padding: 18px 0 15px !important;
+
+    font-size: 19px !important;
+    font-weight: 700 !important;
+
+    border-bottom: 1px solid #252525 !important;
+}
+
+/* ETIQUETAS */
+#pantallaEditarAlumno label,
+#pantallaPagos label {
+    display: block !important;
+
+    color: #a9a9a9 !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+
+    margin: 16px 0 7px !important;
+}
+
+/* CAMPOS */
+#pantallaEditarAlumno input,
+#pantallaEditarAlumno select,
+#pantallaPagos input,
+#pantallaPagos select {
+    width: 100% !important;
+
+    background: #151515 !important;
+    color: #c4c4c4 !important;
+
+    border: 1px solid #333 !important;
+    border-radius: 9px !important;
+
+    padding: 12px 13px !important;
+
+    font-family: "Inter", Arial, sans-serif !important;
+    font-size: 13px !important;
+
+    outline: none !important;
+
+    box-sizing: border-box !important;
+
+    transition: border-color .2s ease,
+                box-shadow .2s ease !important;
+}
+
+/* CAMPO ACTIVO */
+#pantallaEditarAlumno input:focus,
+#pantallaEditarAlumno select:focus,
+#pantallaPagos input:focus,
+#pantallaPagos select:focus {
+    border-color: #ff7a00 !important;
+    box-shadow: 0 0 0 2px rgba(255, 122, 0, .12) !important;
+}
+
+/* PLACEHOLDER */
+#pantallaEditarAlumno input::placeholder,
+#pantallaPagos input::placeholder {
+    color: #666 !important;
+}
+
+/* BOTONES */
+#pantallaEditarAlumno .primary-button,
+#pantallaPagos .primary-button {
+    font-family: "Inter", Arial, sans-serif !important;
+
+    background: #151515 !important;
+    color: #b8b8b8 !important;
+
+    border: 1px solid #ff7a00 !important;
+    border-radius: 8px !important;
+
+    font-size: 13px !important;
+    font-weight: 600 !important;
+
+    padding: 10px 14px !important;
+
+    box-shadow: none !important;
+
+    margin: 10px 5px 5px 0 !important;
+}
+
+/* EFECTO AL PRESIONAR */
+#pantallaEditarAlumno .primary-button:active,
+#pantallaPagos .primary-button:active {
+    transform: scale(.97) !important;
+    opacity: .85 !important;
+}
+
+/* BOTÓN VOLVER */
+#pantallaEditarAlumno > .primary-button:first-of-type,
+#pantallaPagos > .primary-button:first-of-type {
+    margin: 12px 0 8px 0 !important;
+}
+
+/* LISTA / RESULTADOS */
+#pantallaPagos .card {
+    background: #111111 !important;
+    color: #b8b8b8 !important;
+
+    border: 1px solid #ff7a00 !important;
+    border-radius: 12px !important;
+
+    padding: 15px !important;
+    margin: 14px 0 !important;
+
+    box-shadow: none !important;
+}
+
+/* MENSAJES */
+#pantallaPagos #mensajePago {
+    color: #a9a9a9 !important;
+    font-size: 13px !important;
+    margin: 12px 0 !important;
+}
+
+/* SCROLL */
+#pantallaEditarAlumno::-webkit-scrollbar,
+#pantallaPagos::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+#pantallaEditarAlumno::-webkit-scrollbar-track,
+#pantallaPagos::-webkit-scrollbar-track {
+    background: #080808 !important;
+}
+
+#pantallaEditarAlumno::-webkit-scrollbar-thumb,
+#pantallaPagos::-webkit-scrollbar-thumb {
+    background: #333 !important;
+    border-radius: 10px !important;
+}
+/* ENCABEZADO CFT SIEMPRE VISIBLE */
+.header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000002 !important;
+}
+
+/* ESPACIO PARA EL ENCABEZADO EN PAGOS */
+#pantallaPagos {
+    padding-top: 174px !important;
+}
+/* =====================================================
+   BARRA INFERIOR CFT — SOBRE LAS PANTALLAS
+   ===================================================== */
+
+.bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
+    width: min(480px, 100vw) !important;
+    height: 70px !important;
+
+    z-index: 1000003 !important;
+    display: flex !important;
+}
+
+/* Espacio para que el contenido de Pagos no quede
+   debajo de la barra */
+#pantallaPagos {
+    padding-bottom: 110px !important;
 }
