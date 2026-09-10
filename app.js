@@ -5933,9 +5933,8 @@ async function mostrarAlumnosPorRenovar() {
 
             const tarjeta =
                 document.createElement("div");
-
-            tarjeta.className =
-                "card alumno-card";
+            
+tarjeta.className = "alumno-card cft-alumno-moderno";
 
             tarjeta.innerHTML = `
 
@@ -7881,43 +7880,101 @@ if (elementoUltimosPagosDashboard) {
    CLASES DE HOY
 ========================= */
 
-const clasesHoy = document.querySelectorAll(
-    "#dashboardPrincipal .section"
-);
+const panelClasesHoy = [...document.querySelectorAll(".cft-panel")]
+    .find(function(panel) {
 
-if (clasesHoy.length > 0) {
+        const titulo = panel.querySelector(".cft-panel-title");
 
-    const seccionClases = Array.from(clasesHoy).find(
-        function(seccion) {
-            return seccion.innerText.includes("📅 Clases de hoy");
+        return titulo &&
+            titulo.textContent.includes("📅 Clases de hoy");
+    });
+
+if (panelClasesHoy) {
+
+    const filas = panelClasesHoy.querySelectorAll(".cft-row");
+
+    const horarios = [
+        "8:00 AM",
+        "4:00 PM",
+        "5:00 PM",
+        "6:00 PM",
+        "7:00 PM",
+        "8:00 PM"
+    ];
+
+    /* Usamos directamente las asistencias ya cargadas
+       desde Supabase */
+
+    const conteoClasesHoy = {};
+
+    horarios.forEach(function(horario) {
+        conteoClasesHoy[horario] = 0;
+    });
+
+    listaAsistencias.forEach(function(registro) {
+
+        const fecha =
+            String(registro["FECHA"] || "").trim();
+
+        const horario =
+            String(registro["HORARIO"] || "").trim();
+
+        if (
+            fecha === fechaHoy &&
+            conteoClasesHoy.hasOwnProperty(horario)
+        ) {
+            conteoClasesHoy[horario]++;
         }
+    });
+
+    filas.forEach(function(fila, index) {
+
+        const horario = horarios[index];
+
+        if (!horario) return;
+
+        const numero = fila.querySelector("strong");
+
+        if (!numero) return;
+
+        numero.textContent =
+            conteoClasesHoy[horario];
+
+        numero.style.setProperty(
+            "color",
+            "#ffffff",
+            "important"
+        );
+
+        numero.style.setProperty(
+            "opacity",
+            "1",
+            "important"
+        );
+
+        numero.style.setProperty(
+            "visibility",
+            "visible",
+            "important"
+        );
+
+        numero.style.setProperty(
+            "display",
+            "block",
+            "important"
+        );
+
+        numero.style.setProperty(
+            "font-weight",
+            "700",
+            "important"
+        );
+    });
+
+    console.log(
+        "✅ CLASES DE HOY ACTUALIZADAS:",
+        conteoClasesHoy
     );
-
-    if (seccionClases) {
-
-        const filas = seccionClases.querySelectorAll(".row");
-
-        const horarios = [
-            "8:00 AM",
-            "4:00 PM",
-            "5:00 PM",
-            "6:00 PM",
-            "7:00 PM",
-            "8:00 PM"
-        ];
-
-        filas.forEach(function(fila, index) {
-
-            if (!horarios[index]) return;
-
-            fila.innerHTML =
-                "MMA — " +
-                horarios[index] +
-                " <strong>" +
-                horariosHoy[horarios[index]] +
-                "</strong>";
-        });
-    }
 }
     /* =========================
        DASHBOARD PRINCIPAL
