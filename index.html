@@ -31,149 +31,7 @@
 
     <main class="content">
 
-        <div id="dashboardPrincipal">
-
-        <div class="greeting">
-            Hola, CYCLOPS 👊
-        </div>
-
-        <section class="stats">
-
-            <div class="card">
-                <div class="card-title">
-                    ALUMNOS ACTIVOS
-                </div>
-
-                <div class="card-number">
-               <span id="totalAlumnos">0</span>
-              </div>
-                
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    INGRESOS DEL MES
-                </div>
-
-                <div class="card-number">
-                S/ <span id="ingresosMes">0</span>
-              </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    POR VENCER
-                </div>
-
-                <div class="card-number">
-               <span id="alumnosPorVencer">0</span>
-              </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">
-                    VENCIDOS
-                </div>
-
-                <div class="card-number">
-                <span id="alumnosVencidos">0</span>
-              </div>
-            </div>
-
-        </section>
-
-        <section class="section">
-
-            <div class="section-title">
-                ⚠️ Atención
-            </div>
-
-            <div
-   
-    id="alertaVencidos"
-    class="alert alert-danger"
-    onclick="mostrarAlumnosVencidos()"
-    style="cursor: pointer;">
-    🔴 0 membresías vencidas
-</div>
-
-<div id="listaAlumnosVencidos"></div>
-
-<div
-    id="alertaPorVencer"
-    class="alert"
-    onclick="mostrarAlumnosPorVencer()"
-    style="cursor: pointer;">
-    🟡 0 membresías vencen en 7 días
-</div>
-
-<div id="listaAlumnosPorVencer"></div>
-
-<div
-    id="alertaSinAsistencia"
-    class="alert alert-info"
-    onclick="mostrarAlumnosSinAsistencia()"
-    style="cursor: pointer;">
-    🔵 0 alumnos sin asistir +7 días
-</div>
-
-<div id="listaAlumnosSinAsistencia"></div>
-
-        </section>
-
-        <section class="section">
-
-    <div class="section-title">
-        📅 Clases de hoy
-    </div>
-
-    <div class="row">
-        MMA — 8:00 AM
-    </div>
-
-    <div class="row">
-        MMA — 4:00 PM
-    </div>
-
-    <div class="row">
-        MMA — 5:00 PM
-    </div>
-
-    <div class="row">
-        MMA — 6:00 PM
-    </div>
-
-    <div class="row">
-        MMA — 7:00 PM
-    </div>
-
-    <div class="row">
-        MMA — 8:00 PM
-    </div>
-
-
-        </section>
-
-        <section class="section">
-
-            <div class="section-title">
-                💰 Últimos pagos
-            </div>
-
-            <div id="ultimosPagos"></div>
-
-        </section>
-
-        <section class="section">
-
-           <button
-    type="button"
-    onclick="abrirFormulario()"
-    style="display:block !important; background:#111 !important; color:#fff !important; width:100% !important; height:55px !important; font-size:18px !important; font-weight:bold !important; text-align:center !important;">
-    + NUEVO ALUMNO
-</button>
-
-        </section>
+    <div id="dashboardPrincipal"></div>
  <div id="formularioAlumno" class="section" style="display: none;">
 
     <div class="section-title">
@@ -265,10 +123,6 @@
         onclick="cerrarFormulario()">
         Cancelar
     </button>
-
-</div>
-
-</section>
 
         </div>
 
@@ -722,7 +576,6 @@
     });
   }
 </script>
-<script src="app.js"></script>
 
 <script>
   if ("serviceWorker" in navigator) {
