@@ -2849,3 +2849,54 @@ body {
 #pantallaPagos {
     padding-bottom: 110px !important;
 }
+
+/* =========================
+   ENCABEZADO - IMAGEN COMPLETA
+========================= */
+
+.header {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+.header img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* =========================================
+   RENOVACIONES — MODERNO DESDE EL INICIO
+========================================= */
+
+#listaAlumnos .alumno-card {
+    background: rgba(8, 8, 8, 0.78) !important;
+    color: #ffffff !important;
+    border: 1px solid #ff7a00 !important;
+    border-radius: 12px !important;
+    font-family: "Inter", Arial, sans-serif !important;
+}
+
+#listaAlumnos .alumno-card button {
+    background: rgba(10, 10, 10, 0.88) !important;
+    color: #ffffff !important;
+    border-color: #ff7a00 !important;
+    font-family: "Inter", Arial, sans-serif !important;
+}
+
+#listaAlumnos .alumno-card p {
+    color: rgba(255, 255, 255, 0.58) !important;
+}
+
+#listaAlumnos .alumno-card strong {
+    color: #ffffff !important;
+}
+
+#listaAlumnos .alumno-card small {
+    color: #ffffff !important;
+}
