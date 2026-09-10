@@ -8,31 +8,76 @@ const supabaseClient = window.supabase.createClient(
 );
 
 function abrirFormulario() {
+    const dash = document.getElementById("dashboardPrincipal");
+    const form = document.getElementById("formularioAlumno");
+
+    console.log("ANTES:", form.parentElement.id);
+
+    dash.parentNode.insertBefore(form, dash.nextSibling);
+
+    console.log("DESPUÉS:", form.parentElement.id);
+    console.log("DISPLAY DASH:", getComputedStyle(dash).display);
+    console.log("DISPLAY FORM:", getComputedStyle(form).display);
+    console.log("RECT FORM:", form.getBoundingClientRect());
+
+    form.style.display = "block";
+}
+
+function cerrarFormulario() {
 
     const formulario =
         document.getElementById("formularioAlumno");
 
-    formulario.style.display = "block";
+    if (formulario) {
+        formulario.style.display = "none";
+    }
 
-    setTimeout(function() {
+    // Volver a Inicio
+    const dashboard =
+        document.getElementById("dashboardPrincipal");
 
-        const posicion =
-            formulario.getBoundingClientRect().top +
-            window.scrollY;
+    if (dashboard) {
+        dashboard.style.display = "block";
+    }
 
-        window.scrollTo({
-            top: posicion,
-            behavior: "smooth"
-        });
+    // Mantener Resumen oculto
+    const resumen =
+        document.getElementById("pantallaInicio");
 
-    }, 100);
+    if (resumen) {
+        resumen.style.display = "none";
+    }
+
+    // Asegurar que las demás pantallas estén ocultas
+    document.querySelectorAll(".section").forEach(function(pantalla) {
+
+        if (
+            pantalla.id !== "dashboardPrincipal" &&
+            pantalla.id !== "pantallaInicio"
+        ) {
+            pantalla.style.display = "none";
+        }
+
+    });
+
+    // Ir arriba
+    const contenido =
+        document.querySelector("main.content");
+
+    if (contenido) {
+        contenido.scrollTop = 0;
+    }
+
+    // Actualizar Inicio
+    if (typeof dashboardModerno === "function") {
+        dashboardModerno();
+    }
+
+    if (typeof actualizarDashboardInicio === "function") {
+        actualizarDashboardInicio();
+    }
 
 }
-
-function cerrarFormulario() {
-    document.getElementById("formularioAlumno").style.display = "none";
-}
-
 
 async function crearAlumno() {
 
@@ -1375,7 +1420,6 @@ const vencimientoMostrar =
 
     pantalla.style.display = "block";
     
-0
 }
 
 
@@ -4489,7 +4533,40 @@ async function actualizarAlumnosSinAsistencia() {
         sinAsistencia +
         " alumnos sin asistir +7 días";
 }
+// ==============================
+// SEMÁFORO: ABRIR / CERRAR + SCROLL
+// ==============================
 
+async function abrirSemaforoConScroll(funcion, idContenedor) {
+
+    const contenedor =
+        document.getElementById(idContenedor);
+
+    if (!contenedor) {
+        console.log("❌ No encuentro:", idContenedor);
+        return;
+    }
+
+    const estabaAbierto =
+        contenedor.dataset.abierto === "true";
+
+    await funcion();
+
+    if (
+        !estabaAbierto &&
+        contenedor.dataset.abierto === "true"
+    ) {
+
+        setTimeout(function() {
+
+            contenedor.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }, 150);
+    }
+}
 async function mostrarAlumnosVencidos() {
 
     const contenedor =
@@ -4938,7 +5015,7 @@ contenedor.dataset.abierto = "true";
     const { data: alumnos, error: errorAlumnos } =
         await supabaseClient
             .from("Alumnos")
-            .select("DNI, NOMBRE");
+            .select("id, DNI, NOMBRE");
 
     if (errorAlumnos) {
 
@@ -5093,7 +5170,7 @@ contenedor.dataset.abierto = "true";
                         </span>
 
                         <button
-    <button
+
     type="button"
     onclick="verAlumno('${item.alumno["id"]}')"
     style="padding: 8px 12px; margin-right: 8px;">
@@ -5864,8 +5941,7 @@ async function mostrarAlumnosPorRenovar() {
 
                 <button
                     type="button"
-                    onclick="verAlumno('${alumno["DNI"]}')">
-
+                    onclick="verAlumno('${alumno["id"]}')"
                     ${alumno["NOMBRE"] || ""}
 
                 </button>
@@ -6054,31 +6130,21 @@ async function whatsappRenovacion(id) {
 
 function abrirInicio() {
 
-    const pantallas = [
-        "pantallaAlumnos",
-        "pantallaFichaAlumno",
-        "pantallaEditarAlumno",
-        "pantallaPagos",
-        "pantallaAsistencia",
-        "pantallaMas",
-        "pantallaInicio"
-    ];
-
-    pantallas.forEach(function(id) {
-
-        const pantalla =
-            document.getElementById(id);
-
-        if (pantalla) {
-            pantalla.style.display = "none";
-            
-        }
+    // Ocultar TODAS las pantallas
+    document.querySelectorAll(".section").forEach(function(pantalla) {
+        pantalla.style.display = "none";
     });
 
+    // Ocultar Resumen
+    const resumen = document.getElementById("pantallaInicio");
+
+    if (resumen) {
+        resumen.style.display = "none";
+    }
+
+    // Mostrar solamente Inicio
     const dashboard =
-        document.getElementById(
-            "dashboardPrincipal"
-        );
+        document.getElementById("dashboardPrincipal");
 
     if (!dashboard) {
 
@@ -6090,18 +6156,6 @@ function abrirInicio() {
     }
 
     dashboard.style.display = "block";
-    const contenido = document.querySelector("main.content");
-
-if (contenido) {
-    contenido.scrollTop = 0;
-}
-    // Mostrar nuevamente las secciones del Dashboard
-    const seccionesDashboard =
-        dashboard.querySelectorAll(".section");
-
-    seccionesDashboard.forEach(function(seccion) {
-        seccion.style.display = "block";
-    });
 
     // El formulario de nuevo alumno debe seguir oculto
     const formularioAlumno =
@@ -6111,31 +6165,41 @@ if (contenido) {
         formularioAlumno.style.display = "none";
     }
 
-      // Actualizar Dashboard principal
-if (typeof dashboardModerno === "function") {
-    dashboardModerno();
-}
+    // Ir arriba
+    const contenido =
+        document.querySelector("main.content");
 
-const dashboardAjuste =
-    document.getElementById("dashboardPrincipal");
+    if (contenido) {
+        contenido.scrollTop = 0;
+    }
 
-const volverDesdeOtraPantalla = regresoDesdePantalla;
+    // Actualizar Dashboard principal
+    if (typeof dashboardModerno === "function") {
+        dashboardModerno();
+    }
 
-regresoDesdePantalla = false;
+    const dashboardAjuste =
+        document.getElementById("dashboardPrincipal");
 
-if (dashboardAjuste) {
-    dashboardAjuste.style.transform =
-        volverDesdeOtraPantalla
-            ? "translateY(150px)"
-            : "";
-}
+    const volverDesdeOtraPantalla =
+        regresoDesdePantalla;
 
-      if (
-    typeof actualizarDashboardInicio ===
-    "function"
-) {
-    actualizarDashboardInicio();
-}
+    regresoDesdePantalla = false;
+
+    if (dashboardAjuste) {
+
+        dashboardAjuste.style.transform =
+            volverDesdeOtraPantalla
+                ? "translateY(150px)"
+                : "";
+    }
+
+    if (
+        typeof actualizarDashboardInicio ===
+        "function"
+    ) {
+        actualizarDashboardInicio();
+    }
 
 }
 function dashboardModerno() {
@@ -6149,6 +6213,7 @@ function dashboardModerno() {
     }
 
     dashboard.innerHTML = `
+
 
         <style id="cftMMAUltraStyle">
 
@@ -6611,13 +6676,9 @@ function dashboardModerno() {
                         desde un solo lugar.
                     </p>
 
-                    <button
-                        type="button"
-                        class="cft-main-button"
-                        onclick="abrirAlumnos()"
-                    >
-                        ＋ NUEVO ALUMNO
-                    </button>
+                    <button type="button" class="cft-main-button" onclick="abrirNuevoAlumnoDesdeInicio()">
+    ＋ NUEVO ALUMNO
+</button>
 
                 </div>
 
@@ -6680,38 +6741,41 @@ function dashboardModerno() {
             </div>
 
 
-            <div class="cft-section-title">
-                ACCIONES RÁPIDAS
-            </div>
+           <div class="cft-semaforo">
 
+    <div
+        id="alertaVencidos"
+        class="alert alert-danger"
+        onclick="abrirSemaforoConScroll(mostrarAlumnosVencidos, 'listaAlumnosVencidos')"
+        style="cursor:pointer;">
+        🔴 0 membresías vencidas
+    </div>
 
-            <div class="cft-actions">
+    <div id="listaAlumnosVencidos"></div>
 
-                <button
-                    type="button"
-                    class="cft-action"
-                    onclick="abrirAlumnos()"
-                >
-                    👥 Alumnos
-                </button>
+    <div
+        id="alertaPorVencer"
+        class="alert"
+        onclick="abrirSemaforoConScroll(mostrarAlumnosPorVencer, 'listaAlumnosPorVencer')"
+        style="cursor:pointer;">
+        🟡 0 alumnos por vencer
+    </div>
 
-                <button
-                    type="button"
-                    class="cft-action"
-                    onclick="abrirPagos()"
-                >
-                    💰 Registrar pago
-                </button>
+    <div id="listaAlumnosPorVencer"></div>
 
-                <button
-                    type="button"
-                    class="cft-action"
-                    onclick="abrirAsistencia()"
-                >
-                    ✓ Asistencia
-                </button>
+    <div
+        id="alertaSinAsistencia"
+        class="alert alert-info"
+        onclick="abrirSemaforoConScroll(mostrarAlumnosSinAsistencia, 'listaAlumnosSinAsistencia')"
+        style="cursor:pointer;">
+        🔵 0 alumnos sin asistir +7 días
+    </div>
 
-            </div>
+    <div id="listaAlumnosSinAsistencia"></div>
+
+</div>
+
+</div>
 
 
             <div class="cft-panel-grid">
@@ -6852,8 +6916,129 @@ function dashboardModerno() {
 
         </div>
     `;
+// ==============================
+// ESTILO SEMÁFORO INICIO
+// ==============================
 
+if (!document.getElementById("estiloSemaforoInicio")) {
 
+    const estiloSemaforo = document.createElement("style");
+
+    estiloSemaforo.id = "estiloSemaforoInicio";
+
+    estiloSemaforo.textContent = `
+        .cft-semaforo {
+            width: 100% !important;
+            box-sizing: border-box !important;
+            background: #000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .cft-semaforo .alert {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            width: 100% !important;
+            min-height: 58px !important;
+            box-sizing: border-box !important;
+
+            margin: 10px 0 !important;
+            padding: 12px 16px !important;
+
+            border-radius: 12px !important;
+
+            background: #111 !important;
+            border: 1px solid #333 !important;
+
+            color: #fff !important;
+
+            font-family: Inter, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+
+            text-align: center !important;
+            cursor: pointer !important;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,.45) !important;
+        }
+
+        .cft-semaforo #alertaVencidos {
+            border-left: 4px solid #ff2222 !important;
+        }
+
+        .cft-semaforo #alertaPorVencer {
+            border-left: 4px solid #ffd000 !important;
+        }
+
+        .cft-semaforo #alertaSinAsistencia {
+            border-left: 4px solid #ff6600 !important;
+        }
+    `;
+
+    document.head.appendChild(estiloSemaforo);
+
+    console.log("✅ ESTILO SEMÁFORO PERMANENTE CARGADO");
+}
+// ==============================
+// RESTAURAR FORMULARIO ALUMNO
+// ==============================
+
+if (!document.getElementById("formularioAlumno")) {
+
+    const formulario = document.createElement("div");
+
+    formulario.id = "formularioAlumno";
+    formulario.className = "section";
+    formulario.style.display = "none";
+
+    formulario.innerHTML = `
+        <div class="section-title">🥊 Nuevo alumno</div>
+
+        <label>Nombre y apellido</label>
+        <input type="text" id="nombre" placeholder="Nombre completo">
+
+        <label>DNI</label>
+        <input type="text" id="dni" placeholder="DNI">
+
+        <label>Celular</label>
+        <input type="tel" id="celular" placeholder="999 999 999">
+
+        <label>Correo electrónico</label>
+        <input type="email" id="correo" placeholder="correo@ejemplo.com">
+
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="fechaNacimiento">
+
+        <label>Monto</label>
+        <input type="number" id="plan" placeholder="Ej: 600" min="1" step="0.01">
+
+        <label>Duración del plan (meses)</label>
+        <input type="number" id="duracionPlan" placeholder="Ej: 5" min="1" step="1">
+
+        <label>Fecha de inicio</label>
+        <input type="date" id="fechaInicio">
+
+        <label>Apoderado</label>
+        <input type="text" id="apoderado" placeholder="Nombre del apoderado">
+
+        <label>Teléfono del apoderado</label>
+        <input type="tel" id="telefonoApoderado" placeholder="999 999 999">
+
+        <button class="primary-button" type="button" onclick="crearAlumno()">
+            🥊 Crear alumno
+        </button>
+
+        <button type="button" onclick="cerrarFormulario()">
+            Cancelar
+        </button>
+    `;
+
+    dashboard.appendChild(formulario);
+
+    console.log("✅ Formulario Nuevo Alumno restaurado");
+}
     if (
         typeof actualizarDashboardInicio ===
         "function"
@@ -7808,40 +7993,98 @@ function accesoRapido(pantalla, accion) {
     }
 }
 
-function abrirNuevoAlumnoDesdeInicio() {
+ function abrirNuevoAlumnoDesdeInicio() {
+    console.log("🥊 ABRIENDO NUEVO ALUMNO");
 
+    const pantalla = document.getElementById("formularioAlumno");
+
+    if (!pantalla) {
+        console.error("❌ No existe formularioAlumno");
+        alert("No se encontró el formulario de Nuevo Alumno.");
+        return;
+    }
+
+    // Ocultar las demás secciones
+    document.querySelectorAll(".section").forEach(function(seccion) {
+        if (seccion !== pantalla) {
+            seccion.style.display = "none";
+        }
+    });
+
+    // Ocultar pantallas principales si existen
     const dashboard = document.getElementById("dashboardPrincipal");
-    const resumen = document.getElementById("pantallaInicio");
-    const formulario = document.getElementById("formularioAlumno");
+    const inicio = document.getElementById("pantallaInicio");
 
-    if (!dashboard) {
-        alert("ERROR: No encuentro dashboardPrincipal");
-        return;
-    }
+    if (dashboard) dashboard.style.display = "none";
+    if (inicio) inicio.style.display = "none";
 
-    if (!formulario) {
-        alert("ERROR: No encuentro formularioAlumno");
-        return;
-    }
+    // Mostrar EL FORMULARIO REAL
+    const dash = document.getElementById("dashboardPrincipal");
 
-    // Ocultar la pantalla de Resumen
-    if (resumen) {
-        resumen.style.display = "none";
-    }
+if (dash) {
+    dash.parentNode.insertBefore(pantalla, dash.nextSibling);
+}
+    pantalla.style.display = "block";
 
-    // Mostrar el Dashboard original
-    dashboard.style.display = "block";
+    // Mantenerlo como una sección normal
+    pantalla.style.position = "relative";
+    pantalla.style.top = "";
+    pantalla.style.left = "";
+    pantalla.style.right = "";
+    pantalla.style.bottom = "";
+    pantalla.style.width = "100%";
+    pantalla.style.height = "auto";
+    pantalla.style.zIndex = "";
+    pantalla.style.overflowY = "";
 
-    // Mostrar el formulario de Nuevo alumno
-    formulario.style.display = "block";
+    window.scrollTo(0, 0);
 
-    // Ir directamente al formulario
+    // Enfocar el campo real
     setTimeout(function() {
-        formulario.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+        const nombre = document.getElementById("nombre");
+
+        if (nombre) {
+            nombre.focus();
+        }
     }, 100);
+
+    console.log("✅ NUEVO ALUMNO ABIERTO CORRECTAMENTE");
+}
+
+
+function cerrarNuevoAlumno() {
+    console.log("🔙 CERRANDO NUEVO ALUMNO");
+
+    const pantalla = document.getElementById("pantallaNuevoAlumno");
+
+    if (pantalla) {
+        pantalla.style.display = "none";
+    }
+
+    // Ocultar el formulario antiguo
+    const formularioViejo = document.getElementById("formularioAlumno");
+
+    if (formularioViejo) {
+        formularioViejo.style.display = "none";
+    }
+
+    // Mostrar dashboard
+    const dashboard = document.getElementById("dashboardPrincipal");
+
+    if (dashboard) {
+        dashboard.style.display = "block";
+    }
+
+    // Mostrar pantalla inicio
+    const inicio = document.getElementById("pantallaInicio");
+
+    if (inicio) {
+        inicio.style.display = "block";
+    }
+
+    window.scrollTo(0, 0);
+
+    console.log("✅ VOLVIÓ AL DASHBOARD");
 }
 
 function mostrarResumenDashboard() {
@@ -7853,7 +8096,8 @@ function mostrarResumenDashboard() {
         "pantallaEditarAlumno",
         "pantallaPagos",
         "pantallaAsistencia",
-        "pantallaMas"
+        "pantallaMas",
+        "formularioAlumno"
     ];
 
     pantallas.forEach(function(id) {
@@ -7871,8 +8115,8 @@ function mostrarResumenDashboard() {
     }
 
     if (typeof actualizarDashboardInicio === "function") {
-    actualizarDashboardInicio();
-}
+        actualizarDashboardInicio();
+    }
 }
 console.log("Supabase conectado:", supabaseClient);
 async function probarSupabase() {
