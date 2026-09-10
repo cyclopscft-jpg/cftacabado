@@ -1,3 +1,4 @@
+let regresoDesdePantalla = false;
 const SUPABASE_URL = "https://szugemossswdinahbxxc.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_tkep6QjStpeMFZtGtSNEWA_0Zenuh5V";
