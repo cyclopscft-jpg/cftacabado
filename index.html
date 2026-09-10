@@ -180,53 +180,78 @@
         🥊 Nuevo alumno
     </div>
 
-    <label>Nombre y apellido</label>
-    <input type="text" id="nombre" placeholder="Nombre completo">
+    <!-- DATOS PERSONALES -->
+    <div class="form-card">
 
-    <label>DNI</label>
-    <input type="text" id="dni" placeholder="DNI">
+        <div class="form-card-title">
+            👤 Datos personales
+        </div>
 
-    <label>Celular</label>
-    <input type="tel" id="celular" placeholder="999 999 999">
+        <label>Nombre y apellido</label>
+        <input type="text" id="nombre" placeholder="Nombre completo">
 
+        <label>DNI</label>
+        <input type="text" id="dni" placeholder="DNI">
 
-    <label>Correo electrónico</label>
-    <input
-        type="email"
-        id="correo"
-        placeholder="correo@ejemplo.com">
+        <label>Celular</label>
+        <input type="tel" id="celular" placeholder="999 999 999">
 
-    <label>Fecha de nacimiento</label>
-    <input type="date" id="fechaNacimiento">
+        <label>Correo electrónico</label>
+        <input type="email" id="correo" placeholder="correo@ejemplo.com">
 
-    <label>Monto</label>
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="fechaNacimiento">
 
-<input
-    type="number"
-    id="plan"
-    placeholder="Ej: 600"
-    min="1"
-    step="0.01">
+    </div>
 
-<label>Duración del plan (meses)</label>
+    <!-- MEMBRESÍA -->
+    <div class="form-card">
 
-<input
-    type="number"
-    id="duracionPlan"
-    placeholder="Ej: 5"
-    min="1"
-    step="1">
-    
-<label>Fecha de inicio</label>
+        <div class="form-card-title">
+            💳 Membresía
+        </div>
 
-<input type="date" id="fechaInicio">
+        <label>Monto</label>
+        <input
+            type="number"
+            id="plan"
+            placeholder="Ej: 600"
+            min="1"
+            step="0.01">
 
+        <label>Duración del plan (meses)</label>
+        <input
+            type="number"
+            id="duracionPlan"
+            placeholder="Ej: 5"
+            min="1"
+            step="1">
 
-<label>Apoderado</label>
-<input type="text" id="apoderado" placeholder="Nombre del apoderado">
+        <label>Fecha de inicio</label>
+        <input type="date" id="fechaInicio">
 
-<label>Teléfono del apoderado</label>
-<input type="tel" id="telefonoApoderado" placeholder="999 999 999">
+    </div>
+
+    <!-- APODERADO -->
+    <div class="form-card">
+
+        <div class="form-card-title">
+            👨‍👩‍👦 Apoderado
+        </div>
+
+        <label>Apoderado</label>
+        <input
+            type="text"
+            id="apoderado"
+            placeholder="Nombre del apoderado">
+
+        <label>Teléfono del apoderado</label>
+        <input
+            type="tel"
+            id="telefonoApoderado"
+            placeholder="999 999 999">
+
+    </div>
 
     <button
         class="primary-button"
@@ -654,41 +679,6 @@
 
 </div>
 
-
-<!-- ACCIONES RÁPIDAS -->
-<div class="card">
-
-    <h3>⚡ Acciones rápidas</h3>
-
-    <button
-        type="button"
-        class="primary-button"
-        onclick="abrirNuevoAlumnoDesdeInicio();">
-        ➕ Nuevo alumno
-    </button>
-
-    <button
-        type="button"
-        class="primary-button"
-        onclick="abrirPagos();">
-        💳 Registrar pago
-    </button>
-
-    <button
-        type="button"
-        class="primary-button"
-        onclick="abrirAsistencia();">
-        ✅ Registrar asistencia
-    </button>
-
-    <button
-        type="button"
-        class="primary-button"
-        onclick="abrirAlumnos(); mostrarAlumnosPorRenovar();">
-        📲 Renovaciones pendientes
-    </button>
-
-</section>
 
 </section>
 
