@@ -6788,10 +6788,7 @@ function dashboardModerno() {
                             📅 Clases de hoy
                         </div>
 
-                        <div class="cft-panel-link">
-                            VER TODAS
-                        </div>
-
+                    
                     </div>
 
                     <div class="cft-row">
@@ -8286,3 +8283,2441 @@ function configurarNavegacionInferior() {
 window.addEventListener("load", function () {
     configurarNavegacionInferior();
 });
+/* =========================================================
+   PAGOS DEL MES - PÁGINA INDEPENDIENTE
+   ========================================================= */
+
+(function instalarPagosDelMes() {
+
+    function iniciarPagosDelMes() {
+
+        /* -------------------------------------------------
+           FUENTE INTER
+           ------------------------------------------------- */
+
+        if (!document.getElementById("fuenteInterCFT")) {
+
+            const fuente = document.createElement("link");
+
+            fuente.id = "fuenteInterCFT";
+            fuente.rel = "stylesheet";
+            fuente.href =
+                "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap";
+
+            document.head.appendChild(fuente);
+        }
+
+        /* -------------------------------------------------
+           BUSCAR TARJETA ÚLTIMOS PAGOS
+           ------------------------------------------------- */
+
+        const tarjeta = document.querySelector(
+            "#pantallaInicio #inicioUltimosPagos"
+        )?.closest(".card");
+
+        if (!tarjeta) {
+            console.log(
+                "⚠️ Todavía no encuentro Últimos pagos. Reintentando..."
+            );
+
+            setTimeout(iniciarPagosDelMes, 500);
+            return;
+        }
+
+        /* -------------------------------------------------
+           CREAR BOTÓN VER MÁS
+           ------------------------------------------------- */
+
+        let boton =
+            document.getElementById(
+                "btnVerMasPagosInicio"
+            );
+
+        if (!boton) {
+
+            boton = document.createElement("button");
+
+            boton.id =
+                "btnVerMasPagosInicio";
+
+            boton.type = "button";
+
+            boton.className =
+                "primary-button";
+
+            boton.textContent =
+                "Ver más";
+
+            boton.style.marginTop =
+                "10px";
+
+            boton.style.width =
+                "100%";
+
+            tarjeta.appendChild(boton);
+        }
+
+        /* -------------------------------------------------
+           CREAR PÁGINA INDEPENDIENTE
+           ------------------------------------------------- */
+
+        let pagina =
+            document.getElementById(
+                "paginaPagosMes"
+            );
+
+        if (!pagina) {
+
+            pagina =
+                document.createElement("section");
+
+            pagina.id =
+                "paginaPagosMes";
+
+            pagina.className =
+                "section";
+
+            pagina.style.fontFamily =
+                "Inter, sans-serif";
+
+            pagina.innerHTML = `
+
+                <div
+                    class="section-title"
+                    style="
+                        font-family:Inter,sans-serif;
+                    ">
+                    💰 Pagos del mes
+                </div>
+
+                <button
+                    type="button"
+                    class="primary-button"
+                    id="volverResumenPagosMes"
+                    style="
+                        font-family:Inter,sans-serif;
+                    ">
+                    ← Volver al Resumen
+                </button>
+
+                <div
+                    id="listaPagosMes"
+                    style="
+                        margin-top:15px;
+                        font-family:Inter,sans-serif;
+                    ">
+                    <p
+                        style="
+                            color:#92979B;
+                            font-family:Inter,sans-serif;
+                        ">
+                        Cargando pagos...
+                    </p>
+                </div>
+            `;
+
+            const contenido =
+                document.querySelector(
+                    "main.content"
+                );
+
+            if (!contenido) {
+                console.log(
+                    "❌ No existe main.content"
+                );
+                return;
+            }
+
+            contenido.appendChild(
+                pagina
+            );
+        }
+
+        /* -------------------------------------------------
+           BOTÓN VOLVER
+           ------------------------------------------------- */
+
+        const volver =
+            document.getElementById(
+                "volverResumenPagosMes"
+            );
+
+        if (volver) {
+
+            volver.onclick = function () {
+
+                pagina.style.display =
+                    "none";
+
+                const dashboard =
+                    document.getElementById(
+                        "dashboardPrincipal"
+                    );
+
+                if (dashboard) {
+                    dashboard.style.display =
+                        "block";
+                }
+
+                const inicio =
+                    document.getElementById(
+                        "pantallaInicio"
+                    );
+
+                if (inicio) {
+                    inicio.style.display =
+                        "block";
+                }
+
+                const contenido =
+                    document.querySelector(
+                        "main.content"
+                    );
+
+                if (contenido) {
+                    contenido.scrollTop = 0;
+                }
+
+                console.log(
+                    "⬅️ Regresó al Resumen"
+                );
+            };
+        }
+
+        /* -------------------------------------------------
+           ACCIÓN VER MÁS
+           ------------------------------------------------- */
+
+        boton.onclick = async function () {
+
+            console.log(
+                "➡️ Abriendo página independiente: Pagos del mes"
+            );
+
+            /* Ocultar todas las secciones */
+
+            document
+                .querySelectorAll(".section")
+                .forEach(function (el) {
+
+                    el.style.display =
+                        "none";
+                });
+
+            /* Ocultar dashboard */
+
+            const dashboard =
+                document.getElementById(
+                    "dashboardPrincipal"
+                );
+
+            if (dashboard) {
+                dashboard.style.display =
+                    "none";
+            }
+
+            /* Mostrar página */
+
+            pagina.style.display =
+                "block";
+
+            const contenido =
+                document.querySelector(
+                    "main.content"
+                );
+
+            if (contenido) {
+                contenido.scrollTop = 0;
+            }
+
+            const contenedor =
+                document.getElementById(
+                    "listaPagosMes"
+                );
+
+            if (!contenedor) {
+                console.log(
+                    "❌ No existe listaPagosMes"
+                );
+                return;
+            }
+
+            contenedor.innerHTML = `
+                <p
+                    style="
+                        color:#92979B;
+                        font-family:Inter,sans-serif;
+                    ">
+                    Cargando pagos...
+                </p>
+            `;
+
+            /* -------------------------------------------------
+               FECHA DEL MES ACTUAL
+               ------------------------------------------------- */
+
+            const ahora =
+                new Date();
+
+            const año =
+                ahora.getFullYear();
+
+            const mes =
+                String(
+                    ahora.getMonth() + 1
+                ).padStart(2, "0");
+
+            const primerDia =
+                `${año}-${mes}-01`;
+
+            const ultimoDia =
+                `${año}-${mes}-30`;
+
+            console.log(
+                "📅 Pagos:",
+                primerDia,
+                "hasta",
+                ultimoDia
+            );
+
+            /* -------------------------------------------------
+               CARGAR PAGOS
+               ------------------------------------------------- */
+
+            const {
+                data: pagos,
+                error
+            } =
+                await supabaseClient
+                    .from("Pagos")
+                    .select(
+                        "DNI, NOMBRE, MONTO, FECHA"
+                    )
+                    .gte(
+                        "FECHA",
+                        primerDia
+                    )
+                    .lte(
+                        "FECHA",
+                        ultimoDia
+                    )
+                    .gt(
+                        "MONTO",
+                        0
+                    )
+                    .order(
+                        "FECHA",
+                        {
+                            ascending:false
+                        }
+                    );
+
+            if (error) {
+
+                console.error(
+                    "❌ ERROR CARGANDO PAGOS:",
+                    error
+                );
+
+                contenedor.innerHTML = `
+                    <p
+                        style="
+                            color:#92979B;
+                            font-family:Inter,sans-serif;
+                        ">
+                        No se pudieron cargar los pagos.
+                    </p>
+                `;
+
+                return;
+            }
+
+            contenedor.innerHTML = "";
+
+            if (
+                !pagos ||
+                pagos.length === 0
+            ) {
+
+                contenedor.innerHTML = `
+                    <p
+                        style="
+                            color:#92979B;
+                            font-family:Inter,sans-serif;
+                        ">
+                        No hay pagos realizados este mes.
+                    </p>
+                `;
+
+                return;
+            }
+
+            /* -------------------------------------------------
+               OBTENER ID REAL DE ALUMNOS
+               ------------------------------------------------- */
+
+            const {
+                data: alumnos,
+                error: errorAlumnos
+            } =
+                await supabaseClient
+                    .from("Alumnos")
+                    .select(
+                        "id, DNI"
+                    );
+
+            if (errorAlumnos) {
+
+                console.error(
+                    "❌ ERROR CARGANDO ALUMNOS:",
+                    errorAlumnos
+                );
+
+                return;
+            }
+
+            /* Mapa DNI → ID
+               Solo para relacionar el pago.
+               VER FICHA utiliza el ID.
+            */
+
+            const mapaIds = {};
+
+            (alumnos || [])
+                .forEach(function(alumno) {
+
+                    if (alumno.DNI) {
+
+                        mapaIds[
+                            String(alumno.DNI)
+                        ] =
+                            alumno.id;
+                    }
+                });
+
+            /* -------------------------------------------------
+               MOSTRAR PAGOS
+               ------------------------------------------------- */
+
+            pagos.forEach(function(pago) {
+
+                const idAlumno =
+                    mapaIds[
+                        String(pago.DNI)
+                    ];
+
+                const fila =
+                    document.createElement(
+                        "div"
+                    );
+
+                fila.className =
+                    "row";
+
+                fila.style.fontFamily =
+                    "Inter, sans-serif";
+
+                fila.style.color =
+                    "#B8BCC0";
+
+                fila.style.padding =
+                    "12px 0";
+
+                fila.style.borderBottom =
+                    "1px solid #333";
+
+                const fecha =
+                    window.formatearFecha
+                        ? window.formatearFecha(
+                            pago.FECHA
+                        )
+                        : pago.FECHA;
+
+                fila.innerHTML = `
+
+                    <span
+                        style="
+                            color:#B8BCC0;
+                            font-family:Inter,sans-serif;
+                            line-height:1.4;
+                        ">
+
+                        ${pago.NOMBRE || ""}
+
+                        <br>
+
+                        <small
+                            style="
+                                color:#92979B;
+                                font-family:Inter,sans-serif;
+                            ">
+                            ${fecha || ""}
+                        </small>
+
+                    </span>
+
+                    <div
+                        style="
+                            display:flex;
+                            align-items:center;
+                            gap:8px;
+                        ">
+
+                        <strong
+                            style="
+                                color:#C5C9CC;
+                                font-family:Inter,sans-serif;
+                                white-space:nowrap;
+                            ">
+                            S/${Number(
+                                pago.MONTO || 0
+                            ).toFixed(2)}
+                        </strong>
+
+                        <button
+                            type="button"
+                            class="btnFichaPagoMes"
+                            style="
+                                display:inline-flex;
+                                align-items:center;
+                                justify-content:center;
+                                gap:6px;
+
+                                background:#111;
+
+                                border:1px solid #f28c28;
+
+                                border-radius:6px;
+
+                                padding:6px 9px;
+
+                                color:#B8BCC0;
+
+                                font-family:Inter,sans-serif;
+
+                                font-size:12px;
+
+                                font-weight:500;
+
+                                cursor:pointer;
+
+                                white-space:nowrap;
+                            ">
+
+                            <span
+                                style="
+                                    width:6px;
+                                    height:6px;
+                                    min-width:6px;
+                                    border-radius:50%;
+                                    background:#f28c28;
+                                    display:inline-block;
+                                ">
+                            </span>
+
+                            <span>
+                                Ver ficha
+                            </span>
+
+                        </button>
+
+                    </div>
+                `;
+
+                /* -------------------------------------------------
+                   VER FICHA POR ID
+                   ------------------------------------------------- */
+
+                const botonFicha =
+                    fila.querySelector(
+                        ".btnFichaPagoMes"
+                    );
+
+                if (botonFicha) {
+
+                    botonFicha.onclick =
+                        function() {
+
+                            if (!idAlumno) {
+
+                                console.log(
+                                    "❌ No encontré ID para:",
+                                    pago.NOMBRE,
+                                    pago.DNI
+                                );
+
+                                alert(
+                                    "No se encontró el ID del alumno."
+                                );
+
+                                return;
+                            }
+
+                            console.log(
+                                "➡️ Abriendo ficha por ID:",
+                                idAlumno
+                            );
+
+                            if (
+                                typeof verAlumno ===
+                                "function"
+                            ) {
+
+                                verAlumno(
+                                    idAlumno
+                                );
+
+                            } else {
+
+                                console.log(
+                                    "❌ No existe verAlumno()"
+                                );
+                            }
+                        };
+                }
+
+                contenedor.appendChild(
+                    fila
+                );
+            });
+
+            console.log(
+                `✅ ${pagos.length} pagos mostrados`
+            );
+        };
+
+        console.log(
+            "✅ Pagos del mes instalado permanentemente"
+        );
+    }
+
+    /* -------------------------------------------------
+       FORMATEAR FECHA
+       ------------------------------------------------- */
+
+    if (!window.formatearFecha) {
+
+        window.formatearFecha =
+            function(fecha) {
+
+                if (!fecha) return "";
+
+                const partes =
+                    String(fecha).split("-");
+
+                if (
+                    partes.length === 3
+                ) {
+
+                    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+
+                return fecha;
+            };
+    }
+
+    /* -------------------------------------------------
+       INICIAR
+       ------------------------------------------------- */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            iniciarPagosDelMes
+        );
+
+    } else {
+
+        iniciarPagosDelMes();
+    }
+
+})();
+/* =========================================================
+   VER MÁS - ÚLTIMOS PAGOS
+   CONECTAR BOTÓN ORIGINAL + BOTÓN ACTUALIZADO
+   ========================================================= */
+
+(function conectarVerMasUltimosPagos() {
+
+    function conectar() {
+
+        /* ================================================
+           BOTÓN ACTUALIZADO QUE AGREGAMOS
+           ================================================ */
+
+        const botonActualizado =
+            document.getElementById(
+                "btnVerMasPagosInicio"
+            );
+
+        if (botonActualizado) {
+
+            botonActualizado.style.background =
+                "#111";
+
+            botonActualizado.style.border =
+                "1px solid #f28c28";
+
+            botonActualizado.style.borderRadius =
+                "6px";
+
+            botonActualizado.style.color =
+                "#B8BCC0";
+
+            botonActualizado.style.fontFamily =
+                "Inter, sans-serif";
+
+            botonActualizado.style.fontSize =
+                "12px";
+
+            botonActualizado.style.fontWeight =
+                "500";
+
+            botonActualizado.style.padding =
+                "6px 10px";
+
+            botonActualizado.style.width =
+                "auto";
+
+            botonActualizado.innerHTML = `
+                <span style="
+                    width:6px;
+                    height:6px;
+                    min-width:6px;
+                    border-radius:50%;
+                    background:#f28c28;
+                    display:inline-block;
+                    margin-right:6px;
+                    vertical-align:middle;
+                "></span>
+
+                <span>Ver más</span>
+            `;
+        }
+
+
+        /* ================================================
+           VER MÁS ORIGINAL NARANJA
+           DE LA TARJETA ÚLTIMOS PAGOS
+           ================================================ */
+
+        const pagos =
+            document.getElementById(
+                "ultimosPagos"
+            );
+
+        if (!pagos) {
+            setTimeout(
+                conectar,
+                500
+            );
+            return;
+        }
+
+        const panel =
+            pagos.closest(
+                ".cft-panel"
+            );
+
+        if (!panel) {
+            setTimeout(
+                conectar,
+                500
+            );
+            return;
+        }
+
+        const verMas =
+            panel.querySelector(
+                ".cft-panel-link"
+            );
+
+        if (!verMas) {
+            setTimeout(
+                conectar,
+                500
+            );
+            return;
+        }
+
+
+        /* ================================================
+           NO CAMBIAR SU DISEÑO NARANJA
+           SOLO HACERLO CLICKEABLE
+           ================================================ */
+
+        verMas.style.cursor =
+            "pointer";
+
+        verMas.onclick =
+            function() {
+
+                const boton =
+                    document.getElementById(
+                        "btnVerMasPagosInicio"
+                    );
+
+                if (boton) {
+
+                    boton.click();
+
+                    console.log(
+                        "➡️ VER MÁS naranja → Pagos del mes"
+                    );
+
+                } else {
+
+                    console.log(
+                        "❌ No existe el botón actualizado"
+                    );
+                }
+            };
+
+
+        console.log(
+            "✅ VER MÁS actualizado permanentemente"
+        );
+
+        console.log(
+            "✅ VER MÁS naranja original conectado"
+        );
+    }
+
+
+    /* ================================================
+       INICIAR
+       ================================================ */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            conectar
+        );
+
+    } else {
+
+        conectar();
+    }
+
+})();
+(() => {
+    function aplicarEstiloTitulosInicio() {
+        document.querySelectorAll(".cft-panel-title").forEach(titulo => {
+            const texto = titulo.textContent.trim();
+
+            if (
+                texto === "📅 Clases de hoy" ||
+                texto === "💰 Últimos pagos"
+            ) {
+                titulo.style.setProperty("color", "#ffffff", "important");
+                titulo.style.setProperty("background", "transparent", "important");
+                titulo.style.setProperty("border", "1px solid #4a4a4a", "important");
+                titulo.style.setProperty("border-left", "4px solid #f28c28", "important");
+                titulo.style.setProperty("border-radius", "10px", "important");
+                titulo.style.setProperty("padding", "10px 14px", "important");
+                titulo.style.setProperty("font-weight", "600", "important");
+                titulo.style.setProperty("display", "block", "important");
+                titulo.style.setProperty("box-shadow", "none", "important");
+
+                const contenido = titulo.parentElement?.nextElementSibling;
+
+                if (contenido) {
+                    contenido.style.setProperty(
+                        "border-top",
+                        "1px solid #f28c28",
+                        "important"
+                    );
+                    contenido.style.setProperty("margin-top", "8px", "important");
+                    contenido.style.setProperty("padding-top", "8px", "important");
+                }
+            }
+        });
+    }
+
+    aplicarEstiloTitulosInicio();
+
+    if (!window.cftEstiloTitulosObserver) {
+        window.cftEstiloTitulosObserver = new MutationObserver(() => {
+            aplicarEstiloTitulosInicio();
+        });
+
+        window.cftEstiloTitulosObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    console.log("✅ ESTILO PERMANENTE: TÍTULOS DE INICIO");
+})();
+
+/* =========================================================
+   CFT — LOS DOS "VER MÁS" ABREN PAGOS DEL MES
+   ========================================================= */
+
+(function () {
+
+    function activarVerMasPagosMes() {
+
+        // PRIMER "VER MÁS" — el naranja de Últimos pagos
+        const verMasNaranja = [...document.querySelectorAll(".cft-panel-link")]
+            .find(el =>
+                el.textContent.trim().toUpperCase() === "VER MÁS"
+            );
+
+        if (verMasNaranja && !verMasNaranja.dataset.cftVerMasPagos) {
+
+            verMasNaranja.dataset.cftVerMasPagos = "activo";
+
+            verMasNaranja.addEventListener("click", function (e) {
+
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                const botonPagosMes =
+                    document.getElementById("btnVerMasPagosInicio");
+
+                if (botonPagosMes) {
+                    botonPagosMes.click();
+                    console.log("✅ PRIMER VER MÁS → PAGOS DEL MES");
+                } else {
+                    console.error(
+                        "❌ No existe #btnVerMasPagosInicio"
+                    );
+                }
+
+            }, true);
+
+            console.log("✅ PRIMER VER MÁS PERMANENTE");
+        }
+
+
+        // SEGUNDO "VER MÁS"
+        const botonPagosMes =
+            document.getElementById("btnVerMasPagosInicio");
+
+        if (botonPagosMes && !botonPagosMes.dataset.cftVerMasPagos) {
+
+            botonPagosMes.dataset.cftVerMasPagos = "activo";
+
+            botonPagosMes.addEventListener("click", function () {
+
+                console.log("✅ SEGUNDO VER MÁS → PAGOS DEL MES");
+
+            }, true);
+        }
+    }
+
+
+    // Activarlo ahora
+    activarVerMasPagosMes();
+
+
+    // Si Inicio vuelve a dibujar los elementos,
+    // volver a enganchar el primer VER MÁS automáticamente.
+    if (!window.cftVerMasPagosObserver) {
+
+        window.cftVerMasPagosObserver =
+            new MutationObserver(function () {
+                activarVerMasPagosMes();
+            });
+
+        window.cftVerMasPagosObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+})();
+/* =========================================================
+   CFT — VOLVER A INICIO DESDE PAGOS DEL MES
+   ========================================================= */
+
+(function () {
+
+    function activarVolverInicioPagosMes() {
+
+        const boton = document.getElementById("volverResumenPagosMes");
+
+        if (!boton || boton.dataset.cftVolverInicio) {
+            return;
+        }
+
+        boton.dataset.cftVolverInicio = "activo";
+
+        boton.addEventListener("click", function (e) {
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const pagina = document.getElementById("paginaPagosMes");
+
+            if (pagina) {
+                pagina.style.display = "none";
+            }
+
+            document.querySelectorAll(".section").forEach(function (el) {
+                el.style.display = "none";
+            });
+
+            const inicio = document.getElementById("pantallaInicio");
+
+            if (inicio) {
+                inicio.style.display = "block";
+            }
+
+            document.querySelectorAll(".nav-item").forEach(function (btn) {
+                btn.classList.remove("activo");
+            });
+
+            const navResumen = [...document.querySelectorAll(".nav-item")]
+                .find(function (btn) {
+                    return btn.textContent.trim().toUpperCase() === "RESUMEN";
+                });
+
+            if (navResumen) {
+                navResumen.classList.add("activo");
+            }
+
+            if (typeof actualizarDashboardInicio === "function") {
+                actualizarDashboardInicio();
+            }
+
+            window.scrollTo(0, 0);
+
+            console.log("✅ PAGOS DEL MES → INICIO PERMANENTE");
+
+        }, true);
+
+        console.log("✅ VOLVER A INICIO PERMANENTE");
+
+    }
+
+    activarVolverInicioPagosMes();
+
+    if (!window.cftVolverInicioObserver) {
+
+        window.cftVolverInicioObserver =
+            new MutationObserver(function () {
+                activarVolverInicioPagosMes();
+            });
+
+        window.cftVolverInicioObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+})();
+/* =========================================================
+   CFT — VOLVER AL RESUMEN DESDE PAGOS DEL MES
+   ========================================================= */
+
+(function () {
+
+    function activarVolverResumenPagosMes() {
+
+        const boton = document.getElementById("volverResumenPagosMes");
+
+        if (!boton || boton.dataset.cftVolverResumen) {
+            return;
+        }
+
+        boton.dataset.cftVolverResumen = "activo";
+
+        boton.addEventListener("click", function (e) {
+
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            const pagina = document.getElementById("paginaPagosMes");
+            const inicio = document.getElementById("pantallaInicio");
+            const dashboard = document.getElementById("dashboardPrincipal");
+            const pagos = document.getElementById("ultimosPagos");
+
+            if (pagina) {
+                pagina.style.display = "none";
+            }
+
+            if (dashboard) {
+                dashboard.style.display = "none";
+            }
+
+            document.querySelectorAll(".section").forEach(function (el) {
+                if (el.id !== "pantallaInicio") {
+                    el.style.display = "none";
+                }
+            });
+
+            if (inicio) {
+                inicio.style.display = "block";
+            }
+
+            if (pagos) {
+                pagos.innerHTML = "";
+            }
+
+            document.querySelectorAll(".nav-item").forEach(function (btn) {
+                btn.classList.remove("activo");
+            });
+
+            const resumen = [...document.querySelectorAll(".nav-item")]
+                .find(function (btn) {
+                    return btn.textContent.trim().toUpperCase() === "RESUMEN";
+                });
+
+            if (resumen) {
+                resumen.classList.add("activo");
+            }
+
+            window.scrollTo(0, 0);
+
+            console.log("✅ VOLVER AL RESUMEN PERMANENTE");
+
+        }, true);
+
+        console.log("✅ BOTÓN VOLVER AL RESUMEN PERMANENTE");
+
+    }
+
+    activarVolverResumenPagosMes();
+
+    if (!window.cftVolverResumenObserver) {
+
+        window.cftVolverResumenObserver =
+            new MutationObserver(function () {
+                activarVolverResumenPagosMes();
+            });
+
+        window.cftVolverResumenObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+})();
+/* =========================================================
+   CFT — OCULTAR PAGOS DEL MES AL VOLVER A RESUMEN
+   ========================================================= */
+
+(function () {
+
+    const original = window.mostrarResumenDashboard;
+
+    if (!original || window.cftResumenOcultaPagosMes) {
+        return;
+    }
+
+    window.mostrarResumenDashboard = function () {
+
+        original();
+
+        setTimeout(function () {
+
+            const pagina =
+                document.getElementById("paginaPagosMes");
+
+            if (pagina) {
+                pagina.style.display = "none";
+            }
+
+        }, 300);
+
+    };
+
+    window.cftResumenOcultaPagosMes = true;
+
+    console.log(
+        "✅ RESUMEN → PAGOS DEL MES SE OCULTA AL FINAL"
+    );
+
+})();
+
+(() => {
+
+    // Cargar Inter si todavía no está cargada
+    if (!document.getElementById("cft-font-inter")) {
+        const link = document.createElement("link");
+        link.id = "cft-font-inter";
+        link.rel = "stylesheet";
+        link.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap";
+        document.head.appendChild(link);
+    }
+
+    // Aplicar Inter absolutamente a toda la aplicación
+    let estilo = document.getElementById("cft-inter-global");
+
+    if (!estilo) {
+        estilo = document.createElement("style");
+        estilo.id = "cft-inter-global";
+        document.head.appendChild(estilo);
+    }
+
+    estilo.textContent = `
+        *,
+        *::before,
+        *::after {
+            font-family: "Inter", sans-serif !important;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            font-family: "Inter", sans-serif !important;
+        }
+    `;
+
+    console.log("✅ TODA CFT MANAGER → FUENTE INTER");
+})();
+
+/* =========================================================
+   CFT — FUENTE INTER GLOBAL
+   ========================================================= */
+
+(function () {
+
+    if (!document.getElementById("cft-font-inter")) {
+
+        const link = document.createElement("link");
+
+        link.id = "cft-font-inter";
+        link.rel = "stylesheet";
+        link.href =
+            "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap";
+
+        document.head.appendChild(link);
+    }
+
+    let estilo = document.getElementById("cft-inter-global");
+
+    if (!estilo) {
+
+        estilo = document.createElement("style");
+
+        estilo.id = "cft-inter-global";
+
+        document.head.appendChild(estilo);
+    }
+
+    estilo.textContent = `
+        *,
+        *::before,
+        *::after {
+            font-family: "Inter", sans-serif !important;
+        }
+
+        input,
+        textarea,
+        select,
+        button {
+            font-family: "Inter", sans-serif !important;
+        }
+    `;
+
+    console.log("✅ TODA CFT MANAGER → INTER PERMANENTE");
+
+})();
+
+
+/* =========================================================
+   CFT — HISTORIAL DE INGRESOS
+   ========================================================= */
+
+(function () {
+
+    async function cargarHistorialIngresos() {
+
+        const { data: pagos, error } = await supabaseClient
+            .from("Pagos")
+            .select("DNI, NOMBRE, MONTO, FECHA")
+            .gt("MONTO", 0)
+            .order("FECHA", { ascending: true });
+
+        if (error) {
+            console.error("❌ Error cargando historial:", error);
+            return;
+        }
+
+        const ahora = new Date();
+        const resumen = {};
+
+        /* Últimos 5 meses calendario */
+
+        for (let i = 0; i < 5; i++) {
+
+            const fechaMes = new Date(
+                ahora.getFullYear(),
+                ahora.getMonth() - i,
+                1
+            );
+
+            const año = fechaMes.getFullYear();
+
+            const mes = String(
+                fechaMes.getMonth() + 1
+            ).padStart(2, "0");
+
+            const clave = `${año}-${mes}`;
+
+            resumen[clave] = {
+                mes: clave,
+                alumnos: new Set(),
+                pagos: 0,
+                ingreso: 0
+            };
+        }
+
+        (pagos || []).forEach(pago => {
+
+            if (!pago.FECHA) return;
+
+            const clave =
+                String(pago.FECHA).substring(0, 7);
+
+            if (!resumen[clave]) return;
+
+            resumen[clave].pagos++;
+
+            resumen[clave].ingreso +=
+                Number(pago.MONTO) || 0;
+
+            if (pago.DNI) {
+
+                resumen[clave].alumnos.add(
+                    String(pago.DNI)
+                );
+            }
+
+        });
+
+        const resultado = Object.values(resumen)
+            .sort((a, b) =>
+                b.mes.localeCompare(a.mes)
+            )
+            .map(datos => ({
+                mes: datos.mes,
+                alumnos: datos.alumnos.size,
+                pagos: datos.pagos,
+                ingreso: datos.ingreso
+            }));
+
+        window.cftResumenIngresos = resultado;
+
+        let tabla =
+            document.getElementById(
+                "cftTablaIngresosMensuales"
+            );
+
+        if (!tabla) {
+
+            tabla = document.createElement("div");
+
+            tabla.id =
+                "cftTablaIngresosMensuales";
+
+            tabla.style.cssText = `
+                margin:16px 0;
+                background:#111;
+                border:1px solid #333;
+                border-radius:14px;
+                overflow:hidden;
+                font-family:Inter,sans-serif;
+            `;
+
+            const contenedorPagos =
+                document.getElementById(
+                    "inicioUltimosPagos"
+                );
+
+            if (
+    contenedorPagos &&
+    contenedorPagos.parentElement &&
+    contenedorPagos.parentElement.parentElement
+) {
+
+    const tarjetaPagos =
+        contenedorPagos.parentElement;
+
+    tarjetaPagos.parentElement.insertBefore(
+        tabla,
+        tarjetaPagos
+    );
+            }
+        }
+
+        tabla.innerHTML = `
+
+            <div style="
+                padding:14px;
+                border-bottom:1px solid #333;
+            ">
+
+                <div style="
+                    color:#fff;
+                    font-size:16px;
+                    font-weight:700;
+                    font-family:Inter,sans-serif;
+                ">
+                    📊 Historial de ingresos
+                </div>
+
+            </div>
+
+            <div id="cftListaIngresosMensuales"></div>
+
+            <div style="
+                padding:12px;
+                border-top:1px solid #333;
+            ">
+
+                <button
+                    id="cftVerMasHistorialIngresos"
+                    type="button"
+                    style="
+                        width:100%;
+                        padding:11px;
+                        border:1px solid #f28c28;
+                        border-radius:9px;
+                        background:transparent;
+                        color:#f28c28;
+                        font-family:Inter,sans-serif;
+                        font-weight:700;
+                        cursor:pointer;
+                    "
+                >
+                    VER MÁS
+                </button>
+
+            </div>
+        `;
+
+        const lista =
+            document.getElementById(
+                "cftListaIngresosMensuales"
+            );
+
+        resultado.forEach(datos => {
+
+            const [año, mes] =
+                datos.mes.split("-");
+
+            const fechaMes = new Date(
+                Number(año),
+                Number(mes) - 1,
+                1
+            );
+
+            const nombreMes =
+                fechaMes.toLocaleDateString(
+                    "es-PE",
+                    {
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+            const fila =
+                document.createElement("div");
+
+            fila.style.cssText = `
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:12px;
+                padding:13px 14px;
+                border-bottom:1px solid #292929;
+                font-family:Inter,sans-serif;
+            `;
+
+            fila.innerHTML = `
+
+                <div style="
+                    flex:1;
+                    min-width:0;
+                ">
+
+                    <div style="
+                        color:#D0D3D6;
+                        font-size:14px;
+                        font-weight:600;
+                        text-transform:capitalize;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${nombreMes}
+                    </div>
+
+                    <div style="
+                        color:#9FA4A8;
+                        font-size:12px;
+                        margin-top:3px;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${datos.alumnos} alumnos ·
+                        ${datos.pagos} pagos
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    flex-direction:row;
+                    white-space:nowrap;
+                ">
+
+                    <div style="
+                        color:#F28C28;
+                        font-size:15px;
+                        font-weight:700;
+                        font-family:Inter,sans-serif;
+                        white-space:nowrap;
+                    ">
+                        S/ ${Number(datos.ingreso)
+                            .toLocaleString("es-PE")}
+                    </div>
+
+                    <button
+                        type="button"
+                        data-mes="${datos.mes}"
+                        style="
+                            border:1px solid #444;
+                            background:#1a1a1a;
+                            color:#D0D3D6;
+                            border-radius:7px;
+                            padding:6px 9px;
+                            font-family:Inter,sans-serif;
+                            font-size:12px;
+                            font-weight:600;
+                            white-space:nowrap;
+                            cursor:pointer;
+                        "
+                    >
+                        Ver mes
+                    </button>
+
+                </div>
+            `;
+
+            lista.appendChild(fila);
+
+        });
+
+        lista
+            .querySelectorAll("button[data-mes]")
+            .forEach(boton => {
+
+                boton.addEventListener(
+                    "click",
+                    function () {
+
+                        abrirDetalleIngresoMes(
+                            this.dataset.mes
+                        );
+
+                    }
+                );
+
+            });
+
+        const botonVerMas =
+            document.getElementById(
+                "cftVerMasHistorialIngresos"
+            );
+
+        if (botonVerMas) {
+
+            botonVerMas.onclick = function () {
+
+                abrirHistorialCompletoIngresos();
+
+            };
+        }
+    }
+
+
+    async function abrirDetalleIngresoMes(
+        mesSeleccionado
+    ) {
+
+        const existente =
+            document.getElementById(
+                "cftDetalleIngresoMes"
+            );
+
+        if (existente) {
+            existente.remove();
+        }
+
+        const [año, mes] =
+            mesSeleccionado.split("-");
+
+        const ultimoDia =
+            new Date(
+                Number(año),
+                Number(mes),
+                0
+            ).getDate();
+
+        const fechaInicio =
+            `${mesSeleccionado}-01`;
+
+        const fechaFin =
+            `${mesSeleccionado}-${String(
+                ultimoDia
+            ).padStart(2, "0")}`;
+
+        const { data: pagos, error } =
+            await supabaseClient
+                .from("Pagos")
+                .select(
+                    "DNI, NOMBRE, MONTO, FECHA"
+                )
+                .gt("MONTO", 0)
+                .gte("FECHA", fechaInicio)
+                .lte("FECHA", fechaFin)
+                .order("FECHA", {
+                    ascending: false
+                });
+
+        if (error) {
+
+            console.error(
+                "❌ Error detalle mensual:",
+                error
+            );
+
+            return;
+        }
+
+        const total =
+            (pagos || []).reduce(
+                (suma, pago) =>
+                    suma +
+                    (Number(pago.MONTO) || 0),
+                0
+            );
+
+        const fechaMes =
+            new Date(
+                Number(año),
+                Number(mes) - 1,
+                1
+            );
+
+        const nombreMes =
+            fechaMes.toLocaleDateString(
+                "es-PE",
+                {
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+        const pantalla =
+            document.createElement("section");
+
+        pantalla.id =
+            "cftDetalleIngresoMes";
+
+        pantalla.className = "section";
+
+        pantalla.style.cssText = `
+            display:block;
+            padding:16px;
+            font-family:Inter,sans-serif;
+        `;
+
+        pantalla.innerHTML = `
+
+            <button
+                id="cftVolverDetalleIngresos"
+                type="button"
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin-bottom:15px;
+                    border:1px solid #444;
+                    border-radius:9px;
+                    background:#111;
+                    color:#fff;
+                    font-family:Inter,sans-serif;
+                    font-weight:600;
+                    font-size:14px;
+                "
+            >
+                ← Volver al Resumen
+            </button>
+
+            <div style="
+                background:#111;
+                border:1px solid #333;
+                border-radius:12px;
+                padding:15px;
+                margin-bottom:12px;
+            ">
+
+                <div style="
+                    color:#fff;
+                    font-size:18px;
+                    font-weight:700;
+                    text-transform:capitalize;
+                    font-family:Inter,sans-serif;
+                ">
+                    ${nombreMes}
+                </div>
+
+                <div style="
+                    color:#9FA4A8;
+                    font-size:13px;
+                    margin-top:5px;
+                    font-family:Inter,sans-serif;
+                ">
+                    ${pagos.length} pagos
+                </div>
+
+                <div style="
+                    color:#F28C28;
+                    font-size:20px;
+                    font-weight:800;
+                    margin-top:8px;
+                    font-family:Inter,sans-serif;
+                ">
+                    S/ ${total.toLocaleString("es-PE")}
+                </div>
+
+            </div>
+
+            <div
+                id="cftDetalleLista"
+                style="
+                    font-family:Inter,sans-serif;
+                "
+            ></div>
+        `;
+
+        const pantallaInicio =
+            document.getElementById(
+                "pantallaInicio"
+            );
+
+        if (pantallaInicio) {
+            pantallaInicio.style.display = "none";
+        }
+
+        const dashboard =
+            document.getElementById(
+                "dashboardPrincipal"
+            );
+
+        if (dashboard) {
+            dashboard.style.display = "none";
+        }
+
+        document
+            .querySelectorAll(".section")
+            .forEach(el => {
+
+                if (
+                    el.id !==
+                    "cftDetalleIngresoMes"
+                ) {
+                    el.style.display = "none";
+                }
+
+            });
+
+        const contenido =
+            document.querySelector("main.content");
+
+        if (contenido) {
+            contenido.appendChild(pantalla);
+        } else {
+            document.body.appendChild(pantalla);
+        }
+
+        const lista =
+            document.getElementById(
+                "cftDetalleLista"
+            );
+
+        (pagos || []).forEach(pago => {
+
+            const fila =
+                document.createElement("div");
+
+            const fecha =
+                pago.FECHA
+                    ? String(pago.FECHA)
+                        .split("-")
+                        .reverse()
+                        .join("/")
+                    : "";
+
+            fila.style.cssText = `
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:12px;
+                padding:13px 4px;
+                border-bottom:1px solid #292929;
+                font-family:Inter,sans-serif;
+            `;
+
+            fila.innerHTML = `
+
+                <div style="
+                    flex:1;
+                    min-width:0;
+                ">
+
+                    <div style="
+                        color:#D0D3D6;
+                        font-size:14px;
+                        font-weight:600;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${pago.NOMBRE || ""}
+                    </div>
+
+                    <div style="
+                        color:#9FA4A8;
+                        font-size:12px;
+                        margin-top:3px;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${fecha}
+                    </div>
+
+                </div>
+
+                <div style="
+                    color:#F28C28;
+                    font-size:15px;
+                    font-weight:700;
+                    white-space:nowrap;
+                    margin-left:auto;
+                    font-family:Inter,sans-serif;
+                ">
+                    S/ ${Number(pago.MONTO)
+                        .toLocaleString("es-PE")}
+                </div>
+            `;
+
+            lista.appendChild(fila);
+
+        });
+
+        document
+            .getElementById(
+                "cftVolverDetalleIngresos"
+            )
+            .onclick = function () {
+
+                pantalla.remove();
+
+                if (
+                    typeof window
+                        .mostrarResumenDashboard
+                    === "function"
+                ) {
+
+                    window
+                        .mostrarResumenDashboard();
+                }
+
+            };
+
+        window.scrollTo(0, 0);
+
+        console.log(
+            "✅ DETALLE DEL MES ABIERTO:",
+            mesSeleccionado
+        );
+    }
+
+
+    async function abrirHistorialCompletoIngresos() {
+
+        const existente =
+            document.getElementById(
+                "cftHistorialIngresosCompleto"
+            );
+
+        if (existente) {
+            existente.remove();
+        }
+
+        const { data: pagos, error } =
+            await supabaseClient
+                .from("Pagos")
+                .select(
+                    "DNI, NOMBRE, MONTO, FECHA"
+                )
+                .gt("MONTO", 0)
+                .order("FECHA", {
+                    ascending: true
+                });
+
+        if (error) {
+
+            console.error(
+                "❌ Error historial completo:",
+                error
+            );
+
+            return;
+        }
+
+        const resumen = {};
+
+        (pagos || []).forEach(pago => {
+
+            if (!pago.FECHA) return;
+
+            const clave =
+                String(pago.FECHA).substring(0, 7);
+
+            if (!resumen[clave]) {
+
+                resumen[clave] = {
+                    alumnos: new Set(),
+                    pagos: 0,
+                    ingreso: 0
+                };
+
+            }
+
+            resumen[clave].pagos++;
+
+            resumen[clave].ingreso +=
+                Number(pago.MONTO) || 0;
+
+            if (pago.DNI) {
+
+                resumen[clave].alumnos.add(
+                    String(pago.DNI)
+                );
+            }
+
+        });
+
+        const meses =
+            Object.entries(resumen)
+                .sort((a, b) =>
+                    b[0].localeCompare(a[0])
+                );
+
+        const pantalla =
+            document.createElement("section");
+
+        pantalla.id =
+            "cftHistorialIngresosCompleto";
+
+        pantalla.className = "section";
+
+        pantalla.style.cssText = `
+            display:block;
+            padding:16px;
+            font-family:Inter,sans-serif;
+        `;
+
+        pantalla.innerHTML = `
+
+            <button
+                id="cftVolverHistorialCompleto"
+                type="button"
+                style="
+                    width:100%;
+                    padding:12px;
+                    margin-bottom:15px;
+                    border:1px solid #444;
+                    border-radius:9px;
+                    background:#111;
+                    color:#fff;
+                    font-family:Inter,sans-serif;
+                    font-weight:600;
+                    font-size:14px;
+                "
+            >
+                ← Volver al Resumen
+            </button>
+
+            <div style="
+                color:#fff;
+                font-size:19px;
+                font-weight:700;
+                margin-bottom:12px;
+                font-family:Inter,sans-serif;
+            ">
+                📊 Historial de ingresos
+            </div>
+
+            <div id="cftListaHistorialCompleto"></div>
+        `;
+
+        const pantallaInicio =
+            document.getElementById(
+                "pantallaInicio"
+            );
+
+        if (pantallaInicio) {
+            pantallaInicio.style.display = "none";
+        }
+
+        const dashboard =
+            document.getElementById(
+                "dashboardPrincipal"
+            );
+
+        if (dashboard) {
+            dashboard.style.display = "none";
+        }
+
+        document
+            .querySelectorAll(".section")
+            .forEach(el => {
+
+                if (
+                    el.id !==
+                    "cftHistorialIngresosCompleto"
+                ) {
+                    el.style.display = "none";
+                }
+
+            });
+
+        const contenido =
+            document.querySelector("main.content");
+
+        if (contenido) {
+            contenido.appendChild(pantalla);
+        } else {
+            document.body.appendChild(pantalla);
+        }
+
+        const lista =
+            document.getElementById(
+                "cftListaHistorialCompleto"
+            );
+
+        meses.forEach(([mes, datos]) => {
+
+            const [año, numeroMes] =
+                mes.split("-");
+
+            const fechaMes =
+                new Date(
+                    Number(año),
+                    Number(numeroMes) - 1,
+                    1
+                );
+
+            const nombreMes =
+                fechaMes.toLocaleDateString(
+                    "es-PE",
+                    {
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+
+            const fila =
+                document.createElement("div");
+
+            fila.style.cssText = `
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:12px;
+                padding:13px 4px;
+                border-bottom:1px solid #292929;
+                font-family:Inter,sans-serif;
+            `;
+
+            fila.innerHTML = `
+
+                <div style="
+                    flex:1;
+                    min-width:0;
+                ">
+
+                    <div style="
+                        color:#D0D3D6;
+                        font-size:14px;
+                        font-weight:600;
+                        text-transform:capitalize;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${nombreMes}
+                    </div>
+
+                    <div style="
+                        color:#9FA4A8;
+                        font-size:12px;
+                        margin-top:3px;
+                        font-family:Inter,sans-serif;
+                    ">
+                        ${datos.alumnos.size}
+                        alumnos ·
+                        ${datos.pagos}
+                        pagos
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    white-space:nowrap;
+                ">
+
+                    <div style="
+                        color:#F28C28;
+                        font-size:15px;
+                        font-weight:700;
+                        white-space:nowrap;
+                        font-family:Inter,sans-serif;
+                    ">
+                        S/ ${datos.ingreso
+                            .toLocaleString("es-PE")}
+                    </div>
+
+                    <button
+                        type="button"
+                        data-mes="${mes}"
+                        style="
+                            border:1px solid #444;
+                            background:#1a1a1a;
+                            color:#D0D3D6;
+                            border-radius:7px;
+                            padding:6px 9px;
+                            font-family:Inter,sans-serif;
+                            font-size:12px;
+                            font-weight:600;
+                        "
+                    >
+                        Ver mes
+                    </button>
+
+                </div>
+            `;
+
+            lista.appendChild(fila);
+
+        });
+
+        lista
+            .querySelectorAll("button[data-mes]")
+            .forEach(boton => {
+
+                boton.onclick = function () {
+
+                    abrirDetalleIngresoMes(
+                        this.dataset.mes
+                    );
+
+                    pantalla.remove();
+                };
+
+            });
+
+        document
+            .getElementById(
+                "cftVolverHistorialCompleto"
+            )
+            .onclick = function () {
+
+                pantalla.remove();
+
+                if (
+                    typeof window
+                        .mostrarResumenDashboard
+                    === "function"
+                ) {
+
+                    window
+                        .mostrarResumenDashboard();
+                }
+
+            };
+
+        window.scrollTo(0, 0);
+
+        console.log(
+            "✅ HISTORIAL COMPLETO ABIERTO"
+        );
+    }
+
+
+    function instalarHistorial() {
+
+        if (
+            window.cftHistorialIngresosInstalado
+        ) {
+            return;
+        }
+
+        if (
+            typeof window.actualizarDashboardInicio
+            !== "function"
+        ) {
+
+            setTimeout(
+                instalarHistorial,
+                500
+            );
+
+            return;
+        }
+
+        const original =
+            window.actualizarDashboardInicio;
+
+        window.actualizarDashboardInicio =
+            async function () {
+
+                const resultado =
+                    await original.apply(
+                        this,
+                        arguments
+                    );
+
+                setTimeout(
+                    cargarHistorialIngresos,
+                    150
+                );
+
+                return resultado;
+
+            };
+
+        window.cftHistorialIngresosInstalado =
+            true;
+
+        window.cftVerIngresosMes =
+            abrirDetalleIngresoMes;
+
+        window.cftAbrirHistorialIngresos =
+            abrirHistorialCompletoIngresos;
+
+        console.log(
+            "✅ HISTORIAL DE INGRESOS PERMANENTE"
+        );
+    }
+
+
+    instalarHistorial();
+
+})();
+
+
+/* =========================================================
+   CFT — ELIMINAR EMOJIS GRANDES DE TARJETAS DEL INICIO
+   ========================================================= */
+
+(function () {
+
+    if (document.getElementById("cft-quitar-emojis-tarjetas")) {
+        return;
+    }
+
+    const estilo = document.createElement("style");
+
+    estilo.id = "cft-quitar-emojis-tarjetas";
+
+    estilo.textContent = `
+        /* Asistencia de hoy */
+        #pantallaInicio .card:has(#inicioPresentesHoy)::after,
+
+        /* Membresías */
+        #pantallaInicio .card:has(#inicioActivos)::after,
+
+        /* Ingresos del mes */
+        #pantallaInicio .card:has(#inicioIngresosMes)::after {
+            content: none !important;
+            display: none !important;
+        }
+    `;
+
+    document.head.appendChild(estilo);
+
+    console.log(
+        "✅ EMOJIS GRANDES DE ASISTENCIA, MEMBRESÍAS E INGRESOS ELIMINADOS PERMANENTEMENTE"
+    );
+
+})();
+
+/* =========================================================
+   CFT — FOTO PERMANENTE HISTORIAL DE INGRESOS
+   ========================================================= */
+
+(function () {
+
+    function aplicarFotoHistorialIngresos() {
+
+        const historial =
+            document.getElementById("cftTablaIngresosMensuales");
+
+        if (!historial) return;
+
+        historial.style.setProperty(
+            "background-image",
+            'linear-gradient(90deg, rgba(8,8,8,.92), rgba(8,8,8,.78)), url("https://ficsyamvlfuwngqlmcuj.supabase.co/storage/v1/object/public/service-images/ea48826d-13a9-41ee-82c3-ce57087752b6.jpg")',
+            "important"
+        );
+
+        historial.style.setProperty(
+            "background-size",
+            "cover",
+            "important"
+        );
+
+        historial.style.setProperty(
+            "background-position",
+            "center",
+            "important"
+        );
+
+        historial.style.setProperty(
+            "background-repeat",
+            "no-repeat",
+            "important"
+        );
+    }
+
+    aplicarFotoHistorialIngresos();
+
+    if (!window.cftFotoHistorialObserver) {
+
+        window.cftFotoHistorialObserver =
+            new MutationObserver(function () {
+                aplicarFotoHistorialIngresos();
+            });
+
+        window.cftFotoHistorialObserver.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+    }
+
+    console.log(
+        "✅ FOTO DE MMA EN HISTORIAL DE INGRESOS → PERMANENTE"
+    );
+
+})();
+/* =========================================================
+   CFT — FOTO PERMANENTE ASISTENCIA DE HOY
+   ========================================================= */
+
+(function () {
+
+    function aplicarFotoAsistenciaHoy() {
+
+        const tarjeta =
+            document.getElementById("inicioPresentesHoy")?.closest(".card");
+
+        if (!tarjeta) return;
+
+        tarjeta.style.setProperty(
+            "background-image",
+            'linear-gradient(90deg, rgba(8,8,8,.90), rgba(8,8,8,.76)), url("https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit%2Cfl_lossy%2Ch_9000%2Cw_1200%2Cf_auto%2Cq_auto/13814511/504763_99169.png")',
+            "important"
+        );
+
+        tarjeta.style.setProperty(
+            "background-size",
+            "cover",
+            "important"
+        );
+
+        tarjeta.style.setProperty(
+            "background-position",
+            "center",
+            "important"
+        );
+
+        tarjeta.style.setProperty(
+            "background-repeat",
+            "no-repeat",
+            "important"
+        );
+    }
+
+    aplicarFotoAsistenciaHoy();
+
+    if (!window.cftFotoAsistenciaObserver) {
+
+        window.cftFotoAsistenciaObserver =
+            new MutationObserver(function () {
+                aplicarFotoAsistenciaHoy();
+            });
+
+        window.cftFotoAsistenciaObserver.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+    }
+
+    console.log(
+        "✅ FOTO MMA DE ASISTENCIA DE HOY → PERMANENTE"
+    );
+
+})();
+/* =========================================================
+   CFT — OCULTAR LISTA DE PAGOS DEBAJO DEL FORMULARIO
+   ========================================================= */
+
+(function () {
+
+    function ocultarListaPagos() {
+
+        const lista = document.getElementById("listaPagos");
+
+        if (lista) {
+            lista.style.setProperty(
+                "display",
+                "none",
+                "important"
+            );
+        }
+    }
+
+    ocultarListaPagos();
+
+    if (!window.cftOcultarListaPagosObserver) {
+
+        window.cftOcultarListaPagosObserver =
+            new MutationObserver(function () {
+                ocultarListaPagos();
+            });
+
+        window.cftOcultarListaPagosObserver.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+    }
+
+    console.log(
+        "✅ LISTA #listaPagos OCULTA PERMANENTEMENTE"
+    );
+
+})();
