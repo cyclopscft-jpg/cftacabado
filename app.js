@@ -3916,6 +3916,7 @@ function registrarPagoDesdeFicha() {
 
     window.vieneDeFicha = true;
 }
+
 function renovarMembresia() {
 
     if (!alumnoEditando) {
@@ -3977,52 +3978,141 @@ function renovarMembresia() {
 
     const contenedorFecha = document.createElement("div");
 
+    // ================================
+    // ESTILO DEL MODAL
+    // ================================
+
     contenedorFecha.style.position = "fixed";
     contenedorFecha.style.top = "50%";
     contenedorFecha.style.left = "50%";
     contenedorFecha.style.transform = "translate(-50%, -50%)";
-    contenedorFecha.style.background = "white";
+    contenedorFecha.style.width = "320px";
+    contenedorFecha.style.maxWidth = "calc(100vw - 40px)";
+    contenedorFecha.style.boxSizing = "border-box";
+    contenedorFecha.style.background = "#111";
+    contenedorFecha.style.color = "white";
     contenedorFecha.style.padding = "25px";
-    contenedorFecha.style.borderRadius = "12px";
-    contenedorFecha.style.boxShadow = "0 5px 30px rgba(0,0,0,0.3)";
-    contenedorFecha.style.zIndex = "99999";
+    contenedorFecha.style.border = "2px solid #ff6a00";
+    contenedorFecha.style.borderRadius = "16px";
+    contenedorFecha.style.boxShadow = "0 10px 40px rgba(0,0,0,.6)";
+    contenedorFecha.style.zIndex = "2147483647";
     contenedorFecha.style.textAlign = "center";
+
+    // ================================
+    // TÍTULO
+    // ================================
 
     const tituloFecha = document.createElement("div");
 
     tituloFecha.textContent =
         "📅 Fecha de inicio de la nueva membresía";
 
-    tituloFecha.style.fontWeight = "bold";
-    tituloFecha.style.marginBottom = "15px";
+    tituloFecha.style.fontWeight = "700";
+    tituloFecha.style.fontSize = "17px";
+    tituloFecha.style.marginBottom = "20px";
+    tituloFecha.style.lineHeight = "1.4";
+
+    // ================================
+    // INPUT FECHA
+    // ================================
 
     const inputFecha = document.createElement("input");
 
     inputFecha.type = "date";
     inputFecha.value = fechaHoy;
 
-    inputFecha.style.fontSize = "18px";
-    inputFecha.style.padding = "8px";
-    inputFecha.style.marginBottom = "15px";
+    inputFecha.style.display = "block";
+    inputFecha.style.visibility = "visible";
+    inputFecha.style.opacity = "1";
+    inputFecha.style.width = "100%";
+    inputFecha.style.boxSizing = "border-box";
+    inputFecha.style.fontSize = "17px";
+    inputFecha.style.padding = "11px";
+    inputFecha.style.marginBottom = "18px";
+    inputFecha.style.borderRadius = "10px";
+    inputFecha.style.border = "1px solid #ccc";
+    inputFecha.style.background = "white";
+    inputFecha.style.color = "#111";
+
+    // ================================
+    // CONTENEDOR DE BOTONES
+    // ================================
+
+    const contenedorBotones = document.createElement("div");
+
+    contenedorBotones.style.display = "flex";
+    contenedorBotones.style.justifyContent = "center";
+    contenedorBotones.style.gap = "10px";
+    contenedorBotones.style.width = "100%";
+
+    // ================================
+    // BOTÓN CONTINUAR
+    // ================================
 
     const botonAceptar = document.createElement("button");
 
+    botonAceptar.type = "button";
     botonAceptar.textContent = "Continuar";
 
-    botonAceptar.style.display = "block";
-    botonAceptar.style.margin = "0 auto";
-    botonAceptar.style.padding = "10px 20px";
+    botonAceptar.style.flex = "1";
+    botonAceptar.style.padding = "11px 10px";
     botonAceptar.style.cursor = "pointer";
+    botonAceptar.style.background = "#111";
+    botonAceptar.style.color = "white";
+    botonAceptar.style.border = "1px solid #ff6a00";
+    botonAceptar.style.borderRadius = "10px";
+    botonAceptar.style.fontWeight = "600";
+
+    // ================================
+    // BOTÓN CANCELAR
+    // ================================
+
+    const botonCancelar = document.createElement("button");
+
+    botonCancelar.type = "button";
+    botonCancelar.textContent = "Cancelar";
+
+    botonCancelar.style.flex = "1";
+    botonCancelar.style.padding = "11px 10px";
+    botonCancelar.style.cursor = "pointer";
+    botonCancelar.style.background = "#222";
+    botonCancelar.style.color = "#ccc";
+    botonCancelar.style.border = "1px solid #555";
+    botonCancelar.style.borderRadius = "10px";
+    botonCancelar.style.fontWeight = "600";
+
+    // ================================
+    // ARMAR MODAL
+    // ================================
+
+    contenedorBotones.appendChild(botonAceptar);
+    contenedorBotones.appendChild(botonCancelar);
 
     contenedorFecha.appendChild(tituloFecha);
     contenedorFecha.appendChild(inputFecha);
-    contenedorFecha.appendChild(botonAceptar);
+    contenedorFecha.appendChild(contenedorBotones);
 
     document.body.appendChild(contenedorFecha);
 
     inputFecha.focus();
 
-    // Esperamos la selección de fecha
+    // ================================
+    // CANCELAR
+    // ================================
+
+    botonCancelar.onclick = function () {
+
+        contenedorFecha.remove();
+
+        console.log(
+            "ℹ️ Renovación cancelada por el usuario."
+        );
+    };
+
+    // ================================
+    // CONTINUAR
+    // ================================
+
     botonAceptar.onclick = function () {
 
         const fechaSeleccionada = inputFecha.value;
@@ -4088,6 +4178,7 @@ function renovarMembresia() {
         );
     };
 }
+
 
 async function verAsistenciaDesdeFicha() {
 
