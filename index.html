@@ -2,6 +2,11 @@
 <html lang="es">
 
 <head>
+    <style id="cftPrevenirParpadeo">
+    #dashboardPrincipal {
+        visibility: hidden;
+    }
+</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -349,29 +354,26 @@
 </section>
 <section id="pantallaAsistencia" class="section" style="display: none;">
 
-   <div class="section-title">
-    📋 Asistencia
-</div>
-<button
-    type="button"
-    class="primary-button"
-    onclick="abrirInicio()">
-    ← Volver al Dashboard
-</button>
-<button
-    type="button"
-    class="primary-button"
-    onclick="volverDeAsistencia()">
-    ← Volver
-</button>
+    <div class="section-title cft-titulo-moderno">
+        <span class="cft-titulo-linea"></span>
+        <span>Asistencia</span>
+    </div>
 
-<div id="tituloAlumnoAsistencia"></div>
+    <button
+        type="button"
+        class="primary-button"
+        onclick="volverDeAsistencia()">
+        ← Volver
+    </button>
 
-<input
-    type="date"
-    id="fechaAsistencia">
+    <div id="tituloAlumnoAsistencia"></div>
+
+    <input
+        type="date"
+        id="fechaAsistencia">
 
     <div id="listaAsistencia"></div>
+
     <div id="estadisticasAsistencia"></div>
 
 </section>
@@ -445,6 +447,7 @@
         <strong id="inicioTotalPagos">0</strong>
     </p>
 </div>
+
 
 <!-- ASISTENCIA DE HOY -->
 <div class="card">
@@ -524,45 +527,115 @@
 
 </main>
 
-    <nav class="bottom-nav">
+  <nav class="bottom-nav">
 
-        <button
-    class="nav-item"
-    type="button"
-    onclick="abrirInicio()">
-    🏠<br>
-    Inicio
-</button>
+    <button
+        class="nav-item"
+        type="button"
+        onclick="abrirInicio()">
 
-<button
-    class="nav-item"
-    type="button"
-    onclick="mostrarResumenDashboard()">
-    📊<br>
-    Resumen
-</button>
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 10.5 12 3l9 7.5v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path>
+            </svg>
+        </span>
 
-        <button class="nav-item" onclick="abrirAlumnos()">
-            👥<br>
-            Alumnos
-        </button>
+        <span class="texto-smooth">Inicio</span>
 
-        <button class="nav-item" onclick="abrirPagos()">
-            💳<br>
-            Pagos
-        </button>
+    </button>
 
-        <button class="nav-item" onclick="abrirAsistencia()">
-            ✅<br>
-            Asistencia
-        </button>
 
-        <button class="nav-item" onclick="abrirMas()">
-        ☰<br>
-         Más
-       </button>
+    <button
+        class="nav-item"
+        type="button"
+        onclick="mostrarResumenDashboard()">
 
-    </nav>
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <path d="M4 19V5"></path>
+                <path d="M4 19h16"></path>
+                <path d="M7 16v-5"></path>
+                <path d="M12 16V8"></path>
+                <path d="M17 16v-9"></path>
+            </svg>
+        </span>
+
+        <span class="texto-smooth">Resumen</span>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        type="button"
+        onclick="abrirAlumnos()">
+
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <circle cx="9" cy="8" r="3"></circle>
+                <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path>
+                <path d="M16 5.5a3 3 0 0 1 0 5"></path>
+                <path d="M17 14c2.2.7 4 2.8 4 6"></path>
+            </svg>
+        </span>
+
+        <span class="texto-smooth">Alumnos</span>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        type="button"
+        onclick="abrirPagos()">
+
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                <path d="M3 10h18"></path>
+                <path d="M7 15h4"></path>
+            </svg>
+        </span>
+
+        <span class="texto-smooth">Pagos</span>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        type="button"
+        onclick="abrirAsistencia()">
+
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+        </span>
+
+        <span class="texto-smooth">Asistencia</span>
+
+    </button>
+
+
+    <button
+        class="nav-item"
+        type="button"
+        onclick="abrirMas()">
+
+        <span class="icono-smooth">
+            <svg viewBox="0 0 24 24">
+                <path d="M5 7h14"></path>
+                <path d="M5 12h14"></path>
+                <path d="M5 17h14"></path>
+            </svg>
+        </span>
+
+        <span class="texto-smooth">Más</span>
+
+    </button>
+
+</nav>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
