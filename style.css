@@ -2910,3 +2910,472 @@ body {
     top: auto !important;
     z-index: auto !important;
 }
+/* AJUSTE PANTALLAS CFT */
+#pantallaFichaAlumno {
+    padding-top: 80px !important;
+    height: calc(100vh - 80px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+#pantallaEditarAlumno {
+    padding-top: 80px !important;
+    height: calc(100vh - 80px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+/* BOTÓN CANCELAR - EDITAR ALUMNO */
+#pantallaEditarAlumno button {
+    transition: transform 0.15s ease;
+}
+
+#pantallaEditarAlumno button[onclick*="cancelar"],
+#pantallaEditarAlumno button[onclick*="Cancelar"] {
+    background: #111 !important;
+    color: #fff !important;
+    border: 1px solid #ff6a00 !important;
+    border-radius: 10px !important;
+    padding: 12px 20px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+/* =========================================================
+   CFT — BUSCADORES DE SEMÁFOROS — DISEÑO PERMANENTE
+   ========================================================= */
+
+.cft-buscador-semaforo {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    display: flex !important;
+    flex: none !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    position: static !important;
+    transform: none !important;
+    margin: 0 0 8px 0 !important;
+    padding: 0 15px !important;
+
+    background: linear-gradient(
+        135deg,
+        #151515,
+        #0d0d0d
+    ) !important;
+
+    border: 1px solid #2d2d2d !important;
+    border-left: 3px solid #f28c28 !important;
+    border-radius: 12px !important;
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.25) !important;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease !important;
+}
+
+.cft-buscador-semaforo:focus-within {
+    border-color: #f28c28 !important;
+
+    box-shadow:
+        0 0 0 1px rgba(242, 140, 40, 0.25),
+        0 7px 20px rgba(0, 0, 0, 0.30) !important;
+}
+
+.cft-icono-busqueda {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    margin-right: 9px !important;
+}
+
+.cft-icono-busqueda svg {
+    width: 19px !important;
+    height: 19px !important;
+    display: block !important;
+
+    fill: none !important;
+    stroke: #f28c28 !important;
+    stroke-width: 2 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+.cft-buscador-semaforo input {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 0 !important;
+    max-height: 48px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box !important;
+
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+
+    color: #ffffff !important;
+
+    font-family: inherit !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 48px !important;
+}
+
+.cft-buscador-semaforo input::placeholder {
+    color: #8d8d8d !important;
+    opacity: 1 !important;
+}
+
+.cft-buscador-semaforo input:focus {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#listaAlumnosVencidos,
+#listaAlumnosPorVencer,
+#listaAlumnosSinAsistencia {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+#listaAlumnosVencidos .cft-buscador-semaforo,
+#listaAlumnosPorVencer .cft-buscador-semaforo,
+#listaAlumnosSinAsistencia .cft-buscador-semaforo {
+    margin-top: 0 !important;
+}
+/* =========================================
+   ASISTENCIA — ESTILO MODERNO CFT
+   ========================================= */
+
+#pantallaAsistencia .cft-titulo-moderno {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 18px;
+}
+
+#pantallaAsistencia .cft-titulo-linea {
+    width: 4px;
+    height: 24px;
+    background: #ff6a00;
+    border-radius: 4px;
+    display: block;
+}
+
+#pantallaAsistencia > .primary-button {
+    background: #111111;
+    color: #ffffff;
+    border: 1px solid #ff6a00;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: Inter, sans-serif;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+/* =========================================================
+   CFT MANAGER — DASHBOARD MODERNO FINAL
+   DISEÑO APROBADO
+   ========================================================= */
+
+/* =========================================================
+   DASHBOARD PRINCIPAL
+   ========================================================= */
+
+#dashboardPrincipal {
+    width: 100%;
+    box-sizing: border-box;
+    color: #fff;
+    font-family: Inter, sans-serif;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+   ========================================================= */
+
+#dashboardPrincipal .cft-stat {
+    position: relative !important;
+    background: linear-gradient(145deg, #111111, #0a0a0a) !important;
+    border: 1px solid #242424 !important;
+    border-radius: 20px !important;
+    padding: 20px !important;
+    min-height: 145px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.28) !important;
+    overflow: hidden !important;
+    transition:
+        transform .15s ease,
+        border-color .15s ease !important;
+}
+
+#dashboardPrincipal .cft-stat:hover {
+    border-color: rgba(255,102,0,.28) !important;
+}
+
+#dashboardPrincipal .cft-stat:active {
+    transform: scale(.98) !important;
+}
+
+#dashboardPrincipal .cft-stat-title {
+    color: #777 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.3px !important;
+    margin-bottom: 7px !important;
+}
+
+#dashboardPrincipal .cft-stat-number {
+    color: #fff !important;
+    font-size: 34px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+    letter-spacing: -1px !important;
+}
+
+#dashboardPrincipal .cft-stat small,
+#dashboardPrincipal .cft-stat-subtitle {
+    color: #666 !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    letter-spacing: .6px !important;
+}
+
+/* Ingresos */
+
+#dashboardPrincipal .cft-stat:nth-child(2) .cft-stat-number,
+#dashboardPrincipal #ingresosMes {
+    font-size: 30px !important;
+}
+
+/* =========================================================
+   PANELES
+   ========================================================= */
+
+#dashboardPrincipal .cft-panel {
+    background: linear-gradient(145deg, #111111, #090909) !important;
+    border: 1px solid #242424 !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.25) !important;
+}
+
+/* TÍTULOS DE PANELES */
+
+#dashboardPrincipal .cft-panel-title {
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+}
+
+#dashboardPrincipal .cft-panel-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    margin-right: 10px;
+    vertical-align: middle;
+    background: #ff6500;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   CLASES DE HOY
+   ========================================================= */
+
+#dashboardPrincipal .cft-panel .cft-row {
+    background: #101010 !important;
+    border: 1px solid #1f1f1f !important;
+    border-radius: 12px !important;
+    margin: 7px 0 !important;
+    padding: 12px 14px !important;
+    box-sizing: border-box !important;
+}
+
+#dashboardPrincipal .cft-row-name {
+    color: #d4d4d4 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+#dashboardPrincipal .cft-panel .cft-row strong {
+    color: #ff6500 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+}
+
+/* =========================================================
+   ÚLTIMOS PAGOS
+   ========================================================= */
+
+#dashboardPrincipal .cft-panel .row {
+    background: #101010 !important;
+    border: 1px solid #1f1f1f !important;
+    border-radius: 12px !important;
+    margin: 7px 0 !important;
+    padding: 12px 14px !important;
+    box-sizing: border-box !important;
+}
+
+#dashboardPrincipal .cft-panel .row small {
+    color: #777 !important;
+    font-size: 11px !important;
+}
+
+#dashboardPrincipal .cft-panel .row strong {
+    color: #ff6500 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+}
+
+#dashboardPrincipal .cft-panel-link {
+    color: #ff6500 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+}
+
+/* =========================================================
+   TARJETAS MMA INFERIORES
+   CONSERVA LAS IMÁGENES ORIGINALES
+   ========================================================= */
+
+#dashboardPrincipal .cft-mma-card {
+    position: relative !important;
+    overflow: hidden !important;
+    min-height: 190px !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    box-shadow: 0 16px 38px rgba(0,0,0,.35) !important;
+
+    /* IMPORTANTE:
+       NO SE DEFINE background aquí.
+       Las imágenes originales permanecen intactas.
+    */
+
+    box-sizing: border-box !important;
+}
+
+/* Oscurecimiento encima de la imagen */
+
+#dashboardPrincipal .cft-mma-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,.78),
+            rgba(0,0,0,.20)
+        );
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Línea naranja */
+
+#dashboardPrincipal .cft-mma-card::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: #ff6500;
+    border-radius: 0 6px 6px 0;
+    z-index: 3;
+}
+
+/* Contenido */
+
+#dashboardPrincipal .cft-mma-text {
+    position: relative !important;
+    z-index: 4 !important;
+    padding: 26px !important;
+    box-sizing: border-box !important;
+}
+
+#dashboardPrincipal .cft-mma-kicker {
+    position: relative;
+    z-index: 4;
+    color: #ff6500 !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 10px !important;
+}
+
+#dashboardPrincipal .cft-mma-title {
+    position: relative;
+    z-index: 4;
+    color: #fff !important;
+    font-size: 28px !important;
+    font-weight: 900 !important;
+    letter-spacing: -1px !important;
+    line-height: 1 !important;
+}
+
+#dashboardPrincipal .cft-mma-subtitle {
+    position: relative;
+    z-index: 4;
+    color: #ddd !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    margin-top: 12px !important;
+}
+
+/* =========================================================
+   MÓVIL
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    #dashboardPrincipal .cft-stat {
+        min-height: 135px !important;
+        padding: 18px !important;
+        border-radius: 18px !important;
+    }
+
+    #dashboardPrincipal .cft-stat-number {
+        font-size: 30px !important;
+    }
+
+    #dashboardPrincipal .cft-stat:nth-child(2) .cft-stat-number,
+    #dashboardPrincipal #ingresosMes {
+        font-size: 27px !important;
+    }
+
+    #dashboardPrincipal .cft-mma-card {
+        min-height: 180px !important;
+        border-radius: 20px !important;
+    }
+
+    #dashboardPrincipal .cft-mma-text {
+        padding: 22px !important;
+    }
+
+    #dashboardPrincipal .cft-mma-title {
+        font-size: 25px !important;
+    }
+}
