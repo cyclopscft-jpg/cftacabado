@@ -7,7 +7,155 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
+// =====================================================
+// 🔎 BÚSQUEDA UNIVERSAL DE ALUMNO
+// Prioridad: NOMBRE → DNI → ID
+// =====================================================
 
+window.buscarAlumnoUniversal = async function({
+    nombre = null,
+    dni = null,
+    id = null
+} = {}) {
+
+    console.log("🔎 BÚSQUEDA UNIVERSAL");
+    console.log("👤 Nombre:", nombre);
+    console.log("🪪 DNI:", dni);
+    console.log("🆔 ID:", id);
+
+    // 1️⃣ BUSCAR POR NOMBRE
+    if (nombre) {
+
+        const nombreLimpio =
+            String(nombre)
+                .trim()
+                .replace(/\s+/g, " ")
+                .toUpperCase();
+
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select("*")
+                .ilike(
+                    "NOMBRE",
+                    nombreLimpio + "%"
+                );
+
+        if (error) {
+
+            console.error(
+                "❌ Error buscando por nombre:",
+                error
+            );
+
+        }
+
+        if (data && data.length) {
+
+            const alumnoEncontrado =
+                data.find(alumno => {
+
+                    const nombreAlumno =
+                        String(alumno.NOMBRE || "")
+                            .trim()
+                            .replace(/\s+/g, " ")
+                            .toUpperCase();
+
+                    return (
+                        nombreAlumno ===
+                        nombreLimpio
+                    );
+
+                });
+
+            if (alumnoEncontrado) {
+
+                console.log(
+                    "✅ ENCONTRADO POR NOMBRE:",
+                    alumnoEncontrado
+                );
+
+                return alumnoEncontrado;
+            }
+        }
+    }
+
+    // 2️⃣ BUSCAR POR DNI
+    if (dni) {
+
+        const dniLimpio =
+            String(dni).trim();
+
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select("*")
+                .eq("DNI", dniLimpio)
+                .limit(1);
+
+        if (error) {
+
+            console.error(
+                "❌ Error buscando por DNI:",
+                error
+            );
+
+        }
+
+        if (data && data.length) {
+
+            console.log(
+                "✅ ENCONTRADO POR DNI:",
+                data[0]
+            );
+
+            return data[0];
+        }
+    }
+
+    // 3️⃣ BUSCAR POR ID
+    if (id) {
+
+        const idLimpio =
+            String(id).trim();
+
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select("*")
+                .eq("id", idLimpio)
+                .limit(1);
+
+        if (error) {
+
+            console.error(
+                "❌ Error buscando por ID:",
+                error
+            );
+
+        }
+
+        if (data && data.length) {
+
+            console.log(
+                "✅ ENCONTRADO POR ID:",
+                data[0]
+            );
+
+            return data[0];
+        }
+    }
+
+    console.warn(
+        "⚠️ ALUMNO NO ENCONTRADO"
+    );
+
+    return null;
+};
+
+console.log(
+    "✅ BÚSQUEDA UNIVERSAL CARGADA"
+);
 function abrirFormulario() {
     const dash = document.getElementById("dashboardPrincipal");
     const form = document.getElementById("formularioAlumno");
@@ -780,12 +928,7 @@ if (fechaOriginal) {
             );
 
         // COMPROBAR DNI QUE RECIBE CADA TARJETA
-        console.log(
-            "📋 Alumno:",
-            nombre,
-            "| DNI:",
-            JSON.stringify(dni)
-        );
+
 
         const tarjeta =
             document.createElement("div");
@@ -4182,31 +4325,33 @@ function renovarMembresia() {
 
 async function verAsistenciaDesdeFicha() {
 
+    const paginaPagosMes =
+        document.getElementById("paginaPagosMes");
+
+    if (paginaPagosMes) {
+        paginaPagosMes.style.display = "none";
+    }
+
+    const dashboard =
+        document.getElementById("dashboardPrincipal");
+
+    if (dashboard) {
+        dashboard.style.display = "none";
+    }
+
     if (!alumnoEditando) {
-
-        alert(
-            "No se ha seleccionado ningún alumno."
-        );
-
+        alert("No se ha seleccionado ningún alumno.");
         return;
     }
 
     const pantallaFicha =
-        document.getElementById(
-            "pantallaFichaAlumno"
-        );
+        document.getElementById("pantallaFichaAlumno");
 
     const pantallaAsistencia =
-        document.getElementById(
-            "pantallaAsistencia"
-        );
+        document.getElementById("pantallaAsistencia");
 
     if (!pantallaAsistencia) {
-
-        alert(
-            "No se encontró la pantalla de asistencia."
-        );
-
+        alert("No se encontró la pantalla de asistencia.");
         return;
     }
 
@@ -4215,7 +4360,6 @@ async function verAsistenciaDesdeFicha() {
     }
 
     pantallaAsistencia.style.display = "block";
-
     window.alumnoAsistenciaFiltro =
         alumnoEditando;
 
@@ -4268,8 +4412,7 @@ async function verAsistenciaDesdeFicha() {
     await mostrarEstadisticasAsistencia();
 }
 
-async function actualizarAlertasMembresias() {
-    console.log("🟡 ENTRÓ A actualizarAlertasMembresias");
+async function actualizarAlertasMembresias(alumnosExternos = null) {
 
     const alertaVencidos =
         document.getElementById("alertaVencidos");
@@ -4281,114 +4424,97 @@ async function actualizarAlertasMembresias() {
         return;
     }
 
-    const { data: alumnos, error } =
-        await supabaseClient
-            .from("Alumnos")
-            .select('"NOMBRE", "FECHA VENCIMIENTO"');
+    let alumnos = alumnosExternos;
 
-    if (error) {
+    if (!alumnos) {
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select('"NOMBRE", "FECHA VENCIMIENTO"');
 
-        console.error(
-            "ERROR CARGANDO ALERTAS DE MEMBRESÍAS:",
-            error
-        );
+        if (error) {
+            console.error(
+                "ERROR CARGANDO ALERTAS DE MEMBRESÍAS:",
+                error
+            );
+            return;
+        }
 
-        return;
+        alumnos = data || [];
     }
-
 
     const hoy = new Date();
-
     hoy.setHours(0, 0, 0, 0);
 
-
     const limite = new Date(hoy);
-
-    limite.setDate(
-        limite.getDate() + 7
-    );
-
+    limite.setDate(limite.getDate() + 7);
     limite.setHours(0, 0, 0, 0);
 
-
     let vencidos = 0;
-
     let porVencer = 0;
 
+    function convertirFecha(fechaTexto) {
 
-    // =================================
-    // LEER FECHA DD/MM/YYYY
-    // =================================
+        const texto =
+            String(fechaTexto || "").trim();
 
-   function convertirFecha(fechaTexto) {
-
-    const texto =
-        String(fechaTexto || "").trim();
-
-    if (!texto) {
-        return null;
-    }
-
-    const partes =
-        texto.split(/[\/-]/);
-
-    if (partes.length !== 3) {
-        return null;
-    }
-
-    let dia;
-    let mes;
-    let anio;
-
-    // YYYY-MM-DD
-    if (partes[0].length === 4) {
-
-        anio = Number(partes[0]);
-        mes = Number(partes[1]);
-        dia = Number(partes[2]);
-
-    } else {
-
-        // DD/MM/YYYY o DD-MM-YYYY
-        dia = Number(partes[0]);
-        mes = Number(partes[1]);
-        anio = Number(partes[2]);
-
-        if (anio < 100) {
-            anio += 2000;
+        if (!texto) {
+            return null;
         }
+
+        const partes =
+            texto.split(/[\/-]/);
+
+        if (partes.length !== 3) {
+            return null;
+        }
+
+        let dia;
+        let mes;
+        let anio;
+
+        if (partes[0].length === 4) {
+
+            anio = Number(partes[0]);
+            mes = Number(partes[1]);
+            dia = Number(partes[2]);
+
+        } else {
+
+            dia = Number(partes[0]);
+            mes = Number(partes[1]);
+            anio = Number(partes[2]);
+
+            if (anio < 100) {
+                anio += 2000;
+            }
+        }
+
+        if (
+            !dia ||
+            !mes ||
+            !anio ||
+            mes < 1 ||
+            mes > 12 ||
+            dia < 1 ||
+            dia > 31
+        ) {
+            return null;
+        }
+
+        const fecha =
+            new Date(
+                anio,
+                mes - 1,
+                dia
+            );
+
+        fecha.setHours(0, 0, 0, 0);
+
+        return fecha;
     }
 
-    if (
-        !dia ||
-        !mes ||
-        !anio ||
-        mes < 1 ||
-        mes > 12 ||
-        dia < 1 ||
-        dia > 31
-    ) {
-        return null;
-    }
-
-    const fecha =
-        new Date(
-            anio,
-            mes - 1,
-            dia
-        );
-
-    fecha.setHours(0, 0, 0, 0);
-
-    return fecha;
-}
-
-
-    // =================================
-    // CONTAR
-    // =================================
-
-    (alumnos || []).forEach(function(alumno) {
+    alumnos.forEach(function(alumno) {
 
         const vencimiento =
             convertirFecha(
@@ -4398,7 +4524,6 @@ async function actualizarAlertasMembresias() {
         if (!vencimiento) {
             return;
         }
-
 
         if (vencimiento < hoy) {
 
@@ -4410,15 +4535,8 @@ async function actualizarAlertasMembresias() {
         ) {
 
             porVencer++;
-
         }
-
     });
-
-
-    // =================================
-    // MOSTRAR RESULTADOS
-    // =================================
 
     alertaVencidos.textContent =
         "🔴 " +
@@ -4426,65 +4544,106 @@ async function actualizarAlertasMembresias() {
         " membresías vencidas";
 
     alertaPorVencer.textContent =
-
-    console.log("🟡 CONTADOR CALCULADO:", porVencer);
-    alertaPorVencer.textContent =
         "🟡 " +
         porVencer +
         " membresías vencen en 7 días";
 }
 
-async function actualizarAlumnosSinAsistencia() {
+async function actualizarAlumnosSinAsistencia(
+    alumnosExternos = null,
+    asistenciasExternas = null
+) {
 
     const alerta =
         document.getElementById(
             "alertaSinAsistencia"
         );
 
-    if (!alerta) return;
-
-    const { data: alumnos, error: errorAlumnos } =
-        await supabaseClient
-            .from("Alumnos")
-            .select('DNI, NOMBRE, "FECHA VENCIMIENTO"')
-
-    if (errorAlumnos) {
-
-        console.error(
-            "ERROR CARGANDO ALUMNOS:",
-            errorAlumnos
-        );
-
+    if (!alerta) {
         return;
     }
 
-    const { data: asistencias, error: errorAsistencias } =
-        await supabaseClient
-            .from("Asistencias")
-            .select("DNI, NOMBRE, FECHA");
+    let alumnos = alumnosExternos;
+    let asistencias = asistenciasExternas;
 
-    if (errorAsistencias) {
+    if (!alumnos) {
 
-        console.error(
-            "ERROR CARGANDO ASISTENCIAS:",
-            errorAsistencias
-        );
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select(
+                    'DNI, NOMBRE, "FECHA VENCIMIENTO"'
+                );
 
-        return;
+        if (error) {
+            console.error(
+                "ERROR CARGANDO ALUMNOS:",
+                error
+            );
+            return;
+        }
+
+        alumnos = data || [];
+    }
+
+    if (!asistencias) {
+
+        const { data, error } =
+            await supabaseClient
+                .from("Asistencias")
+                .select(
+                    "DNI, NOMBRE, FECHA"
+                );
+
+        if (error) {
+            console.error(
+                "ERROR CARGANDO ASISTENCIAS:",
+                error
+            );
+            return;
+        }
+
+        asistencias = data || [];
     }
 
     const hoy = new Date();
-
     hoy.setHours(0, 0, 0, 0);
 
     let sinAsistencia = 0;
 
-    (alumnos || []).forEach(function(alumno) {
+    /*
+       INDEXAR ASISTENCIAS POR NOMBRE
+    */
+
+    const mapaAsistencias = new Map();
+
+    asistencias.forEach(function(asistencia) {
+
+        const nombre =
+            String(
+                asistencia["NOMBRE"] || ""
+            )
+                .trim()
+                .toUpperCase();
+
+        if (!nombre) {
+            return;
+        }
+
+        if (!mapaAsistencias.has(nombre)) {
+            mapaAsistencias.set(nombre, []);
+        }
+
+        mapaAsistencias
+            .get(nombre)
+            .push(asistencia);
+    });
+
+    alumnos.forEach(function(alumno) {
 
         const fechaVencimiento =
             alumno["FECHA VENCIMIENTO"];
 
-        // SIN FECHA = HISTÓRICO
         if (!fechaVencimiento) {
             return;
         }
@@ -4503,7 +4662,6 @@ async function actualizarAlumnosSinAsistencia() {
             let mes;
             let anio;
 
-            // FORMATO YYYY-MM-DD
             if (partes[0].length === 4) {
 
                 anio = Number(partes[0]);
@@ -4511,8 +4669,6 @@ async function actualizarAlumnosSinAsistencia() {
                 dia = Number(partes[2]);
 
             } else {
-
-                // FORMATO DD/MM/YYYY o DD-MM-YYYY
 
                 dia = Number(partes[0]);
                 mes = Number(partes[1]);
@@ -4538,32 +4694,23 @@ async function actualizarAlumnosSinAsistencia() {
 
         vencimiento.setHours(0, 0, 0, 0);
 
-        // VENCIDO = NO SE CUENTA
         if (vencimiento < hoy) {
             return;
         }
 
+        const nombreAlumno =
+            String(
+                alumno["NOMBRE"] || ""
+            )
+                .trim()
+                .toUpperCase();
+
         const registrosAlumno =
-            (asistencias || []).filter(
-                function(asistencia) {
+            mapaAsistencias.get(nombreAlumno) || [];
 
-                    return (
-                        String(asistencia["NOMBRE"] || "")
-                            .trim()
-                            .toUpperCase() ===
-                        String(alumno["NOMBRE"] || "")
-                            .trim()
-                            .toUpperCase()
-                    );
-
-                }
-            );
-
-        // NUNCA REGISTRÓ ASISTENCIA
         if (registrosAlumno.length === 0) {
 
             sinAsistencia++;
-
             return;
         }
 
@@ -4591,7 +4738,9 @@ async function actualizarAlumnosSinAsistencia() {
             }
         );
 
-        if (!ultimaFecha) return;
+        if (!ultimaFecha) {
+            return;
+        }
 
         ultimaFecha.setHours(0, 0, 0, 0);
 
@@ -4602,23 +4751,9 @@ async function actualizarAlumnosSinAsistencia() {
             );
 
         if (diferencia >= 7) {
-
             sinAsistencia++;
-
-            console.log(
-                "🔵 SUMANDO SIN ASISTENCIA:",
-                alumno["NOMBRE"],
-                diferencia,
-                "días"
-            );
         }
-
     });
-
-    console.log(
-        "🔵 CONTADOR SIN ASISTENCIA ACTIVOS:",
-        sinAsistencia
-    );
 
     alerta.textContent =
         "🔵 " +
@@ -6285,13 +6420,6 @@ function abrirInicio() {
                 : "";
     }
 
-    if (
-        typeof actualizarDashboardInicio ===
-        "function"
-    ) {
-        actualizarDashboardInicio();
-    }
-
 }
 function dashboardModerno() {
 
@@ -7136,7 +7264,16 @@ if (!document.getElementById("formularioAlumno")) {
 
 
     console.log("✅ Dashboard moderno creado");
+const estiloAntiParpadeo =
+    document.getElementById(
+        "cftPrevenirParpadeo"
+    );
 
+if (estiloAntiParpadeo) {
+    estiloAntiParpadeo.remove();
+}
+
+dashboard.style.visibility = "visible";
 }
 
 function volverAlDashboard() {
@@ -7167,17 +7304,46 @@ function volverAlDashboard() {
 async function actualizarDashboardInicio() {
 
     console.log("🔥 ENTRÓ A actualizarDashboardInicio");
-await actualizarAlertasMembresias();
-await actualizarAlumnosSinAsistencia();
 
     /* =========================
-       CARGAR ALUMNOS
+       CARGAR DATOS DEL DASHBOARD
     ========================= */
 
-    const { data: alumnos, error: errorAlumnos } =
-        await supabaseClient
+    const [
+        resultadoAlumnos,
+        resultadoPagos,
+        resultadoAsistencias
+    ] = await Promise.all([
+
+        supabaseClient
             .from("Alumnos")
-            .select("*");
+            .select("*"),
+
+        supabaseClient
+            .from("Pagos")
+            .select("*")
+            .order("FECHA", { ascending: false })
+            .order("id", { ascending: false }),
+
+        supabaseClient
+            .from("Asistencias")
+            .select("*")
+    ]);
+
+    const {
+        data: alumnos,
+        error: errorAlumnos
+    } = resultadoAlumnos;
+
+    const {
+        data: pagos,
+        error: errorPagos
+    } = resultadoPagos;
+
+    const {
+        data: asistencias,
+        error: errorAsistencias
+    } = resultadoAsistencias;
 
     if (errorAlumnos) {
 
@@ -7189,21 +7355,6 @@ await actualizarAlumnosSinAsistencia();
         return;
     }
 
-    const listaAlumnos =
-        alumnos || [];
-
-
-    /* =========================
-       CARGAR PAGOS
-    ========================= */
-
-    const { data: pagos, error: errorPagos } =
-        await supabaseClient
-            .from("Pagos")
-            .select("*")
-            .order("FECHA", { ascending: false })
-            .order("id", { ascending: false });
-
     if (errorPagos) {
 
         console.error(
@@ -7213,65 +7364,6 @@ await actualizarAlumnosSinAsistencia();
 
         return;
     }
-
-    const listaPagos =
-    pagos || [];
-
-// Ordenar pagos del más reciente al más antiguo
-listaPagos.sort(function(a, b) {
-
-    const fechaA =
-        String(a["FECHA"] || "");
-
-    const fechaB =
-        String(b["FECHA"] || "");
-
-    // Primero: fecha más reciente
-    if (fechaA !== fechaB) {
-        return fechaB.localeCompare(fechaA);
-    }
-
-    // Segundo: ID más reciente
-    const idA = a["id"];
-    const idB = b["id"];
-
-    if (
-        typeof idA === "number" &&
-        typeof idB === "number"
-    ) {
-        return idB - idA;
-    }
-
-    return String(idB || "")
-        .localeCompare(String(idA || ""));
-});
-
-console.log(
-    "🔥 PAGOS ORDENADOS PARA DASHBOARD:",
-    listaPagos
-);
-
-console.log(
-    "🔥 LOS 5 QUE DEBE MOSTRAR:",
-    listaPagos.slice(0, 5).map(function(pago) {
-        return {
-            id: pago["id"],
-            nombre: pago["NOMBRE"],
-            fecha: pago["FECHA"],
-            monto: pago["MONTO"]
-        };
-    })
-);
-
-
-    /* =========================
-       CARGAR ASISTENCIAS
-    ========================= */
-
-    const { data: asistencias, error: errorAsistencias } =
-        await supabaseClient
-            .from("Asistencias")
-            .select("*");
 
     if (errorAsistencias) {
 
@@ -7283,11 +7375,66 @@ console.log(
         return;
     }
 
+    const listaAlumnos =
+        alumnos || [];
+
+    const listaPagos =
+        pagos || [];
+
     const listaAsistencias =
         asistencias || [];
 
 
-   /* =========================
+    /* =========================
+       ORDENAR PAGOS
+    ========================= */
+
+    listaPagos.sort(function(a, b) {
+
+        const fechaA =
+            String(a["FECHA"] || "");
+
+        const fechaB =
+            String(b["FECHA"] || "");
+
+        if (fechaA !== fechaB) {
+            return fechaB.localeCompare(fechaA);
+        }
+
+        const idA =
+            a["id"];
+
+        const idB =
+            b["id"];
+
+        if (
+            typeof idA === "number" &&
+            typeof idB === "number"
+        ) {
+            return idB - idA;
+        }
+
+        return String(idB || "")
+            .localeCompare(
+                String(idA || "")
+            );
+    });
+
+
+    /* =========================
+       ACTUALIZAR ALERTAS
+    ========================= */
+
+    await actualizarAlertasMembresias(
+        listaAlumnos
+    );
+
+    await actualizarAlumnosSinAsistencia(
+        listaAlumnos,
+        listaAsistencias
+    );
+
+  /* =========================
    MEMBRESÍAS
 ========================= */
 
@@ -7297,88 +7444,126 @@ let vencidos = 0;
 
 const hoy = new Date();
 
-hoy.setHours(0, 0, 0, 0);
+hoy.setHours(
+    0,
+    0,
+    0,
+    0
+);
+
+const limitePorVencer =
+    new Date(hoy);
+
+limitePorVencer.setDate(
+    limitePorVencer.getDate() + 7
+);
+
+limitePorVencer.setHours(
+    0,
+    0,
+    0,
+    0
+);
 
 listaAlumnos.forEach(function(alumno) {
 
     const fechaVencimiento =
         alumno["FECHA VENCIMIENTO"];
 
-    // SIN FECHA = ALUMNO HISTÓRICO
+    // Sin fecha = histórico
     if (!fechaVencimiento) {
         return;
     }
 
-    let vencimiento;
-
-    // ==============================
-    // INTERPRETAR FECHA DE VENCIMIENTO
-    // ==============================
-
     const fechaTexto =
-        String(fechaVencimiento).trim();
+        String(
+            fechaVencimiento
+        ).trim();
 
     const partes =
         fechaTexto.split(/[-\/]/);
 
-    if (partes.length === 3) {
+    if (partes.length !== 3) {
+        return;
+    }
 
-        let dia;
-        let mes;
-        let anio;
+    let dia;
+    let mes;
+    let anio;
 
-        // FORMATO: YYYY-MM-DD
-        if (partes[0].length === 4) {
+    if (partes[0].length === 4) {
 
-            anio = Number(partes[0]);
-            mes = Number(partes[1]);
-            dia = Number(partes[2]);
+        anio =
+            Number(partes[0]);
 
-        } else {
+        mes =
+            Number(partes[1]);
 
-            // FORMATO: DD/MM/YYYY o DD-MM-YYYY
-
-            dia = Number(partes[0]);
-            mes = Number(partes[1]);
-            anio = Number(partes[2]);
-
-            if (anio < 100) {
-                anio += 2000;
-            }
-        }
-
-        vencimiento =
-            new Date(
-                anio,
-                mes - 1,
-                dia
-            );
+        dia =
+            Number(partes[2]);
 
     } else {
 
-        vencimiento =
-            new Date(fechaVencimiento);
+        dia =
+            Number(partes[0]);
+
+        mes =
+            Number(partes[1]);
+
+        anio =
+            Number(partes[2]);
+
+        if (anio < 100) {
+            anio += 2000;
+        }
     }
 
-    vencimiento.setHours(0, 0, 0, 0);
+    if (
+        !dia ||
+        !mes ||
+        !anio ||
+        mes < 1 ||
+        mes > 12 ||
+        dia < 1 ||
+        dia > 31
+    ) {
+        return;
+    }
 
-    // ==============================
-    // DETERMINAR ESTADO
-    // ==============================
+    const vencimiento =
+        new Date(
+            anio,
+            mes - 1,
+            dia
+        );
 
-    if (vencimiento >= hoy) {
+    vencimiento.setHours(
+        0,
+        0,
+        0,
+        0
+    );
 
-        activos++;
+    // VENCIDO
+    if (vencimiento < hoy) {
 
+        vencidos++;
+
+        return;
+    }
+
+    // ACTIVO
+    activos++;
+
+    // POR VENCER
+    if (
+        vencimiento <=
+        limitePorVencer
+    ) {
+
+        porVencer++;
     }
 });
-
-// ==============================
-// HISTÓRICO / VENCIDOS
-// ==============================
-
-vencidos =
-    listaAlumnos.length - activos;
 
 console.log(
     "🟢 ACTIVOS DASHBOARD:",
@@ -7881,15 +8066,6 @@ asistenciasHoy.forEach(function(registro) {
         "ultimosPagos"
     );
 
-console.log(
-    "🔥 ELEMENTO ultimosPagos:",
-    elementoUltimosPagosDashboard
-);
-
-console.log(
-    "🔥 MOMENTO DE DIBUJAR ÚLTIMOS PAGOS:",
-    new Date().toISOString()
-);
 
 if (elementoUltimosPagosDashboard) {
 
@@ -7914,13 +8090,6 @@ if (elementoUltimosPagosDashboard) {
                     document.createElement(
                         "div"
                     );
-
-                console.log(
-                    "🔥 DIBUJANDO PAGO:",
-                    pago["NOMBRE"],
-                    pago["MONTO"],
-                    pago["FECHA"]
-                );
 
                 fila.className =
                     "row";
@@ -7951,11 +8120,6 @@ if (elementoUltimosPagosDashboard) {
                         }
                     </strong>
                 `;
-
-                console.log(
-                    "🔥 FILA AGREGADA A ÚLTIMOS PAGOS:",
-                    fila.innerHTML
-                );
 
                 elementoUltimosPagosDashboard
                     .appendChild(fila);
@@ -8525,57 +8689,6 @@ window.addEventListener("load", function () {
         }
 
         /* -------------------------------------------------
-           BOTÓN VOLVER
-           ------------------------------------------------- */
-
-        const volver =
-            document.getElementById(
-                "volverResumenPagosMes"
-            );
-
-        if (volver) {
-
-            volver.onclick = function () {
-
-                pagina.style.display =
-                    "none";
-
-                const dashboard =
-                    document.getElementById(
-                        "dashboardPrincipal"
-                    );
-
-                if (dashboard) {
-                    dashboard.style.display =
-                        "block";
-                }
-
-                const inicio =
-                    document.getElementById(
-                        "pantallaInicio"
-                    );
-
-                if (inicio) {
-                    inicio.style.display =
-                        "block";
-                }
-
-                const contenido =
-                    document.querySelector(
-                        "main.content"
-                    );
-
-                if (contenido) {
-                    contenido.scrollTop = 0;
-                }
-
-                console.log(
-                    "⬅️ Regresó al Resumen"
-                );
-            };
-        }
-
-        /* -------------------------------------------------
            ACCIÓN VER MÁS
            ------------------------------------------------- */
 
@@ -8772,30 +8885,12 @@ window.addEventListener("load", function () {
                VER FICHA utiliza el ID.
             */
 
-            const mapaIds = {};
-
-            (alumnos || [])
-                .forEach(function(alumno) {
-
-                    if (alumno.DNI) {
-
-                        mapaIds[
-                            String(alumno.DNI)
-                        ] =
-                            alumno.id;
-                    }
-                });
-
+            
             /* -------------------------------------------------
                MOSTRAR PAGOS
                ------------------------------------------------- */
 
             pagos.forEach(function(pago) {
-
-                const idAlumno =
-                    mapaIds[
-                        String(pago.DNI)
-                    ];
 
                 const fila =
                     document.createElement(
@@ -8848,125 +8943,526 @@ window.addEventListener("load", function () {
                     </span>
 
                     <div
-                        style="
-                            display:flex;
-                            align-items:center;
-                            gap:8px;
-                        ">
+    style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+    ">
 
-                        <strong
-                            style="
-                                color:#C5C9CC;
-                                font-family:Inter,sans-serif;
-                                white-space:nowrap;
-                            ">
-                            S/${Number(
-                                pago.MONTO || 0
-                            ).toFixed(2)}
-                        </strong>
+    <strong
+        style="
+            color:#C5C9CC;
+            font-family:Inter,sans-serif;
+            white-space:nowrap;
+        ">
+        S/${Number(
+            pago.MONTO || 0
+        ).toFixed(2)}
+    </strong>
 
-                        <button
-                            type="button"
-                            class="btnFichaPagoMes"
-                            style="
-                                display:inline-flex;
-                                align-items:center;
-                                justify-content:center;
-                                gap:6px;
+    <div
+        style="
+            display:flex;
+            align-items:center;
+            gap:8px;
+            margin-left:0;
+        ">
 
-                                background:#111;
+        <button
+            type="button"
+            class="btnFichaPagoMes"
+            style="
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                gap:6px;
 
-                                border:1px solid #f28c28;
+                background:#111;
 
-                                border-radius:6px;
+                border:1px solid #f28c28;
 
-                                padding:6px 9px;
+                border-radius:6px;
 
-                                color:#B8BCC0;
+                padding:6px 9px;
 
-                                font-family:Inter,sans-serif;
+                color:#B8BCC0;
 
-                                font-size:12px;
+                font-family:Inter,sans-serif;
 
-                                font-weight:500;
+                font-size:12px;
 
-                                cursor:pointer;
+                font-weight:500;
 
-                                white-space:nowrap;
-                            ">
+                cursor:pointer;
 
-                            <span
-                                style="
-                                    width:6px;
-                                    height:6px;
-                                    min-width:6px;
-                                    border-radius:50%;
-                                    background:#f28c28;
-                                    display:inline-block;
-                                ">
-                            </span>
+                white-space:nowrap;
+            ">
 
-                            <span>
-                                Ver ficha
-                            </span>
+            <span
+                style="
+                    width:6px;
+                    height:6px;
+                    min-width:6px;
+                    border-radius:50%;
+                    background:#f28c28;
+                    display:inline-block;
+                ">
+            </span>
 
-                        </button>
+            <span>
+                Ver ficha
+            </span>
 
-                    </div>
+        </button>
+
+        <button
+            type="button"
+            class="btnEliminarPagoMes"
+            title="Eliminar pago"
+            style="
+                width:38px;
+                height:38px;
+                min-width:38px;
+
+                padding:0;
+                margin:0;
+
+                border:0;
+                border-radius:50%;
+
+                background:#ff3b30;
+
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+
+                cursor:pointer;
+
+                flex-shrink:0;
+            ">
+
+            <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2.3"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+
+                <polyline points="3 6 5 6 21 6"></polyline>
+
+                <path d="M19 6l-1 14H6L5 6"></path>
+
+                <path d="M10 11v6"></path>
+
+                <path d="M14 11v6"></path>
+
+                <path d="M9 6V4h6v2"></path>
+
+            </svg>
+
+        </button>
+
+    </div>
+
+</div>
+                    
+                
                 `;
 
-                /* -------------------------------------------------
-                   VER FICHA POR ID
-                   ------------------------------------------------- */
+          /* -------------------------------------------------
+   VER FICHA — BÚSQUEDA UNIVERSAL
+   + ELIMINAR PAGO + QUITAR MEMBRESÍA
+   ------------------------------------------------- */
 
-                const botonFicha =
-                    fila.querySelector(
-                        ".btnFichaPagoMes"
-                    );
+const botonFicha =
+    fila.querySelector(
+        ".btnFichaPagoMes"
+    );
 
-                if (botonFicha) {
+if (botonFicha) {
 
-                    botonFicha.onclick =
-                        function() {
+    botonFicha.onclick =
+        async function() {
 
-                            if (!idAlumno) {
+            console.log(
+                "🔎 VER FICHA UNIVERSAL:",
+                pago.NOMBRE,
+                pago.DNI
+            );
 
-                                console.log(
-                                    "❌ No encontré ID para:",
-                                    pago.NOMBRE,
-                                    pago.DNI
-                                );
+            const alumno =
+                await buscarAlumnoUniversal({
+                    nombre: pago.NOMBRE,
+                    dni: pago.DNI
+                });
 
-                                alert(
-                                    "No se encontró el ID del alumno."
-                                );
+            if (!alumno) {
 
-                                return;
-                            }
+                console.log(
+                    "❌ No encontré alumno:",
+                    pago.NOMBRE,
+                    pago.DNI
+                );
 
-                            console.log(
-                                "➡️ Abriendo ficha por ID:",
-                                idAlumno
-                            );
+                alert(
+                    "No se encontró el alumno."
+                );
 
-                            if (
-                                typeof verAlumno ===
-                                "function"
-                            ) {
+                return;
+            }
 
-                                verAlumno(
-                                    idAlumno
-                                );
+            console.log(
+                "✅ Alumno encontrado:",
+                alumno.NOMBRE,
+                "🆔 ID:",
+                alumno.id
+            );
 
-                            } else {
+            if (
+                typeof verAlumno ===
+                "function"
+            ) {
 
-                                console.log(
-                                    "❌ No existe verAlumno()"
-                                );
-                            }
-                        };
+                verAlumno(
+                    alumno.id
+                );
+
+            } else {
+
+                console.log(
+                    "❌ No existe verAlumno()"
+                );
+
+            }
+
+        };
+}
+
+
+/* -------------------------------------------------
+   ELIMINAR PAGO — PAGOS DEL MES
+   + QUITAR MEMBRESÍA
+   + CONSERVAR ALUMNO
+   ------------------------------------------------- */
+
+const botonEliminar =
+    fila.querySelector(
+        ".btnEliminarPagoMes"
+    );
+
+if (botonEliminar) {
+
+    botonEliminar.onclick =
+        async function(e) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const nombrePago =
+                String(
+                    pago.NOMBRE || ""
+                )
+                .replace(/\s+/g, " ")
+                .trim();
+
+            const montoPago =
+                Number(
+                    pago.MONTO || 0
+                );
+
+            const fechaPago =
+                String(
+                    pago.FECHA || ""
+                ).slice(0, 10);
+
+            const confirmar =
+                confirm(
+                    "¿Eliminar este pago y quitar la membresía?\n\n" +
+                    nombrePago +
+                    "\nS/" +
+                    montoPago.toFixed(2) +
+                    "\n" +
+                    fechaPago
+                );
+
+            if (!confirmar) {
+                return;
+            }
+
+            try {
+
+                /* =========================================
+                   1. BUSCAR PAGO EXACTO
+                   ========================================= */
+
+                const {
+                    data: pagosActuales,
+                    error: errorPagos
+                } =
+                    await supabaseClient
+                        .from("Pagos")
+                        .select(
+                            "id, NOMBRE, MONTO, FECHA"
+                        );
+
+                if (errorPagos) {
+                    throw errorPagos;
                 }
 
+                function normalizarTextoPago(texto) {
+
+                    return String(
+                        texto || ""
+                    )
+                    .normalize("NFD")
+                    .replace(
+                        /[\u0300-\u036f]/g,
+                        ""
+                    )
+                    .replace(
+                        /\s+/g,
+                        " "
+                    )
+                    .trim()
+                    .toUpperCase();
+                }
+
+                const candidatos =
+                    (pagosActuales || [])
+                    .filter(
+                        function(pagoActual) {
+
+                            return (
+                                normalizarTextoPago(
+                                    pagoActual.NOMBRE
+                                ) ===
+                                normalizarTextoPago(
+                                    nombrePago
+                                ) &&
+
+                                Number(
+                                    pagoActual.MONTO
+                                ) ===
+                                montoPago &&
+
+                                String(
+                                    pagoActual.FECHA || ""
+                                ).slice(0, 10) ===
+                                fechaPago
+                            );
+                        }
+                    );
+
+                if (
+                    candidatos.length !== 1
+                ) {
+
+                    alert(
+                        candidatos.length === 0
+                            ? "No se encontró exactamente este pago."
+                            : "Hay varios pagos idénticos. No se eliminó ninguno."
+                    );
+
+                    return;
+                }
+
+                const pagoEncontrado =
+                    candidatos[0];
+
+                console.log(
+                    "🔎 PAGO ENCONTRADO:",
+                    pagoEncontrado
+                );
+
+
+                /* =========================================
+                   2. BUSCAR ALUMNO
+                   ========================================= */
+
+                const alumno =
+                    await buscarAlumnoUniversal({
+                        nombre:
+                            pagoEncontrado.NOMBRE
+                    });
+
+                if (!alumno) {
+
+                    alert(
+                        "No se encontró el alumno. El pago NO fue eliminado."
+                    );
+
+                    return;
+                }
+
+                console.log(
+                    "👤 ALUMNO ENCONTRADO:",
+                    alumno
+                );
+
+
+                /* =========================================
+                   3. FECHA VENCIDA = AYER
+                   ========================================= */
+
+                const fechaAyer =
+                    new Date();
+
+                fechaAyer.setDate(
+                    fechaAyer.getDate() - 1
+                );
+
+                const fechaVencida =
+                    fechaAyer
+                        .toISOString()
+                        .slice(0, 10);
+
+
+                /* =========================================
+                   4. QUITAR MEMBRESÍA
+                   SOLO CAMBIA VENCIMIENTO
+                   NO ELIMINA ALUMNO
+                   ========================================= */
+
+                const {
+                    data: alumnoActualizado,
+                    error:
+                        errorMembresia
+                } =
+                    await supabaseClient
+                        .from("Alumnos")
+                        .update({
+                            "FECHA VENCIMIENTO":
+                                fechaVencida
+                        })
+                        .eq(
+                            "id",
+                            alumno.id
+                        )
+                        .select(
+                            "id, NOMBRE, \"FECHA VENCIMIENTO\""
+                        );
+
+                if (errorMembresia) {
+                    throw errorMembresia;
+                }
+
+                if (
+                    !alumnoActualizado ||
+                    alumnoActualizado.length !== 1
+                ) {
+
+                    throw new Error(
+                        "Supabase no confirmó el cambio de membresía."
+                    );
+                }
+
+                console.log(
+                    "🔴 MEMBRESÍA QUITADA:",
+                    alumnoActualizado[0]
+                );
+
+
+                /* =========================================
+                   5. ELIMINAR PAGO
+                   ========================================= */
+
+                const {
+                    data: eliminado,
+                    error:
+                        errorDelete
+                } =
+                    await supabaseClient
+                        .from("Pagos")
+                        .delete()
+                        .eq(
+                            "id",
+                            pagoEncontrado.id
+                        )
+                        .select(
+                            "id, NOMBRE, MONTO, FECHA"
+                        );
+
+                if (errorDelete) {
+                    throw errorDelete;
+                }
+
+                if (
+                    !eliminado ||
+                    eliminado.length !== 1
+                ) {
+
+                    alert(
+                        "La membresía fue actualizada, pero Supabase no confirmó la eliminación del pago."
+                    );
+
+                    return;
+                }
+
+
+                /* =========================================
+                   6. QUITAR FILA DE LA LISTA
+                   ========================================= */
+
+                fila.remove();
+
+
+                /* =========================================
+                   7. ACTUALIZAR TOTAL
+                   ========================================= */
+
+                try {
+
+                    if (
+                        typeof actualizarDashboardInicio ===
+                        "function"
+                    ) {
+
+                        await actualizarDashboardInicio();
+
+                        console.log(
+                            "✅ TOTAL ACTUALIZADO"
+                        );
+                    }
+
+                } catch (errorTotal) {
+
+                    console.error(
+                        "⚠️ Pago eliminado y membresía quitada, pero no se pudo actualizar el dashboard:",
+                        errorTotal
+                    );
+                }
+
+
+                console.log(
+                    "🗑️ PAGO ELIMINADO:",
+                    eliminado[0]
+                );
+
+                console.log(
+                    "👤 ALUMNO CONSERVADO:",
+                    alumnoActualizado[0]
+                );
+
+                console.log(
+                    "✅ ELIMINACIÓN COMPLETADA"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "❌ ERROR ELIMINANDO PAGO:",
+                    error
+                );
+
+                alert(
+                    "No se pudo completar la eliminación."
+                );
+            }
+        };
+}
                 contenedor.appendChild(
                     fila
                 );
@@ -9271,7 +9767,7 @@ window.addEventListener("load", function () {
 
                 e.preventDefault();
                 e.stopImmediatePropagation();
-
+window.cftOrigenPagosMes = "inicio";
                 const botonPagosMes =
                     document.getElementById("btnVerMasPagosInicio");
 
@@ -9289,21 +9785,6 @@ window.addEventListener("load", function () {
             console.log("✅ PRIMER VER MÁS PERMANENTE");
         }
 
-
-        // SEGUNDO "VER MÁS"
-        const botonPagosMes =
-            document.getElementById("btnVerMasPagosInicio");
-
-        if (botonPagosMes && !botonPagosMes.dataset.cftVerMasPagos) {
-
-            botonPagosMes.dataset.cftVerMasPagos = "activo";
-
-            botonPagosMes.addEventListener("click", function () {
-
-                console.log("✅ SEGUNDO VER MÁS → PAGOS DEL MES");
-
-            }, true);
-        }
     }
 
 
@@ -9327,86 +9808,7 @@ window.addEventListener("load", function () {
     }
 
 })();
-/* =========================================================
-   CFT — VOLVER A INICIO DESDE PAGOS DEL MES
-   ========================================================= */
 
-(function () {
-
-    function activarVolverInicioPagosMes() {
-
-        const boton = document.getElementById("volverResumenPagosMes");
-
-        if (!boton || boton.dataset.cftVolverInicio) {
-            return;
-        }
-
-        boton.dataset.cftVolverInicio = "activo";
-
-        boton.addEventListener("click", function (e) {
-
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            const pagina = document.getElementById("paginaPagosMes");
-
-            if (pagina) {
-                pagina.style.display = "none";
-            }
-
-            document.querySelectorAll(".section").forEach(function (el) {
-                el.style.display = "none";
-            });
-
-            const inicio = document.getElementById("pantallaInicio");
-
-            if (inicio) {
-                inicio.style.display = "block";
-            }
-
-            document.querySelectorAll(".nav-item").forEach(function (btn) {
-                btn.classList.remove("activo");
-            });
-
-            const navResumen = [...document.querySelectorAll(".nav-item")]
-                .find(function (btn) {
-                    return btn.textContent.trim().toUpperCase() === "RESUMEN";
-                });
-
-            if (navResumen) {
-                navResumen.classList.add("activo");
-            }
-
-            if (typeof actualizarDashboardInicio === "function") {
-                actualizarDashboardInicio();
-            }
-
-            window.scrollTo(0, 0);
-
-            console.log("✅ PAGOS DEL MES → INICIO PERMANENTE");
-
-        }, true);
-
-        console.log("✅ VOLVER A INICIO PERMANENTE");
-
-    }
-
-    activarVolverInicioPagosMes();
-
-    if (!window.cftVolverInicioObserver) {
-
-        window.cftVolverInicioObserver =
-            new MutationObserver(function () {
-                activarVolverInicioPagosMes();
-            });
-
-        window.cftVolverInicioObserver.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    }
-
-})();
 /* =========================================================
    CFT — VOLVER AL RESUMEN DESDE PAGOS DEL MES
    ========================================================= */
@@ -10809,6 +11211,1000 @@ window.addEventListener("load", function () {
 
     console.log(
         "✅ LISTA #listaPagos OCULTA PERMANENTEMENTE"
+    );
+
+})();
+/* =========================================================
+   CFT — BUSCADORES DE SEMÁFOROS
+   APARECEN SOLO AL ABRIR CADA LISTA
+   NO MODIFICA LAS FUNCIONES ORIGINALES
+   ========================================================= */
+
+(function () {
+
+    if (window.cftBuscadoresSemaforosDefinitivo) {
+        return;
+    }
+
+    window.cftBuscadoresSemaforosDefinitivo = true;
+
+    const configuraciones = [
+        {
+            funcion: "mostrarAlumnosVencidos",
+            lista: "listaAlumnosVencidos",
+            placeholder: "Buscar por nombre o DNI..."
+        },
+        {
+            funcion: "mostrarAlumnosPorVencer",
+            lista: "listaAlumnosPorVencer",
+            placeholder: "Buscar por nombre o DNI..."
+        },
+        {
+            funcion: "mostrarAlumnosSinAsistencia",
+            lista: "listaAlumnosSinAsistencia",
+            placeholder: "Buscar por nombre o DNI..."
+        }
+    ];
+
+    function crearBuscador(config, contenedor) {
+
+        if (!contenedor) {
+            return;
+        }
+
+        if (
+            contenedor.querySelector(
+                ".cft-buscador-semaforo"
+            )
+        ) {
+            return;
+        }
+
+        const filas =
+            contenedor.querySelectorAll(".row");
+
+        if (!filas.length) {
+            return;
+        }
+
+        const buscador =
+            document.createElement("div");
+
+        buscador.className =
+            "cft-buscador-semaforo";
+
+        buscador.innerHTML = `
+            <span class="cft-icono-busqueda">
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="6.5"
+                    ></circle>
+
+                    <path
+                        d="M16 16L21 21"
+                    ></path>
+                </svg>
+            </span>
+
+            <input
+                type="text"
+                placeholder="${config.placeholder}"
+                autocomplete="off"
+                spellcheck="false"
+            >
+        `;
+
+        const input =
+            buscador.querySelector("input");
+
+        input.addEventListener(
+            "input",
+            async function () {
+
+                const texto =
+                    this.value
+                        .trim()
+                        .toLowerCase();
+
+                const filasActuales =
+                    contenedor.querySelectorAll(".row");
+
+                filasActuales.forEach(
+                    function (fila) {
+
+                        const contenido =
+                            fila.textContent
+                                .toLowerCase();
+
+                        const dni =
+                            String(
+                                fila.dataset.cftDni || ""
+                            ).toLowerCase();
+
+                        fila.style.display =
+                            (
+                                contenido.includes(texto) ||
+                                dni.includes(texto)
+                            )
+                                ? ""
+                                : "none";
+                    }
+                );
+            }
+        );
+
+        /*
+         * IMPORTANTE:
+         * El buscador queda DENTRO del contenedor.
+         * Así, cuando la función original cierra
+         * la lista con innerHTML = "", también
+         * desaparece automáticamente el buscador.
+         */
+
+        contenedor.insertBefore(
+            buscador,
+            contenedor.firstChild
+        );
+
+        prepararDNIs(contenedor);
+
+        console.log(
+            "✅ BUSCADOR ACTIVADO:",
+            config.lista
+        );
+    }
+
+
+    async function prepararDNIs(contenedor) {
+
+        if (!contenedor) {
+            return;
+        }
+
+        const filas =
+            Array.from(
+                contenedor.querySelectorAll(".row")
+            );
+
+        if (!filas.length) {
+            return;
+        }
+
+        const ids = [];
+
+        filas.forEach(function (fila) {
+
+            const boton =
+                fila.querySelector(
+                    'button[onclick*="verAlumno"]'
+                );
+
+            if (!boton) {
+                return;
+            }
+
+            const onclick =
+                boton.getAttribute("onclick") || "";
+
+            const encontrado =
+                onclick.match(
+                    /verAlumno\(['"]([^'"]+)['"]\)/
+                );
+
+            if (encontrado && encontrado[1]) {
+                ids.push(encontrado[1]);
+            }
+
+        });
+
+        if (!ids.length) {
+            return;
+        }
+
+        const idsUnicos =
+            [...new Set(ids)];
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("Alumnos")
+            .select("id, DNI")
+            .in("id", idsUnicos);
+
+        if (error) {
+
+            console.error(
+                "ERROR OBTENIENDO DNI PARA BUSCADOR:",
+                error
+            );
+
+            return;
+        }
+
+        const mapaDNI =
+            new Map();
+
+        (data || []).forEach(function (alumno) {
+
+            mapaDNI.set(
+                String(alumno.id),
+                String(alumno.DNI || "")
+            );
+
+        });
+
+        filas.forEach(function (fila) {
+
+            const boton =
+                fila.querySelector(
+                    'button[onclick*="verAlumno"]'
+                );
+
+            if (!boton) {
+                return;
+            }
+
+            const onclick =
+                boton.getAttribute("onclick") || "";
+
+            const encontrado =
+                onclick.match(
+                    /verAlumno\(['"]([^'"]+)['"]\)/
+                );
+
+            if (!encontrado || !encontrado[1]) {
+                return;
+            }
+
+            const dni =
+                mapaDNI.get(
+                    String(encontrado[1])
+                ) || "";
+
+            fila.dataset.cftDni = dni;
+
+        });
+
+    }
+
+
+    function envolverFuncion(config) {
+
+        const original =
+            window[config.funcion];
+
+        if (
+            typeof original !== "function" ||
+            original.__cftBuscadorEnvuelto
+        ) {
+            return;
+        }
+
+        const funcionOriginal =
+            original;
+
+        const funcionNueva =
+            async function () {
+
+                const contenedorAntes =
+                    document.getElementById(
+                        config.lista
+                    );
+
+                const estabaAbierto =
+                    contenedorAntes &&
+                    contenedorAntes.dataset.abierto === "true" &&
+                    contenedorAntes.innerHTML.trim() !== "";
+
+                const resultado =
+                    await funcionOriginal.apply(
+                        this,
+                        arguments
+                    );
+
+                const contenedorDespues =
+                    document.getElementById(
+                        config.lista
+                    );
+
+                if (!contenedorDespues) {
+                    return resultado;
+                }
+
+                /*
+                 * Si estaba abierto y la función
+                 * original acaba de cerrarlo,
+                 * no hacemos nada.
+                 *
+                 * El buscador ya desapareció porque
+                 * estaba dentro de innerHTML.
+                 */
+
+                if (
+                    estabaAbierto &&
+                    contenedorDespues.innerHTML.trim() === ""
+                ) {
+                    return resultado;
+                }
+
+                /*
+                 * Si acaba de abrirse la lista,
+                 * colocamos el buscador.
+                 */
+
+                crearBuscador(
+                    config,
+                    contenedorDespues
+                );
+
+                return resultado;
+            };
+
+        funcionNueva.__cftBuscadorEnvuelto = true;
+
+        window[config.funcion] =
+            funcionNueva;
+
+        console.log(
+            "🔗 FUNCIÓN PROTEGIDA:",
+            config.funcion
+        );
+    }
+
+
+    configuraciones.forEach(
+        function (config) {
+            envolverFuncion(config);
+        }
+    );
+
+    console.log(
+        "🔍 CFT — BUSCADORES DE SEMÁFOROS LISTOS"
+    );
+
+})();
+/* =========================================================
+   CFT — SWIPE + ELIMINAR PAGOS DE "ÚLTIMOS PAGOS"
+   + QUITAR MEMBRESÍA SIN ELIMINAR ALUMNO
+   ========================================================= */
+
+(function () {
+
+    if (window.cftSwipePagosPermanente) {
+        return;
+    }
+
+    window.cftSwipePagosPermanente = true;
+
+    let filaAbierta = null;
+
+    function normalizarTexto(texto) {
+        return String(texto || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toUpperCase();
+    }
+
+    function obtenerDatosFila(fila) {
+        const texto =
+            fila.textContent
+                .replace(/\s+/g, " ")
+                .trim();
+
+        const fechaMatch =
+            texto.match(
+                /\b(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})\b/
+            );
+
+        const montoMatch =
+            texto.match(
+                /S\/\s*([\d.,]+)/
+            );
+
+        if (!fechaMatch || !montoMatch) {
+            return null;
+        }
+
+        const textoSinFecha =
+            texto.replace(
+                fechaMatch[0],
+                ""
+            );
+
+        const textoSinMonto =
+            textoSinFecha.replace(
+                montoMatch[0],
+                ""
+            );
+
+        return {
+            nombre:
+                normalizarTexto(
+                    textoSinMonto
+                ),
+
+            monto:
+                Number(
+                    montoMatch[1]
+                        .replace(",", ".")
+                ),
+
+            fecha:
+                fechaMatch[3] +
+                "-" +
+                fechaMatch[2].padStart(2, "0") +
+                "-" +
+                fechaMatch[1].padStart(2, "0")
+        };
+    }
+
+    function cerrarFila(fila) {
+        if (!fila) return;
+
+        fila.style.setProperty(
+            "transform",
+            "translateX(0)",
+            "important"
+        );
+
+        if (filaAbierta === fila) {
+            filaAbierta = null;
+        }
+    }
+
+    function abrirFila(fila) {
+        if (
+            filaAbierta &&
+            filaAbierta !== fila
+        ) {
+            cerrarFila(filaAbierta);
+        }
+
+        fila.style.setProperty(
+            "transform",
+            "translateX(-58px)",
+            "important"
+        );
+
+        filaAbierta = fila;
+    }
+
+    function crearPapelera(fila) {
+        if (
+            fila.querySelector(
+                "[data-cft-swipe-delete]"
+            )
+        ) {
+            return;
+        }
+
+        fila.style.setProperty(
+            "position",
+            "relative",
+            "important"
+        );
+
+        fila.style.setProperty(
+            "z-index",
+            "2",
+            "important"
+        );
+
+        fila.style.setProperty(
+            "background",
+            "#111",
+            "important"
+        );
+
+        fila.style.setProperty(
+            "touch-action",
+            "pan-y",
+            "important"
+        );
+
+        fila.style.setProperty(
+            "transition",
+            "transform .25s ease",
+            "important"
+        );
+
+        fila.style.setProperty(
+            "overflow",
+            "visible",
+            "important"
+        );
+
+        const boton =
+            document.createElement("button");
+
+        boton.type = "button";
+
+        boton.dataset.cftSwipeDelete =
+            "true";
+
+        boton.innerHTML = `
+            <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14H6L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4h6v2"></path>
+            </svg>
+        `;
+
+        Object.assign(
+            boton.style,
+            {
+                position: "absolute",
+                width: "38px",
+                height: "38px",
+                right: "-46px",
+                top: "50%",
+                transform:
+                    "translateY(-50%)",
+                padding: "0",
+                margin: "0",
+                border: "0",
+                borderRadius: "50%",
+                background: "#ff3b30",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: "1",
+                boxShadow:
+                    "0 2px 7px rgba(0,0,0,.25)",
+                cursor: "pointer"
+            }
+        );
+
+        fila.appendChild(boton);
+
+        boton.addEventListener(
+            "click",
+            async function (e) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const datos =
+                    obtenerDatosFila(fila);
+
+                if (!datos) {
+                    alert(
+                        "No se pudo identificar este pago."
+                    );
+                    return;
+                }
+
+                const confirmar =
+                    confirm(
+                        "¿Eliminar este pago y quitar la membresía?\n\n" +
+                        datos.nombre +
+                        "\nS/" +
+                        datos.monto.toFixed(2) +
+                        "\n" +
+                        datos.fecha
+                    );
+
+                if (!confirmar) {
+                    return;
+                }
+
+                try {
+
+                    /* =================================================
+                       1. BUSCAR EL PAGO EXACTO
+                       ================================================= */
+
+                    const {
+                        data: pagos,
+                        error
+                    } =
+                        await supabaseClient
+                            .from("Pagos")
+                            .select(
+                                "id, NOMBRE, MONTO, FECHA"
+                            );
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    const candidatos =
+                        (pagos || []).filter(
+                            function (pago) {
+
+                                return (
+                                    normalizarTexto(
+                                        pago.NOMBRE
+                                    ) ===
+                                    datos.nombre &&
+
+                                    Number(
+                                        pago.MONTO
+                                    ) ===
+                                    datos.monto &&
+
+                                    String(
+                                        pago.FECHA || ""
+                                    ).slice(0, 10) ===
+                                    datos.fecha
+                                );
+                            }
+                        );
+
+                    if (
+                        candidatos.length !== 1
+                    ) {
+
+                        alert(
+                            candidatos.length === 0
+                                ? "No se encontró exactamente este pago."
+                                : "Hay varios pagos idénticos. No se eliminó ninguno."
+                        );
+
+                        return;
+                    }
+
+                    const pago =
+                        candidatos[0];
+
+                    console.log(
+                        "🔎 PAGO ENCONTRADO:",
+                        pago
+                    );
+
+
+                    /* =================================================
+                       2. BUSCAR ALUMNO
+                       ================================================= */
+
+                    const alumno =
+                        await buscarAlumnoUniversal({
+                            nombre: pago.NOMBRE
+                        });
+
+                    if (!alumno) {
+
+                        alert(
+                            "No se encontró el alumno. El pago NO fue eliminado."
+                        );
+
+                        return;
+                    }
+
+                    console.log(
+                        "👤 ALUMNO ENCONTRADO:",
+                        alumno
+                    );
+
+
+                    /* =================================================
+                       3. CALCULAR FECHA VENCIDA
+                       ================================================= */
+
+                    const fechaAyer =
+                        new Date();
+
+                    fechaAyer.setDate(
+                        fechaAyer.getDate() - 1
+                    );
+
+                    const fechaVencida =
+                        fechaAyer
+                            .toISOString()
+                            .slice(0, 10);
+
+                    console.log(
+                        "🔴 NUEVA FECHA VENCIMIENTO:",
+                        fechaVencida
+                    );
+
+
+                    /* =================================================
+                       4. QUITAR MEMBRESÍA
+                       SOLO SE CAMBIA FECHA VENCIMIENTO
+                       EL ALUMNO NO SE ELIMINA
+                       ================================================= */
+
+                    const {
+                        data: alumnoActualizado,
+                        error:
+                            errorMembresia
+                    } =
+                        await supabaseClient
+                            .from("Alumnos")
+                            .update({
+                                "FECHA VENCIMIENTO":
+                                    fechaVencida
+                            })
+                            .eq(
+                                "id",
+                                alumno.id
+                            )
+                            .select(
+                                "id, NOMBRE, \"FECHA VENCIMIENTO\""
+                            );
+
+                    if (errorMembresia) {
+                        throw errorMembresia;
+                    }
+
+                    if (
+                        !alumnoActualizado ||
+                        alumnoActualizado.length !== 1
+                    ) {
+
+                        throw new Error(
+                            "Supabase no confirmó el cambio de membresía."
+                        );
+                    }
+
+                    console.log(
+                        "🔴 MEMBRESÍA QUITADA:",
+                        alumnoActualizado[0]
+                    );
+
+
+                    /* =================================================
+                       5. ELIMINAR PAGO
+                       ================================================= */
+
+                    const {
+                        data: eliminado,
+                        error:
+                            errorDelete
+                    } =
+                        await supabaseClient
+                            .from("Pagos")
+                            .delete()
+                            .eq(
+                                "id",
+                                pago.id
+                            )
+                            .select(
+                                "id, NOMBRE, MONTO, FECHA"
+                            );
+
+                    if (errorDelete) {
+                        throw errorDelete;
+                    }
+
+                    if (
+                        !eliminado ||
+                        eliminado.length !== 1
+                    ) {
+
+                        alert(
+                            "La membresía fue actualizada, pero Supabase no confirmó la eliminación del pago."
+                        );
+
+                        return;
+                    }
+
+
+                    /* =================================================
+                       6. CERRAR Y QUITAR FILA VISUAL
+                       ================================================= */
+
+                    cerrarFila(fila);
+
+                    fila.remove();
+
+
+                    /* =================================================
+                       7. ACTUALIZAR DASHBOARD
+                       ================================================= */
+
+                    try {
+
+                        if (
+                            typeof actualizarDashboardInicio ===
+                            "function"
+                        ) {
+
+                            await actualizarDashboardInicio();
+
+                            console.log(
+                                "✅ DASHBOARD ACTUALIZADO"
+                            );
+                        }
+
+                    } catch (errorTotal) {
+
+                        console.error(
+                            "⚠️ Pago eliminado y membresía quitada, pero no se pudo actualizar el dashboard:",
+                            errorTotal
+                        );
+                    }
+
+
+                    /* =================================================
+                       8. RESULTADO FINAL
+                       ================================================= */
+
+                    console.log(
+                        "🗑️ PAGO ELIMINADO:",
+                        eliminado[0]
+                    );
+
+                    console.log(
+                        "👤 ALUMNO CONSERVADO:",
+                        alumnoActualizado[0]
+                    );
+
+                    console.log(
+                        "✅ PAGO + MEMBRESÍA ELIMINADOS"
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "❌ ERROR EN ELIMINAR PAGO + MEMBRESÍA:",
+                        error
+                    );
+
+                    alert(
+                        "No se pudo completar la operación."
+                    );
+                }
+            }
+        );
+    }
+
+    function prepararPagos() {
+
+        const contenedor =
+            document.getElementById(
+                "ultimosPagos"
+            );
+
+        if (!contenedor) {
+            return;
+        }
+
+        contenedor.style.setProperty(
+            "overflow-x",
+            "hidden",
+            "important"
+        );
+
+        const filas =
+            [
+                ...contenedor.querySelectorAll(
+                    ".row"
+                )
+            ];
+
+        filas.forEach(
+            function (fila) {
+
+                if (
+                    fila.dataset.cftSwipePreparado
+                ) {
+                    return;
+                }
+
+                fila.dataset.cftSwipePreparado =
+                    "true";
+
+                crearPapelera(fila);
+
+                let inicioX = 0;
+
+                fila.addEventListener(
+                    "pointerdown",
+                    function (e) {
+
+                        inicioX =
+                            e.clientX;
+                    }
+                );
+
+                fila.addEventListener(
+                    "pointerup",
+                    function (e) {
+
+                        const diferencia =
+                            e.clientX -
+                            inicioX;
+
+                        if (
+                            diferencia < -40
+                        ) {
+
+                            abrirFila(fila);
+
+                            return;
+                        }
+
+                        if (
+                            diferencia > 40
+                        ) {
+
+                            cerrarFila(fila);
+                        }
+                    }
+                );
+            }
+        );
+    }
+
+    prepararPagos();
+
+    if (
+        !window.cftSwipePagosObserver
+    ) {
+
+        window.cftSwipePagosObserver =
+            new MutationObserver(
+                function () {
+
+                    prepararPagos();
+                }
+            );
+
+        window.cftSwipePagosObserver.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
+    }
+
+    document.addEventListener(
+        "pointerdown",
+        function (e) {
+
+            if (!filaAbierta) {
+                return;
+            }
+
+            const papelera =
+                e.target.closest(
+                    "[data-cft-swipe-delete]"
+                );
+
+            if (papelera) {
+                return;
+            }
+
+            const mismaFila =
+                e.target.closest(
+                    "#ultimosPagos .row"
+                );
+
+            if (
+                mismaFila === filaAbierta
+            ) {
+                return;
+            }
+
+            cerrarFila(
+                filaAbierta
+            );
+        }
+    );
+
+    console.log(
+        "✅ SWIPE PAGOS CFT ACTIVO — ELIMINA PAGO Y QUITA MEMBRESÍA SIN BORRAR ALUMNO"
     );
 
 })();
