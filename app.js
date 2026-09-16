@@ -3468,8 +3468,13 @@ async function actualizarAlumnosVencidos() {
             vencimiento.setHours(0, 0, 0, 0);
 
 
-            return vencimiento < hoy;
-        });
+const diasVencido =
+    Math.floor(
+        (hoy - vencimiento) /
+        (1000 * 60 * 60 * 24)
+    );
+
+return diasVencido >= 1 && diasVencido <= 5;        });
 
 
     elemento.textContent =
@@ -4915,7 +4920,14 @@ async function mostrarAlumnosVencidos() {
                 return false;
             }
 
-            return vencimiento < hoy;
+            const diasVencido =
+    Math.floor(
+        (hoy - vencimiento) /
+        (1000 * 60 * 60 * 24)
+    );
+
+return diasVencido >= 1 &&
+       diasVencido <= 5;
         });
 
     vencidos.sort(function(a, b) {
@@ -6456,7 +6468,7 @@ function dashboardModerno() {
                 margin: 0 auto;
                 padding: 20px;
                 box-sizing: border-box;
-                color: #fff;
+                color: #eeebeb;
             }
 
             .cft-top {
@@ -6616,7 +6628,7 @@ function dashboardModerno() {
 
             .cft-stat-number {
                 color: #fff;
-                font-size: 27px;
+                font-size: 20px;
                 font-weight: 950;
                 line-height: 1;
             }
@@ -6784,7 +6796,7 @@ function dashboardModerno() {
             }
 
             .cft-mma-title {
-                font-size: 23px;
+                font-size: 20px;
                 font-weight: 950;
                 line-height: 1;
             }
@@ -9471,13 +9483,304 @@ if (botonEliminar) {
             console.log(
                 `✅ ${pagos.length} pagos mostrados`
             );
+            activarBuscadorPagosMes();
         };
 
         console.log(
             "✅ Pagos del mes instalado permanentemente"
         );
     }
+/* -------------------------------------------------
+   BUSCADOR + CONTADOR PAGOS DEL MES
+   ------------------------------------------------- */
 
+function activarBuscadorPagosMes() {
+
+    const pagina =
+        document.getElementById("paginaPagosMes");
+
+    const lista =
+        document.getElementById("listaPagosMes");
+
+    const titulo =
+        pagina?.querySelector(".section-title");
+
+    if (!pagina || !lista || !titulo) {
+        console.error(
+            "❌ No se puede activar buscador de Pagos del mes"
+        );
+        return;
+    }
+
+    /* Evitar duplicados */
+
+    document
+        .getElementById(
+            "cftContadorUltimosPagosCompleto"
+        )
+        ?.remove();
+
+    document
+        .getElementById(
+            "cftBuscadorUltimosPagosCompleto"
+        )
+        ?.remove();
+
+
+    /* =========================================
+       CONTADOR
+       ========================================= */
+
+    const contador =
+        document.createElement("div");
+
+    contador.id =
+        "cftContadorUltimosPagosCompleto";
+
+    contador.style.cssText = `
+        width:100%;
+        box-sizing:border-box;
+        margin:14px 0 10px 0;
+        padding:13px 16px;
+        background:#111;
+        color:#fff;
+        border:1px solid #2b2b2b;
+        border-left:4px solid #f28c28;
+        border-radius:14px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        font-family:Inter,sans-serif;
+        box-shadow:0 4px 14px rgba(0,0,0,.18);
+    `;
+
+    contador.innerHTML = `
+        <span>💰 Pagos encontrados</span>
+
+        <strong
+            style="
+                color:#f28c28;
+                font-size:18px;
+            "
+        >0</strong>
+    `;
+
+
+    /* =========================================
+       BUSCADOR
+       ========================================= */
+
+    const buscador =
+        document.createElement("div");
+
+    buscador.id =
+        "cftBuscadorUltimosPagosCompleto";
+
+    buscador.style.cssText = `
+        width:100%;
+        box-sizing:border-box;
+    `;
+
+    buscador.innerHTML = `
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            width:100%;
+            box-sizing:border-box;
+            background:#111;
+            border:1px solid #333;
+            border-radius:15px;
+            padding:0 14px;
+            height:52px;
+            margin:0 0 18px 0;
+            box-shadow:0 4px 14px rgba(0,0,0,.25);
+        ">
+
+            <span style="
+                color:#f28c28;
+                font-size:20px;
+                flex-shrink:0;
+            ">⌕</span>
+
+            <input
+                id="cftInputUltimosPagosCompleto"
+                type="text"
+                placeholder="Buscar por nombre, DNI o celular..."
+                autocomplete="off"
+                style="
+                    flex:1;
+                    min-width:0;
+                    height:100%;
+                    border:0;
+                    outline:0;
+                    background:transparent;
+                    color:white;
+                    font-family:Inter,sans-serif;
+                    font-size:14px;
+                "
+            >
+
+            <button
+                id="cftLimpiarUltimosPagosCompleto"
+                type="button"
+                style="
+                    display:none;
+                    border:0;
+                    background:transparent;
+                    color:#aaa;
+                    font-size:20px;
+                    cursor:pointer;
+                    padding:0 2px;
+                "
+            >×</button>
+
+        </div>
+    `;
+
+
+    /* =========================================
+       ORDEN:
+       TÍTULO
+       CONTADOR
+       BUSCADOR
+       LISTA
+       ========================================= */
+
+    titulo.insertAdjacentElement(
+        "afterend",
+        contador
+    );
+
+    contador.insertAdjacentElement(
+        "afterend",
+        buscador
+    );
+
+
+    /* =========================================
+       ELEMENTOS
+       ========================================= */
+
+    const input =
+        document.getElementById(
+            "cftInputUltimosPagosCompleto"
+        );
+
+    const boton =
+        document.getElementById(
+            "cftLimpiarUltimosPagosCompleto"
+        );
+
+
+    /* =========================================
+       NORMALIZAR TEXTO
+       ========================================= */
+
+    function normalizar(texto) {
+
+        return String(texto || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/\s+/g, " ")
+            .trim();
+
+    }
+
+
+    /* =========================================
+       FILTRAR PAGOS
+       ========================================= */
+
+    function filtrarPagos() {
+
+        const termino =
+            normalizar(input.value);
+
+        const filas =
+            [
+                ...lista.querySelectorAll(".row")
+            ];
+
+        let cantidad = 0;
+
+        filas.forEach(function(fila) {
+
+            const texto =
+                normalizar(
+                    fila.innerText
+                );
+
+            const coincide =
+                !termino ||
+                texto.includes(termino);
+
+            fila.style.display =
+                coincide
+                    ? ""
+                    : "none";
+
+            if (coincide) {
+                cantidad++;
+            }
+
+        });
+
+
+        contador.querySelector(
+            "strong"
+        ).textContent = cantidad;
+
+
+        boton.style.display =
+            input.value.trim()
+                ? "block"
+                : "none";
+
+    }
+
+
+    /* =========================================
+       EVENTO BUSCAR
+       ========================================= */
+
+    input.addEventListener(
+        "input",
+        filtrarPagos
+    );
+
+
+    /* =========================================
+       BOTÓN LIMPIAR
+       ========================================= */
+
+    boton.addEventListener(
+        "click",
+        function() {
+
+            input.value = "";
+
+            filtrarPagos();
+
+            input.focus();
+
+        }
+    );
+
+
+    /* =========================================
+       ESTADO INICIAL
+       ========================================= */
+
+    filtrarPagos();
+
+
+    console.log(
+        "✅ BUSCADOR + CONTADOR DE PAGOS DEL MES ACTIVADO"
+    );
+
+}
     /* -------------------------------------------------
        FORMATEAR FECHA
        ------------------------------------------------- */
@@ -9520,7 +9823,50 @@ if (botonEliminar) {
     } else {
 
         iniciarPagosDelMes();
+
+const aplicarAjusteBotonVolver = () => {
+
+  const botonVolver = document.getElementById("volverResumenPagosMes");
+
+if (botonVolver) {
+
+    botonVolver.style.setProperty(
+        "margin-bottom",
+        "0px",
+        "important"
+    );
+
+    botonVolver.style.setProperty(
+        "outline",
+        "none",
+        "important"
+    );
+
+    botonVolver.style.setProperty(
+        "border",
+        "1px solid rgba(242, 140, 40, 0.55)",
+        "important"
+    );
+
+    botonVolver.style.setProperty(
+        "box-shadow",
+        "0 0 8px rgba(242, 140, 40, 0.12)",
+        "important"
+    );
+
+    console.log(
+        "🟠 BOTÓN VOLVER AL RESUMEN — ESTILO MODERNO PERMANENTE"
+        );
+
+        console.log(
+            "✅ ESPACIO ENTRE VOLVER Y BUSCADOR ELIMINADO"
+        );
     }
+};
+
+aplicarAjusteBotonVolver();
+
+}
 
 })();
 /* =========================================================
