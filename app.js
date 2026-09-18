@@ -13820,3 +13820,372 @@ setTimeout(
     },
     1500
 );
+/* =========================================
+   CFT — NOMBRES DE PAGOS ABREN FICHA
+   ========================================= */
+
+window.cftActivarNombresPagos = function () {
+
+    function obtenerNombre(span) {
+
+        if (!span) {
+            return "";
+        }
+
+        const primerNodo =
+            span.childNodes[0];
+
+        if (
+            primerNodo &&
+            primerNodo.nodeType ===
+                Node.TEXT_NODE
+        ) {
+
+            return primerNodo.textContent
+                .trim()
+                .replace(/\s+/g, " ");
+
+        }
+
+        return (span.textContent || "")
+            .split("\n")[0]
+            .trim()
+            .replace(/\s+/g, " ");
+    }
+
+
+    async function abrirFichaDesdeNombre(
+        span
+    ) {
+
+        const nombre =
+            obtenerNombre(span);
+
+        if (!nombre) {
+            return;
+        }
+
+        console.log(
+            "👤 CLIC EN NOMBRE:",
+            nombre
+        );
+
+        try {
+
+            span.style.opacity =
+                "0.6";
+
+            const alumno =
+                await buscarAlumnoUniversal(
+                    {
+                        nombre:
+                            nombre
+                    }
+                );
+
+            if (!alumno) {
+
+                alert(
+                    "No se encontró el alumno:\n\n" +
+                    nombre
+                );
+
+                return;
+            }
+
+            console.log(
+                "✅ ALUMNO ENCONTRADO:",
+                alumno.NOMBRE,
+                "ID:",
+                alumno.id
+            );
+
+            await verAlumno(
+                alumno.id
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR ABRIENDO FICHA:",
+                error
+            );
+
+            alert(
+                "No se pudo abrir la ficha.\n\n" +
+                error.message
+            );
+
+        } finally {
+
+            span.style.opacity =
+                "1";
+
+        }
+    }
+
+
+    function prepararNombre(span) {
+
+        if (
+            !span ||
+            span.dataset.cftNombreFicha ===
+                "true"
+        ) {
+            return;
+        }
+
+        const nombre =
+            obtenerNombre(span);
+
+        if (!nombre) {
+            return;
+        }
+
+        span.dataset.cftNombreFicha =
+            "true";
+
+        span.style.cursor =
+            "pointer";
+
+        span.style.textDecoration =
+            "underline";
+
+        span.style.textDecorationColor =
+            "#f28c28";
+
+        span.style.textUnderlineOffset =
+            "3px";
+
+        span.title =
+            "Abrir ficha del alumno";
+
+        span.setAttribute(
+            "role",
+            "button"
+        );
+
+        span.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+        span.addEventListener(
+            "click",
+            function () {
+
+                abrirFichaDesdeNombre(
+                    span
+                );
+
+            }
+        );
+
+        span.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key ===
+                        "Enter" ||
+                    event.key ===
+                        " "
+                ) {
+
+                    event.preventDefault();
+
+                    abrirFichaDesdeNombre(
+                        span
+                    );
+
+                }
+
+            }
+        );
+    }
+
+
+    function instalar() {
+
+        /* ==============================
+           DASHBOARD MODERNO
+           ============================== */
+
+        document
+            .querySelectorAll(
+                "#ultimosPagos .row > span"
+            )
+            .forEach(
+                prepararNombre
+            );
+
+
+        /* ==============================
+           RESUMEN
+           ============================== */
+
+        const panelResumen =
+            [
+                ...
+                document.querySelectorAll(
+                    "#pantallaInicio .card"
+                )
+            ].find(
+                function (card) {
+
+                    return (
+                        (
+                            card.textContent ||
+                            ""
+                        )
+                            .toUpperCase()
+                            .includes(
+                                "ÚLTIMOS PAGOS"
+                            )
+                    );
+
+                }
+            );
+
+
+        if (panelResumen) {
+
+            panelResumen
+                .querySelectorAll(
+                    ".row > span"
+                )
+                .forEach(
+                    function (span) {
+
+                        const texto =
+                            (
+                                span.textContent ||
+                                ""
+                            )
+                                .trim()
+                                .replace(
+                                    /\s+/g,
+                                    " "
+                                );
+
+                        if (
+                            /\d{1,2}-\d{1,2}-\d{4}/
+                                .test(
+                                    texto
+                                )
+                        ) {
+
+                            prepararNombre(
+                                span
+                            );
+
+                        }
+
+                    }
+                );
+
+        }
+
+    }
+
+
+    /* ==============================
+       INSTALACIÓN INICIAL
+       ============================== */
+
+    instalar();
+
+
+    /* ==============================
+       OBSERVAR NUEVOS PAGOS / RENDER
+       ============================== */
+
+    if (
+        window.cftNombresPagosObserver
+    ) {
+
+        window.cftNombresPagosObserver
+            .disconnect();
+
+    }
+
+
+    window.cftNombresPagosObserver =
+        new MutationObserver(
+            function () {
+
+                instalar();
+
+            }
+        );
+
+
+    const dashboard =
+        document.getElementById(
+            "dashboardPrincipal"
+        );
+
+    if (dashboard) {
+
+        window.cftNombresPagosObserver
+            .observe(
+                dashboard,
+                {
+                    childList:
+                        true,
+                    subtree:
+                        true
+                }
+            );
+
+    }
+
+
+    const resumen =
+        document.getElementById(
+            "pantallaInicio"
+        );
+
+    if (resumen) {
+
+        window.cftNombresPagosObserver
+            .observe(
+                resumen,
+                {
+                    childList:
+                        true,
+                    subtree:
+                        true
+                }
+            );
+
+    }
+
+
+    console.log(
+        "✅ NOMBRES DE PAGOS → FICHA PERMANENTE"
+    );
+};
+
+
+/* =========================================
+   INICIAR
+   ========================================= */
+
+setTimeout(
+    function () {
+
+        if (
+            typeof
+            window.cftActivarNombresPagos ===
+                "function"
+        ) {
+
+            window
+                .cftActivarNombresPagos();
+
+        }
+
+    },
+    1500
+);
