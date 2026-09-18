@@ -47,3 +47,52 @@ self.addEventListener("fetch", (event) => {
       })
   );
 });
+/* =========================================
+   CFT — PRUEBA PUSH TEMPORAL
+   ========================================= */
+
+self.addEventListener("push", (event) => {
+
+    let datos = {
+        titulo: "CFT Manager",
+        mensaje: "Nueva solicitud de renovación"
+    };
+
+    try {
+
+        if (event.data) {
+
+            datos =
+                event.data.json();
+
+        }
+
+    } catch (error) {
+
+        console.log(
+            "Push recibido como texto."
+        );
+
+        if (event.data) {
+
+            datos.mensaje =
+                event.data.text();
+
+        }
+    }
+
+    event.waitUntil(
+
+        self.registration.showNotification(
+            datos.titulo ||
+            "CFT Manager",
+            {
+                body:
+                    datos.mensaje ||
+                    "Tienes una nueva notificación."
+            }
+        )
+
+    );
+
+});
