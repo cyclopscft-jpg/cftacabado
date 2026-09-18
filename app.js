@@ -13603,3 +13603,220 @@ window.cftOrigenPagosMes = "inicio";
     );
 
 })();
+/* =========================================
+   CFT — PUSH NOTIFICACIONES PERMANENTE
+   ========================================= */
+
+window.CFT_VAPID_PUBLIC_KEY =
+    "BKfwaaR9uHkoCxEfV24rJajrvGKLPKt9n-3fKlRkCcPk3hsowpQdF_i-3yF3Sol9Wsvi2E6zsvRFnNO5KMFPg6w";
+
+
+window.cftRegistrarPushPermanente =
+    async function () {
+
+        try {
+
+            if (
+                !("serviceWorker" in navigator)
+            ) {
+                console.log(
+                    "⚠️ PUSH: Service Worker no disponible."
+                );
+                return;
+            }
+
+            if (
+                !("PushManager" in window)
+            ) {
+                console.log(
+                    "⚠️ PUSH: Push API no disponible."
+                );
+                return;
+            }
+
+            if (
+                !("Notification" in window)
+            ) {
+                console.log(
+                    "⚠️ PUSH: Notifications API no disponible."
+                );
+                return;
+            }
+
+            console.log(
+                "🔔 PUSH: permiso actual:",
+                Notification.permission
+            );
+
+
+            if (
+                Notification.permission !==
+                "granted"
+            ) {
+
+                console.log(
+                    "ℹ️ PUSH: permiso todavía no concedido."
+                );
+
+                return;
+            }
+
+
+            const registro =
+                await navigator.serviceWorker.ready;
+
+
+            let subscription =
+                await registro.pushManager
+                    .getSubscription();
+
+
+            if (!subscription) {
+
+                console.log(
+                    "📡 PUSH: creando suscripción..."
+                );
+
+
+                function
+                urlBase64ToUint8Array(
+                    base64String
+                ) {
+
+                    const padding =
+                        "=".repeat(
+                            (
+                                4 -
+                                (
+                                    base64String.length %
+                                    4
+                                )
+                            ) %
+                            4
+                        );
+
+
+                    const base64 =
+                        (
+                            base64String +
+                            padding
+                        )
+                            .replace(
+                                /-/g,
+                                "+"
+                            )
+                            .replace(
+                                /_/g,
+                                "/"
+                            );
+
+
+                    const rawData =
+                        atob(base64);
+
+
+                    return Uint8Array.from(
+                        [...rawData].map(
+                            char =>
+                                char.charCodeAt(
+                                    0
+                                )
+                        )
+                    );
+                }
+
+
+                subscription =
+                    await registro.pushManager
+                        .subscribe({
+                            userVisibleOnly:
+                                true,
+
+                            applicationServerKey:
+                                urlBase64ToUint8Array(
+                                    window.CFT_VAPID_PUBLIC_KEY
+                                )
+                        });
+
+
+                console.log(
+                    "✅ PUSH: suscripción creada."
+                );
+            }
+
+
+            const respuesta =
+                await fetch(
+                    "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-registrar-push",
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                subscription:
+                                    subscription.toJSON()
+                            })
+                    }
+                );
+
+
+            const resultado =
+                await respuesta.json();
+
+
+            if (
+                !respuesta.ok ||
+                !resultado.ok
+            ) {
+
+                throw new Error(
+                    resultado.error ||
+                    "No se pudo registrar la suscripción Push."
+                );
+            }
+
+
+            console.log(
+                "✅ PUSH CFT MANAGER REGISTRADO"
+            );
+
+            console.log(
+                "📡",
+                resultado.mensaje
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ PUSH CFT MANAGER:",
+                error
+            );
+
+        }
+    };
+
+
+setTimeout(
+    function () {
+
+        if (
+            typeof
+            window.cftRegistrarPushPermanente ===
+            "function"
+        ) {
+
+            window
+                .cftRegistrarPushPermanente();
+
+        }
+
+    },
+    1500
+);
