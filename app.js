@@ -7144,6 +7144,148 @@ function dashboardModerno() {
 
         </div>
     `;
+    // ==============================
+// NOTIFICACIONES CFT
+// ==============================
+
+(async function cargarNotificacionesCFT() {
+
+    try {
+
+        const respuesta = await fetch(
+            "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-notificaciones"
+        );
+
+        const datos = await respuesta.json();
+
+        const anterior =
+            document.getElementById("cftNotificacionCard");
+
+        if (anterior) {
+            anterior.remove();
+        }
+
+        if (!datos.total || datos.total <= 0) {
+            console.log("ℹ️ CFT — Sin notificaciones pendientes");
+            return;
+        }
+
+        const app =
+            dashboard.querySelector(".cft-app");
+
+        const top =
+            app?.querySelector(".cft-top");
+
+        if (!app || !top) {
+            console.error("❌ No se encontró .cft-top");
+            return;
+        }
+
+        const cantidad =
+            Number(datos.total);
+
+        const texto =
+            cantidad === 1
+                ? "TIENES 1 NOTIFICACIÓN"
+                : `TIENES ${cantidad} NOTIFICACIONES`;
+
+        const card =
+            document.createElement("div");
+
+        card.id =
+            "cftNotificacionCard";
+
+        card.style.cssText = `
+            width:100%;
+            box-sizing:border-box;
+            margin:0 0 22px 0;
+            padding:18px 20px;
+            background:#111;
+            border:1px solid #ff6600;
+            border-radius:16px;
+            color:#fff;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+            font-family:Inter,"Helvetica Neue",Arial,sans-serif;
+        `;
+
+        card.innerHTML = `
+            <div style="min-width:0;">
+
+                <div style="
+                    font-size:16px;
+                    font-weight:800;
+                    letter-spacing:.3px;
+                    color:#fff;
+                    margin-bottom:6px;
+                ">
+                    ${texto}
+                </div>
+
+                <div style="
+                    font-size:13px;
+                    color:#999;
+                ">
+                    Hay ${cantidad}
+                    ${cantidad === 1
+                        ? "solicitud pendiente"
+                        : "solicitudes pendientes"}
+                    de revisión
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                id="cftBtnVerNotificaciones"
+                style="
+                    flex-shrink:0;
+                    border:1px solid #ff6600;
+                    background:#111;
+                    color:#ff6600;
+                    border-radius:10px;
+                    padding:10px 14px;
+                    font-size:13px;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                VER MÁS →
+            </button>
+        `;
+
+        top.insertAdjacentElement(
+            "afterend",
+            card
+        );
+
+        document
+            .getElementById("cftBtnVerNotificaciones")
+            .onclick = function () {
+
+                mostrarNotificacionesCFT(
+                    datos.notificaciones
+                );
+
+            };
+
+        console.log(
+            "🔔 CFT — Notificaciones:",
+            cantidad
+        );
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error cargando notificaciones CFT:",
+            error
+        );
+
+    }
+
+})();
 // ==============================
 // ESTILO SEMÁFORO INICIO
 // ==============================
@@ -7287,7 +7429,914 @@ if (estiloAntiParpadeo) {
 
 dashboard.style.visibility = "visible";
 }
+/* =========================================
+   CFT — AUTO NOTIFICACIONES
+   ========================================= */
 
+window.cftIniciarAutoNotificaciones = function () {
+
+    if (window.cftAutoNotificaciones) {
+        clearInterval(
+            window.cftAutoNotificaciones
+        );
+    }
+
+    let ultimoTotal = null;
+
+    async function revisarNotificaciones() {
+
+        try {
+
+            const respuesta = await fetch(
+                "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-notificaciones"
+            );
+
+            const datos =
+                await respuesta.json();
+
+            const total =
+                Number(datos.total || 0);
+
+            console.log(
+                "🔔 CFT NOTIFICACIONES:",
+                total
+            );
+
+            if (
+                ultimoTotal !== null &&
+                total > ultimoTotal
+            ) {
+
+                console.log(
+                    "🆕 NUEVA RENOVACIÓN DETECTADA"
+                );
+
+                if (
+                    typeof dashboardModerno ===
+                    "function"
+                ) {
+                    dashboardModerno();
+                }
+            }
+
+            ultimoTotal = total;
+
+        } catch (error) {
+
+            console.error(
+                "❌ Error revisando notificaciones:",
+                error
+            );
+
+        }
+
+    }
+
+    revisarNotificaciones();
+
+    window.cftAutoNotificaciones =
+        setInterval(
+            revisarNotificaciones,
+            10000
+        );
+
+    console.log(
+        "✅ AUTO-NOTIFICACIONES ACTIVADAS"
+    );
+};
+
+async function mostrarNotificacionesCFT(
+    notificaciones
+) {
+
+    const dashboard =
+        document.getElementById(
+            "dashboardPrincipal"
+        );
+
+    if (!dashboard) {
+        console.error(
+            "❌ No existe #dashboardPrincipal"
+        );
+        return;
+    }
+
+    dashboard.innerHTML = `
+
+        <div style="
+            width:100%;
+            max-width:1100px;
+            margin:0 auto;
+            padding:20px;
+            box-sizing:border-box;
+            color:#fff;
+            font-family:Inter,'Helvetica Neue',Arial,sans-serif;
+        ">
+
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:14px;
+                margin-bottom:24px;
+            ">
+
+                <button
+                    type="button"
+                    id="cftVolverNotificaciones"
+                    style="
+                        width:42px;
+                        height:42px;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#111;
+                        color:#fff;
+                        font-size:20px;
+                        cursor:pointer;
+                    "
+                >
+                    ←
+                </button>
+
+                <div>
+
+                    <div style="
+                        font-size:22px;
+                        font-weight:800;
+                    ">
+                        NOTIFICACIONES
+                    </div>
+
+                    <div style="
+                        font-size:13px;
+                        color:#888;
+                        margin-top:3px;
+                    ">
+                        Solicitudes pendientes de revisión
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                id="cftListaNotificaciones"
+                style="
+                    display:flex;
+                    flex-direction:column;
+                    gap:14px;
+                "
+            ></div>
+
+        </div>
+    `;
+
+    const lista =
+        document.getElementById(
+            "cftListaNotificaciones"
+        );
+
+    notificaciones.forEach(
+        function (solicitud) {
+
+            const card =
+                document.createElement("div");
+
+            card.style.cssText = `
+                width:100%;
+                box-sizing:border-box;
+                background:#111;
+                border:1px solid #292929;
+                border-radius:16px;
+                padding:20px;
+            `;
+
+            card.innerHTML = `
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;
+                    gap:12px;
+                    margin-bottom:18px;
+                ">
+
+                    <div>
+
+                        <div style="
+                            font-size:18px;
+                            font-weight:800;
+                            margin-bottom:5px;
+                        ">
+                            ${solicitud.NOMBRE || "SIN NOMBRE"}
+                        </div>
+
+                        <div style="
+                            font-size:12px;
+                            color:#777;
+                        ">
+                            Solicitud #${solicitud.id}
+                        </div>
+
+                    </div>
+
+                    <div style="
+                        padding:6px 10px;
+                        border-radius:8px;
+                        border:1px solid #ff6600;
+                        color:#ff6600;
+                        font-size:11px;
+                        font-weight:800;
+                    ">
+                        PENDIENTE
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit,minmax(120px,1fr));
+                    gap:10px;
+                    margin-bottom:18px;
+                ">
+
+                    <div style="
+                        background:#181818;
+                        border-radius:10px;
+                        padding:12px;
+                    ">
+
+                        <div style="
+                            font-size:11px;
+                            color:#777;
+                            margin-bottom:4px;
+                        ">
+                            PLAN
+                        </div>
+
+                        <div style="
+                            font-size:16px;
+                            font-weight:700;
+                        ">
+                            S/${Number(
+                                solicitud.PLAN ||
+                                solicitud.MONTO
+                            )}
+                        </div>
+
+                    </div>
+
+                    <div style="
+                        background:#181818;
+                        border-radius:10px;
+                        padding:12px;
+                    ">
+
+                        <div style="
+                            font-size:11px;
+                            color:#777;
+                            margin-bottom:4px;
+                        ">
+                            DURACIÓN
+                        </div>
+
+                        <div style="
+                            font-size:16px;
+                            font-weight:700;
+                        ">
+                            ${solicitud.DURACIONPLAN} meses
+                        </div>
+
+                    </div>
+
+                    <div style="
+                        background:#181818;
+                        border-radius:10px;
+                        padding:12px;
+                    ">
+
+                        <div style="
+                            font-size:11px;
+                            color:#777;
+                            margin-bottom:4px;
+                        ">
+                            MONTO
+                        </div>
+
+                        <div style="
+                            font-size:16px;
+                            font-weight:700;
+                        ">
+                            S/${Number(
+                                solicitud.MONTO
+                            ).toFixed(2)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:flex;
+                    flex-direction:column;
+                    gap:10px;
+                ">
+
+                    <button
+                        type="button"
+                        class="cftVerComprobantePermanente"
+                        data-id="${solicitud.id}"
+                        style="
+                            width:100%;
+                            padding:13px;
+                            border-radius:10px;
+                            border:1px solid #444;
+                            background:#181818;
+                            color:#fff;
+                            font-weight:700;
+                            cursor:pointer;
+                        "
+                    >
+                        VER COMPROBANTE →
+                    </button>
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:10px;
+                    ">
+
+                        <button
+                            type="button"
+                            class="cftAprobarPermanente"
+                            data-id="${solicitud.id}"
+                            style="
+                                width:100%;
+                                padding:13px;
+                                border-radius:10px;
+                                border:1px solid #22c55e;
+                                background:#111;
+                                color:#22c55e;
+                                font-weight:800;
+                                cursor:pointer;
+                            "
+                        >
+                            ✓ APROBAR
+                        </button>
+
+                        <button
+                            type="button"
+                            class="cftRechazarPermanente"
+                            data-id="${solicitud.id}"
+                            style="
+                                width:100%;
+                                padding:13px;
+                                border-radius:10px;
+                                border:1px solid #ef4444;
+                                background:#111;
+                                color:#ef4444;
+                                font-weight:800;
+                                cursor:pointer;
+                            "
+                        >
+                            ✕ RECHAZAR
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+            lista.appendChild(card);
+
+        }
+    );
+
+    document
+        .getElementById(
+            "cftVolverNotificaciones"
+        )
+        .onclick = function () {
+
+            dashboardModerno();
+
+        };
+
+    // ==========================================
+    // VER COMPROBANTE
+    // ==========================================
+
+    document
+        .querySelectorAll(
+            ".cftVerComprobantePermanente"
+        )
+        .forEach(
+            function (btn) {
+
+                btn.onclick = async function () {
+
+                    const id =
+                        Number(
+                            btn.dataset.id
+                        );
+
+                    const respuesta =
+                        await fetch(
+                            "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-ver-comprobante",
+                            {
+                                method:"POST",
+
+                                headers:{
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:JSON.stringify({
+                                    solicitud_id:id
+                                })
+                            }
+                        );
+
+                    const resultado =
+                        await respuesta.json();
+
+                    if (resultado.url) {
+
+                        window.open(
+                            resultado.url,
+                            "_blank"
+                        );
+
+                    } else {
+
+                        alert(
+                            resultado.error ||
+                            "No se pudo obtener el comprobante."
+                        );
+
+                    }
+
+                };
+
+            }
+        );
+
+    // ==========================================
+    // APROBAR RENOVACIÓN
+    // ==========================================
+
+    document
+        .querySelectorAll(
+            ".cftAprobarPermanente"
+        )
+        .forEach(
+            function (btn) {
+
+                btn.onclick = function () {
+
+                    const id =
+                        Number(
+                            btn.dataset.id
+                        );
+
+                    const fondo =
+                        document.createElement("div");
+
+                    fondo.id =
+                        "cftModalFechaInicio";
+
+                    fondo.style.cssText = `
+                        position:fixed;
+                        inset:0;
+                        background:rgba(0,0,0,.78);
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        z-index:99999;
+                        padding:20px;
+                        box-sizing:border-box;
+                    `;
+
+                    fondo.innerHTML = `
+
+                        <div style="
+                            width:100%;
+                            max-width:420px;
+                            background:#111;
+                            border:1px solid #292929;
+                            border-radius:18px;
+                            padding:22px;
+                            box-sizing:border-box;
+                            color:#fff;
+                            font-family:Inter,'Helvetica Neue',Arial,sans-serif;
+                        ">
+
+                            <div style="
+                                font-size:19px;
+                                font-weight:900;
+                                margin-bottom:6px;
+                            ">
+                                APROBAR RENOVACIÓN
+                            </div>
+
+                            <div style="
+                                color:#888;
+                                font-size:13px;
+                                margin-bottom:20px;
+                            ">
+                                Solicitud #${id}
+                            </div>
+
+                            <label style="
+                                display:block;
+                                color:#aaa;
+                                font-size:12px;
+                                font-weight:800;
+                                margin-bottom:8px;
+                            ">
+                                FECHA DE INICIO
+                            </label>
+
+                            <input
+                                id="cftFechaInicioAprobacion"
+                                type="date"
+                                style="
+                                    width:100%;
+                                    box-sizing:border-box;
+                                    padding:13px;
+                                    border-radius:10px;
+                                    border:1px solid #333;
+                                    background:#181818;
+                                    color:#fff;
+                                    font-size:16px;
+                                    margin-bottom:18px;
+                                "
+                            >
+
+                            <div style="
+                                display:grid;
+                                grid-template-columns:1fr 1fr;
+                                gap:10px;
+                            ">
+
+                                <button
+                                    type="button"
+                                    id="cftCancelarFecha"
+                                    style="
+                                        padding:13px;
+                                        border-radius:10px;
+                                        border:1px solid #444;
+                                        background:#111;
+                                        color:#aaa;
+                                        font-weight:800;
+                                        cursor:pointer;
+                                    "
+                                >
+                                    CANCELAR
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="cftConfirmarFecha"
+                                    style="
+                                        padding:13px;
+                                        border-radius:10px;
+                                        border:1px solid #22c55e;
+                                        background:#111;
+                                        color:#22c55e;
+                                        font-weight:800;
+                                        cursor:pointer;
+                                    "
+                                >
+                                    CONFIRMAR
+                                </button>
+
+                            </div>
+
+                        </div>
+                    `;
+
+                    document.body.appendChild(
+                        fondo
+                    );
+
+                    document
+                        .getElementById(
+                            "cftCancelarFecha"
+                        )
+                        .onclick = function () {
+
+                            fondo.remove();
+
+                        };
+
+                    // ==========================================
+                    // CONFIRMAR → SUPABASE
+                    // ==========================================
+
+                    document
+                        .getElementById(
+                            "cftConfirmarFecha"
+                        )
+                        .onclick = async function () {
+
+                            const fecha =
+                                document
+                                    .getElementById(
+                                        "cftFechaInicioAprobacion"
+                                    )
+                                    ?.value;
+
+                            if (!fecha) {
+
+                                alert(
+                                    "Selecciona una fecha de inicio."
+                                );
+
+                                return;
+
+                            }
+
+                            const confirmar =
+                                document.getElementById(
+                                    "cftConfirmarFecha"
+                                );
+
+                            console.log(
+                                "📤 ENVIANDO APROBACIÓN A SUPABASE..."
+                            );
+
+                            console.log(
+                                "🆔 SOLICITUD:",
+                                id
+                            );
+
+                            console.log(
+                                "📅 FECHA INICIO:",
+                                fecha
+                            );
+
+                            confirmar.disabled =
+                                true;
+
+                            confirmar.textContent =
+                                "PROCESANDO...";
+
+                            try {
+
+                                const respuesta =
+                                    await fetch(
+                                        "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-aprobar-renovacion",
+                                        {
+                                            method:"POST",
+
+                                            headers:{
+                                                "Content-Type":
+                                                    "application/json"
+                                            },
+
+                                            body:JSON.stringify({
+                                                solicitud_id:id,
+                                                fecha_inicio:fecha
+                                            })
+                                        }
+                                    );
+
+                                console.log(
+                                    "📡 STATUS:",
+                                    respuesta.status
+                                );
+
+                                const resultado =
+                                    await respuesta.json();
+
+                                console.log(
+                                    "📥 RESPUESTA SUPABASE:",
+                                    resultado
+                                );
+
+                                if (
+                                    !respuesta.ok ||
+                                    !resultado.ok
+                                ) {
+
+                                    console.error(
+                                        "❌ ERROR APROBANDO:",
+                                        resultado
+                                    );
+
+                                    confirmar.disabled =
+                                        false;
+
+                                    confirmar.textContent =
+                                        "CONFIRMAR";
+
+                                    alert(
+                                        "❌ No se pudo aprobar la renovación.\n\n" +
+                                        (
+                                            resultado.error ||
+                                            "Error desconocido"
+                                        )
+                                    );
+
+                                    return;
+
+                                }
+
+                                console.log(
+                                    "✅ RENOVACIÓN APROBADA"
+                                );
+
+                                console.log(
+                                    "👤 ALUMNO:",
+                                    resultado.alumno
+                                );
+
+                                console.log(
+                                    "📅 INICIO:",
+                                    resultado.fecha_inicio
+                                );
+
+                                console.log(
+                                    "📅 VENCIMIENTO:",
+                                    resultado.fecha_vencimiento
+                                );
+
+                                console.log(
+                                    "💰 MONTO:",
+                                    resultado.monto
+                                );
+
+                                fondo.remove();
+
+                                alert(
+                                    "✅ RENOVACIÓN APROBADA\n\n" +
+                                    "Alumno: " +
+                                    resultado.alumno +
+                                    "\n" +
+                                    "Inicio: " +
+                                    resultado.fecha_inicio +
+                                    "\n" +
+                                    "Vencimiento: " +
+                                    resultado.fecha_vencimiento +
+                                    "\n" +
+                                    "Monto: S/" +
+                                    resultado.monto
+                                );
+
+                                dashboardModerno();
+
+                            } catch (error) {
+
+                                console.error(
+                                    "❌ ERROR DE CONEXIÓN:",
+                                    error
+                                );
+
+                                confirmar.disabled =
+                                    false;
+
+                                confirmar.textContent =
+                                    "CONFIRMAR";
+
+                                alert(
+                                    "❌ Error de conexión con Supabase.\n\n" +
+                                    error.message
+                                );
+
+                            }
+
+                        };
+
+                };
+
+            }
+        );
+
+    // ==========================================
+    // RECHAZAR
+    // ==========================================
+
+   document
+    .querySelectorAll(
+        ".cftRechazarPermanente"
+    )
+    .forEach(
+        function (btn) {
+
+            btn.onclick = async function () {
+
+                const id =
+                    Number(
+                        btn.dataset.id
+                    );
+
+                console.log(
+                    "RECHAZAR — solicitud:",
+                    id
+                );
+
+                const confirmar =
+                    confirm(
+                        "¿Seguro que deseas rechazar esta renovación?\n\n" +
+                        "Solicitud #" +
+                        id
+                    );
+
+                if (!confirmar) {
+
+                    console.log(
+                        "RECHAZO CANCELADO"
+                    );
+
+                    return;
+                }
+
+                try {
+
+                    btn.disabled = true;
+
+                    btn.textContent =
+                        "RECHAZANDO...";
+
+                    const respuesta =
+                        await fetch(
+                            "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-rechazar-renovacion",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    solicitud_id: id
+                                })
+                            }
+                        );
+
+                    const resultado =
+                        await respuesta.json();
+
+                    console.log(
+                        "STATUS RECHAZO:",
+                        respuesta.status
+                    );
+
+                    console.log(
+                        "RESPUESTA RECHAZO:",
+                        resultado
+                    );
+
+                    if (
+                        !respuesta.ok ||
+                        !resultado.ok
+                    ) {
+
+                        throw new Error(
+                            resultado.error ||
+                            "No se pudo rechazar la renovación."
+                        );
+                    }
+
+                    alert(
+                        "RENOVACIÓN RECHAZADA\n\n" +
+                        "Solicitud #" +
+                        id +
+                        "\n\n" +
+                        "La solicitud fue rechazada correctamente."
+                    );
+
+                    dashboardModerno();
+
+                } catch (error) {
+
+                    console.error(
+                        "ERROR AL RECHAZAR:",
+                        error
+                    );
+
+                    alert(
+                        "No se pudo rechazar la renovación.\n\n" +
+                        error.message
+                    );
+
+                    btn.disabled = false;
+
+                    btn.textContent =
+                        "RECHAZAR";
+                }
+
+            };
+
+        }
+    );
+
+console.log(
+    "Pantalla de notificaciones cargada."
+);
+}
 function volverAlDashboard() {
 
     const secciones = document.querySelectorAll(".section");
