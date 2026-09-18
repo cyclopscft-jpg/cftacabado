@@ -7520,7 +7520,138 @@ async function mostrarNotificacionesCFT(
         );
         return;
     }
+    // ==========================================
+    // ENTRAR A LA PANTALLA DE NOTIFICACIONES
+    // ==========================================
 
+    const pantallaMas =
+        document.getElementById("pantallaMas");
+
+    if (pantallaMas) {
+        pantallaMas.style.display = "none";
+    }
+
+    dashboard.style.display = "block";
+
+    // ==========================================
+    // SIN NOTIFICACIONES
+    // ==========================================
+
+    if (
+        !Array.isArray(notificaciones) ||
+        notificaciones.length === 0
+    ) {
+
+        dashboard.innerHTML = `
+
+            <div style="
+                width:100%;
+                max-width:1100px;
+                margin:0 auto;
+                padding:20px;
+                box-sizing:border-box;
+                color:#fff;
+                font-family:Inter,'Helvetica Neue',Arial,sans-serif;
+            ">
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:14px;
+                    margin-bottom:24px;
+                ">
+
+                    <button
+                        type="button"
+                        id="cftVolverNotificaciones"
+                        style="
+                            width:42px;
+                            height:42px;
+                            border-radius:12px;
+                            border:1px solid #333;
+                            background:#111;
+                            color:#fff;
+                            font-size:20px;
+                            cursor:pointer;
+                        "
+                    >
+                        ←
+                    </button>
+
+                    <div>
+
+                        <div style="
+                            font-size:22px;
+                            font-weight:800;
+                        ">
+                            NOTIFICACIONES
+                        </div>
+
+                        <div style="
+                            font-size:13px;
+                            color:#888;
+                            margin-top:3px;
+                        ">
+                            Solicitudes pendientes de revisión
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div style="
+                    width:100%;
+                    padding:40px 20px;
+                    box-sizing:border-box;
+                    background:#111;
+                    border:1px solid #292929;
+                    border-radius:16px;
+                    text-align:center;
+                ">
+
+                    <div style="
+                        font-size:42px;
+                        margin-bottom:14px;
+                    ">
+                        🔔
+                    </div>
+
+                    <div style="
+                        font-size:18px;
+                        font-weight:800;
+                        margin-bottom:8px;
+                    ">
+                        NO HAY NOTIFICACIONES
+                    </div>
+
+                    <div style="
+                        font-size:13px;
+                        color:#888;
+                    ">
+                        No tienes solicitudes pendientes de revisión.
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        document
+            .getElementById(
+                "cftVolverNotificaciones"
+            )
+            .onclick = function () {
+
+                dashboardModerno();
+
+            };
+
+        console.log(
+            "✅ NO HAY NOTIFICACIONES"
+        );
+
+        return;
+    }
     dashboard.innerHTML = `
 
         <div style="
@@ -14076,6 +14207,461 @@ setTimeout(
 
             window
                 .cftRegistrarPushPermanente();
+
+        }
+
+    },
+    1500
+);
+/* =========================================
+   CFT — BOTÓN NOTIFICACIONES EN "MÁS"
+   UBICACIÓN: ÚLTIMO BOTÓN
+   ========================================= */
+
+window.cftAgregarBotonNotificacionesMas = function () {
+
+    const pantallaMas =
+        document.getElementById("pantallaMas");
+
+    if (!pantallaMas) {
+        console.error(
+            "❌ No existe #pantallaMas"
+        );
+        return;
+    }
+
+    const botonExistente =
+        document.getElementById(
+            "btnNotificacionesCFT"
+        );
+
+    if (botonExistente) {
+        return;
+    }
+
+    const boton =
+        document.createElement("button");
+
+    boton.id =
+        "btnNotificacionesCFT";
+
+    boton.type =
+        "button";
+
+    boton.className =
+        "primary-button";
+
+    boton.textContent =
+        "🔔 Notificaciones";
+
+    boton.onclick = async function () {
+
+        console.log(
+            "🔔 CARGANDO NOTIFICACIONES..."
+        );
+
+        try {
+
+            const respuesta =
+                await fetch(
+                    "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-notificaciones"
+                );
+
+            console.log(
+                "📡 STATUS:",
+                respuesta.status
+            );
+
+            const datos =
+                await respuesta.json();
+
+            console.log(
+                "📥 RESPUESTA:",
+                datos
+            );
+
+            if (!respuesta.ok) {
+                throw new Error(
+                    datos.error ||
+                    "Error cargando notificaciones."
+                );
+            }
+
+            console.log(
+                "🔔 TOTAL:",
+                datos.total
+            );
+
+            console.log(
+                "📋 NOTIFICACIONES:",
+                datos.notificaciones
+            );
+
+            await mostrarNotificacionesCFT(
+                datos.notificaciones || []
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR CARGANDO NOTIFICACIONES:",
+                error
+            );
+
+            alert(
+                "No se pudieron cargar las notificaciones.\n\n" +
+                error.message
+            );
+
+        }
+
+    };
+
+    /* =====================================
+       SIEMPRE AL FINAL DE "MÁS"
+       ===================================== */
+
+    pantallaMas.appendChild(
+        boton
+    );
+
+    console.log(
+        "✅ BOTÓN NOTIFICACIONES PERMANENTE AL FINAL DE MÁS"
+    );
+
+};
+
+setTimeout(function () {
+
+    if (
+        typeof window.cftAgregarBotonNotificacionesMas ===
+        "function"
+    ) {
+        window.cftAgregarBotonNotificacionesMas();
+    }
+
+}, 1000);
+
+/* =========================================
+   CFT — NOMBRES DE PAGOS ABREN FICHA
+   ========================================= */
+
+window.cftActivarNombresPagos = function () {
+
+    function obtenerNombre(span) {
+
+        if (!span) {
+            return "";
+        }
+
+        const primerNodo =
+            span.childNodes[0];
+
+        if (
+            primerNodo &&
+            primerNodo.nodeType === Node.TEXT_NODE
+        ) {
+
+            return primerNodo.textContent
+                .trim()
+                .replace(/\s+/g, " ");
+        }
+
+        return (span.textContent || "")
+            .split("\n")[0]
+            .trim()
+            .replace(/\s+/g, " ");
+    }
+
+    async function abrirFichaDesdeNombre(span) {
+
+        const nombre =
+            obtenerNombre(span);
+
+        if (!nombre) {
+            return;
+        }
+
+        console.log(
+            "👤 CLIC EN NOMBRE:",
+            nombre
+        );
+
+        try {
+
+            span.style.opacity = "0.6";
+
+            const alumno =
+                await buscarAlumnoUniversal({
+                    nombre: nombre
+                });
+
+            if (!alumno) {
+
+                alert(
+                    "No se encontró el alumno:\n\n" +
+                    nombre
+                );
+
+                return;
+            }
+
+            console.log(
+                "✅ ALUMNO ENCONTRADO:",
+                alumno.NOMBRE,
+                "ID:",
+                alumno.id
+            );
+
+            await verAlumno(
+                alumno.id
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR ABRIENDO FICHA:",
+                error
+            );
+
+            alert(
+                "No se pudo abrir la ficha.\n\n" +
+                error.message
+            );
+
+        } finally {
+
+            span.style.opacity = "1";
+
+        }
+    }
+
+    function prepararNombre(span) {
+
+        if (
+            !span ||
+            span.dataset.cftNombreFicha === "true"
+        ) {
+            return;
+        }
+
+        const nombre =
+            obtenerNombre(span);
+
+        if (!nombre) {
+            return;
+        }
+
+        span.dataset.cftNombreFicha =
+            "true";
+
+        span.style.cursor =
+            "pointer";
+
+        span.title =
+            "Abrir ficha del alumno";
+
+        span.setAttribute(
+            "role",
+            "button"
+        );
+
+        span.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+        span.addEventListener(
+            "click",
+            function () {
+
+                abrirFichaDesdeNombre(
+                    span
+                );
+
+            }
+        );
+
+        span.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
+
+                    event.preventDefault();
+
+                    abrirFichaDesdeNombre(
+                        span
+                    );
+
+                }
+
+            }
+        );
+    }
+
+    function instalarDashboard() {
+
+        document
+            .querySelectorAll(
+                "#ultimosPagos .row > span"
+            )
+            .forEach(
+                prepararNombre
+            );
+    }
+
+    function instalarResumen() {
+
+        const panelResumen =
+            [
+                ...document.querySelectorAll(
+                    "#pantallaInicio .card"
+                )
+            ]
+            .find(
+                function (card) {
+
+                    return (
+                        card.textContent || ""
+                    )
+                    .toUpperCase()
+                    .includes(
+                        "ÚLTIMOS PAGOS"
+                    );
+
+                }
+            );
+
+        if (!panelResumen) {
+            return;
+        }
+
+        panelResumen
+            .querySelectorAll(
+                ".row > span"
+            )
+            .forEach(
+                function (span) {
+
+                    const texto =
+                        (
+                            span.textContent ||
+                            ""
+                        )
+                        .trim()
+                        .replace(
+                            /\s+/g,
+                            " "
+                        );
+
+                    if (
+                        /\d{1,2}-\d{1,2}-\d{4}/
+                            .test(texto)
+                    ) {
+
+                        prepararNombre(
+                            span
+                        );
+
+                    }
+
+                }
+            );
+    }
+
+    instalarDashboard();
+    instalarResumen();
+
+    if (
+        window.cftNombresPagosObserverDashboard
+    ) {
+
+        window.cftNombresPagosObserverDashboard
+            .disconnect();
+
+    }
+
+    if (
+        window.cftNombresPagosObserverResumen
+    ) {
+
+        window.cftNombresPagosObserverResumen
+            .disconnect();
+
+    }
+
+    window.cftNombresPagosObserverDashboard =
+        new MutationObserver(
+            function () {
+
+                instalarDashboard();
+
+            }
+        );
+
+    window.cftNombresPagosObserverResumen =
+        new MutationObserver(
+            function () {
+
+                instalarResumen();
+
+            }
+        );
+
+    const dashboard =
+        document.getElementById(
+            "dashboardPrincipal"
+        );
+
+    if (dashboard) {
+
+        window.cftNombresPagosObserverDashboard
+            .observe(
+                dashboard,
+                {
+                    childList: true,
+                    subtree: true
+                }
+            );
+
+    }
+
+    const resumen =
+        document.getElementById(
+            "pantallaInicio"
+        );
+
+    if (resumen) {
+
+        window.cftNombresPagosObserverResumen
+            .observe(
+                resumen,
+                {
+                    childList: true,
+                    subtree: true
+                }
+            );
+
+    }
+
+    console.log(
+        "✅ NOMBRES DE PAGOS → FICHA PERMANENTE"
+    );
+};
+
+setTimeout(
+    function () {
+
+        if (
+            typeof window.cftActivarNombresPagos ===
+            "function"
+        ) {
+
+            window.cftActivarNombresPagos();
 
         }
 
