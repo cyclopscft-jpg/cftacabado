@@ -13605,22 +13605,184 @@ window.cftOrigenPagosMes = "inicio";
 })();
 /* =========================================
    CFT — PUSH NOTIFICACIONES PERMANENTE
+   PC + iPHONE
    ========================================= */
 
 window.CFT_VAPID_PUBLIC_KEY =
     "BKfwaaR9uHkoCxEfV24rJajrvGKLPKt9n-3fKlRkCcPk3hsowpQdF_i-3yF3Sol9Wsvi2E6zsvRFnNO5KMFPg6w";
 
 
-window.cftRegistrarPushPermanente =
+/* =========================================
+   CONVERTIR VAPID PUBLIC KEY
+   ========================================= */
+
+window.cftUrlBase64ToUint8Array =
+    function (base64String) {
+
+        const padding =
+            "=".repeat(
+                (4 -
+                    (
+                        base64String.length %
+                        4
+                    )) %
+                    4
+            );
+
+        const base64 =
+            (
+                base64String +
+                padding
+            )
+                .replace(/-/g, "+")
+                .replace(/_/g, "/");
+
+        const rawData =
+            atob(base64);
+
+        return Uint8Array.from(
+            [...rawData].map(
+                function (char) {
+                    return char.charCodeAt(0);
+                }
+            )
+        );
+    };
+
+
+/* =========================================
+   REGISTRAR SUSCRIPCIÓN EN SUPABASE
+   ========================================= */
+
+window.cftRegistrarSuscripcionPush =
+    async function (subscription) {
+
+        const respuesta =
+            await fetch(
+                "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-registrar-push",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            subscription:
+                                subscription.toJSON()
+                        })
+                }
+            );
+
+        const resultado =
+            await respuesta.json();
+
+        if (
+            !respuesta.ok ||
+            !resultado.ok
+        ) {
+            throw new Error(
+                resultado.error ||
+                "No se pudo registrar la suscripción Push."
+            );
+        }
+
+        console.log(
+            "✅ PUSH REGISTRADO EN SUPABASE"
+        );
+
+        console.log(
+            "📡",
+            resultado.mensaje
+        );
+
+        return resultado;
+    };
+
+
+/* =========================================
+   CREAR / OBTENER SUSCRIPCIÓN
+   ========================================= */
+
+window.cftObtenerSuscripcionPush =
+    async function () {
+
+        if (
+            !("serviceWorker" in navigator)
+        ) {
+            throw new Error(
+                "Este navegador no soporta Service Worker."
+            );
+        }
+
+        if (
+            !("PushManager" in window)
+        ) {
+            throw new Error(
+                "Este navegador no soporta Push."
+            );
+        }
+
+        const registro =
+            await navigator.serviceWorker.ready;
+
+        let subscription =
+            await registro.pushManager
+                .getSubscription();
+
+        if (!subscription) {
+
+            console.log(
+                "📡 CREANDO SUSCRIPCIÓN PUSH..."
+            );
+
+            subscription =
+                await registro.pushManager
+                    .subscribe({
+                        userVisibleOnly:
+                            true,
+
+                        applicationServerKey:
+                            window.cftUrlBase64ToUint8Array(
+                                window.CFT_VAPID_PUBLIC_KEY
+                            )
+                    });
+
+            console.log(
+                "✅ SUSCRIPCIÓN PUSH CREADA"
+            );
+        }
+
+        return subscription;
+    };
+
+
+/* =========================================
+   ACTIVAR PUSH — iPHONE
+   SE EJECUTA DESDE UN CLICK DEL USUARIO
+   ========================================= */
+
+window.cftActivarPushIPhone =
     async function () {
 
         try {
 
             if (
+                !("Notification" in window)
+            ) {
+                alert(
+                    "Este dispositivo no soporta notificaciones."
+                );
+                return;
+            }
+
+            if (
                 !("serviceWorker" in navigator)
             ) {
-                console.log(
-                    "⚠️ PUSH: Service Worker no disponible."
+                alert(
+                    "Este dispositivo no soporta Service Worker."
                 );
                 return;
             }
@@ -13628,169 +13790,264 @@ window.cftRegistrarPushPermanente =
             if (
                 !("PushManager" in window)
             ) {
-                console.log(
-                    "⚠️ PUSH: Push API no disponible."
+                alert(
+                    "Este dispositivo no soporta Push."
                 );
                 return;
             }
+
+
+            console.log(
+                "🔔 SOLICITANDO PERMISO PUSH..."
+            );
+
+
+            let permiso =
+                Notification.permission;
+
+
+            if (
+                permiso !== "granted"
+            ) {
+
+                permiso =
+                    await Notification.requestPermission();
+
+            }
+
+
+            console.log(
+                "🔔 PERMISO PUSH:",
+                permiso
+            );
+
+
+            if (
+                permiso !== "granted"
+            ) {
+
+                if (
+                    permiso ===
+                    "denied"
+                ) {
+
+                    alert(
+                        "Las notificaciones están bloqueadas.\n\n" +
+                        "Actívalas desde Configuración > Notificaciones."
+                    );
+
+                }
+
+                return;
+            }
+
+
+            const subscription =
+                await window.cftObtenerSuscripcionPush();
+
+
+            await window
+                .cftRegistrarSuscripcionPush(
+                    subscription
+                );
+
+
+            alert(
+                "✅ NOTIFICACIONES ACTIVADAS\n\n" +
+                "Este dispositivo recibirá las alertas de CFT Manager."
+            );
+
+
+            const boton =
+                document.getElementById(
+                    "cftBotonActivarPush"
+                );
+
+            if (boton) {
+                boton.remove();
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR ACTIVANDO PUSH:",
+                error
+            );
+
+            alert(
+                "No se pudieron activar las notificaciones.\n\n" +
+                error.message
+            );
+
+        }
+
+    };
+
+
+/* =========================================
+   BOTÓN PARA iPHONE
+   ========================================= */
+
+window.cftMostrarBotonPush =
+    function () {
+
+        if (
+            !("Notification" in window)
+        ) {
+            return;
+        }
+
+        if (
+            Notification.permission ===
+            "granted"
+        ) {
+            return;
+        }
+
+        if (
+            document.getElementById(
+                "cftBotonActivarPush"
+            )
+        ) {
+            return;
+        }
+
+
+        const boton =
+            document.createElement(
+                "button"
+            );
+
+        boton.id =
+            "cftBotonActivarPush";
+
+        boton.type =
+            "button";
+
+        boton.textContent =
+            "🔔 ACTIVAR NOTIFICACIONES";
+
+
+        Object.assign(
+            boton.style,
+            {
+                position:
+                    "fixed",
+
+                left:
+                    "50%",
+
+                bottom:
+                    "90px",
+
+                transform:
+                    "translateX(-50%)",
+
+                zIndex:
+                    "99999",
+
+                padding:
+                    "13px 18px",
+
+                border:
+                    "1px solid #f28c28",
+
+                borderRadius:
+                    "12px",
+
+                background:
+                    "#111",
+
+                color:
+                    "#fff",
+
+                fontFamily:
+                    "Inter, Arial, sans-serif",
+
+                fontSize:
+                    "14px",
+
+                fontWeight:
+                    "600",
+
+                cursor:
+                    "pointer",
+
+                boxShadow:
+                    "0 4px 14px rgba(0,0,0,.35)"
+            }
+        );
+
+
+        boton.addEventListener(
+            "click",
+            function () {
+
+                window
+                    .cftActivarPushIPhone();
+
+            }
+        );
+
+
+        document.body.appendChild(
+            boton
+        );
+
+
+        console.log(
+            "🔔 BOTÓN ACTIVAR NOTIFICACIONES MOSTRADO"
+        );
+
+    };
+
+
+/* =========================================
+   REGISTRO AUTOMÁTICO EN PC
+   SI EL PERMISO YA ESTÁ CONCEDIDO
+   ========================================= */
+
+window.cftRegistrarPushPermanente =
+    async function () {
+
+        try {
 
             if (
                 !("Notification" in window)
             ) {
-                console.log(
-                    "⚠️ PUSH: Notifications API no disponible."
-                );
                 return;
             }
-
-            console.log(
-                "🔔 PUSH: permiso actual:",
-                Notification.permission
-            );
-
 
             if (
                 Notification.permission !==
                 "granted"
             ) {
-
                 console.log(
-                    "ℹ️ PUSH: permiso todavía no concedido."
+                    "ℹ️ PUSH: esperando activación del usuario."
                 );
+
+                window
+                    .cftMostrarBotonPush();
 
                 return;
             }
 
 
-            const registro =
-                await navigator.serviceWorker.ready;
+            const subscription =
+                await window
+                    .cftObtenerSuscripcionPush();
 
 
-            let subscription =
-                await registro.pushManager
-                    .getSubscription();
-
-
-            if (!subscription) {
-
-                console.log(
-                    "📡 PUSH: creando suscripción..."
+            await window
+                .cftRegistrarSuscripcionPush(
+                    subscription
                 );
-
-
-                function
-                urlBase64ToUint8Array(
-                    base64String
-                ) {
-
-                    const padding =
-                        "=".repeat(
-                            (
-                                4 -
-                                (
-                                    base64String.length %
-                                    4
-                                )
-                            ) %
-                            4
-                        );
-
-
-                    const base64 =
-                        (
-                            base64String +
-                            padding
-                        )
-                            .replace(
-                                /-/g,
-                                "+"
-                            )
-                            .replace(
-                                /_/g,
-                                "/"
-                            );
-
-
-                    const rawData =
-                        atob(base64);
-
-
-                    return Uint8Array.from(
-                        [...rawData].map(
-                            char =>
-                                char.charCodeAt(
-                                    0
-                                )
-                        )
-                    );
-                }
-
-
-                subscription =
-                    await registro.pushManager
-                        .subscribe({
-                            userVisibleOnly:
-                                true,
-
-                            applicationServerKey:
-                                urlBase64ToUint8Array(
-                                    window.CFT_VAPID_PUBLIC_KEY
-                                )
-                        });
-
-
-                console.log(
-                    "✅ PUSH: suscripción creada."
-                );
-            }
-
-
-            const respuesta =
-                await fetch(
-                    "https://szugemossswdinahbxxc.supabase.co/functions/v1/cft-registrar-push",
-                    {
-                        method:
-                            "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify({
-                                subscription:
-                                    subscription.toJSON()
-                            })
-                    }
-                );
-
-
-            const resultado =
-                await respuesta.json();
-
-
-            if (
-                !respuesta.ok ||
-                !resultado.ok
-            ) {
-
-                throw new Error(
-                    resultado.error ||
-                    "No se pudo registrar la suscripción Push."
-                );
-            }
 
 
             console.log(
                 "✅ PUSH CFT MANAGER REGISTRADO"
             );
-
-            console.log(
-                "📡",
-                resultado.mensaje
-            );
-
 
         } catch (error) {
 
@@ -13800,8 +14057,13 @@ window.cftRegistrarPushPermanente =
             );
 
         }
+
     };
 
+
+/* =========================================
+   INICIO
+   ========================================= */
 
 setTimeout(
     function () {
@@ -13814,375 +14076,6 @@ setTimeout(
 
             window
                 .cftRegistrarPushPermanente();
-
-        }
-
-    },
-    1500
-);
-/* =========================================
-   CFT — NOMBRES DE PAGOS ABREN FICHA
-   ========================================= */
-
-window.cftActivarNombresPagos = function () {
-
-    function obtenerNombre(span) {
-
-        if (!span) {
-            return "";
-        }
-
-        const primerNodo =
-            span.childNodes[0];
-
-        if (
-            primerNodo &&
-            primerNodo.nodeType ===
-                Node.TEXT_NODE
-        ) {
-
-            return primerNodo.textContent
-                .trim()
-                .replace(/\s+/g, " ");
-
-        }
-
-        return (span.textContent || "")
-            .split("\n")[0]
-            .trim()
-            .replace(/\s+/g, " ");
-    }
-
-
-    async function abrirFichaDesdeNombre(
-        span
-    ) {
-
-        const nombre =
-            obtenerNombre(span);
-
-        if (!nombre) {
-            return;
-        }
-
-        console.log(
-            "👤 CLIC EN NOMBRE:",
-            nombre
-        );
-
-        try {
-
-            span.style.opacity =
-                "0.6";
-
-            const alumno =
-                await buscarAlumnoUniversal(
-                    {
-                        nombre:
-                            nombre
-                    }
-                );
-
-            if (!alumno) {
-
-                alert(
-                    "No se encontró el alumno:\n\n" +
-                    nombre
-                );
-
-                return;
-            }
-
-            console.log(
-                "✅ ALUMNO ENCONTRADO:",
-                alumno.NOMBRE,
-                "ID:",
-                alumno.id
-            );
-
-            await verAlumno(
-                alumno.id
-            );
-
-        } catch (error) {
-
-            console.error(
-                "❌ ERROR ABRIENDO FICHA:",
-                error
-            );
-
-            alert(
-                "No se pudo abrir la ficha.\n\n" +
-                error.message
-            );
-
-        } finally {
-
-            span.style.opacity =
-                "1";
-
-        }
-    }
-
-
-    function prepararNombre(span) {
-
-        if (
-            !span ||
-            span.dataset.cftNombreFicha ===
-                "true"
-        ) {
-            return;
-        }
-
-        const nombre =
-            obtenerNombre(span);
-
-        if (!nombre) {
-            return;
-        }
-
-        span.dataset.cftNombreFicha =
-            "true";
-
-        span.style.cursor =
-            "pointer";
-
-        span.style.textDecoration =
-            "underline";
-
-        span.style.textDecorationColor =
-            "#f28c28";
-
-        span.style.textUnderlineOffset =
-            "3px";
-
-        span.title =
-            "Abrir ficha del alumno";
-
-        span.setAttribute(
-            "role",
-            "button"
-        );
-
-        span.setAttribute(
-            "tabindex",
-            "0"
-        );
-
-        span.addEventListener(
-            "click",
-            function () {
-
-                abrirFichaDesdeNombre(
-                    span
-                );
-
-            }
-        );
-
-        span.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key ===
-                        "Enter" ||
-                    event.key ===
-                        " "
-                ) {
-
-                    event.preventDefault();
-
-                    abrirFichaDesdeNombre(
-                        span
-                    );
-
-                }
-
-            }
-        );
-    }
-
-
-    function instalar() {
-
-        /* ==============================
-           DASHBOARD MODERNO
-           ============================== */
-
-        document
-            .querySelectorAll(
-                "#ultimosPagos .row > span"
-            )
-            .forEach(
-                prepararNombre
-            );
-
-
-        /* ==============================
-           RESUMEN
-           ============================== */
-
-        const panelResumen =
-            [
-                ...
-                document.querySelectorAll(
-                    "#pantallaInicio .card"
-                )
-            ].find(
-                function (card) {
-
-                    return (
-                        (
-                            card.textContent ||
-                            ""
-                        )
-                            .toUpperCase()
-                            .includes(
-                                "ÚLTIMOS PAGOS"
-                            )
-                    );
-
-                }
-            );
-
-
-        if (panelResumen) {
-
-            panelResumen
-                .querySelectorAll(
-                    ".row > span"
-                )
-                .forEach(
-                    function (span) {
-
-                        const texto =
-                            (
-                                span.textContent ||
-                                ""
-                            )
-                                .trim()
-                                .replace(
-                                    /\s+/g,
-                                    " "
-                                );
-
-                        if (
-                            /\d{1,2}-\d{1,2}-\d{4}/
-                                .test(
-                                    texto
-                                )
-                        ) {
-
-                            prepararNombre(
-                                span
-                            );
-
-                        }
-
-                    }
-                );
-
-        }
-
-    }
-
-
-    /* ==============================
-       INSTALACIÓN INICIAL
-       ============================== */
-
-    instalar();
-
-
-    /* ==============================
-       OBSERVAR NUEVOS PAGOS / RENDER
-       ============================== */
-
-    if (
-        window.cftNombresPagosObserver
-    ) {
-
-        window.cftNombresPagosObserver
-            .disconnect();
-
-    }
-
-
-    window.cftNombresPagosObserver =
-        new MutationObserver(
-            function () {
-
-                instalar();
-
-            }
-        );
-
-
-    const dashboard =
-        document.getElementById(
-            "dashboardPrincipal"
-        );
-
-    if (dashboard) {
-
-        window.cftNombresPagosObserver
-            .observe(
-                dashboard,
-                {
-                    childList:
-                        true,
-                    subtree:
-                        true
-                }
-            );
-
-    }
-
-
-    const resumen =
-        document.getElementById(
-            "pantallaInicio"
-        );
-
-    if (resumen) {
-
-        window.cftNombresPagosObserver
-            .observe(
-                resumen,
-                {
-                    childList:
-                        true,
-                    subtree:
-                        true
-                }
-            );
-
-    }
-
-
-    console.log(
-        "✅ NOMBRES DE PAGOS → FICHA PERMANENTE"
-    );
-};
-
-
-/* =========================================
-   INICIAR
-   ========================================= */
-
-setTimeout(
-    function () {
-
-        if (
-            typeof
-            window.cftActivarNombresPagos ===
-                "function"
-        ) {
-
-            window
-                .cftActivarNombresPagos();
 
         }
 
