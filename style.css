@@ -3379,3 +3379,41 @@ body {
         font-size: 25px !important;
     }
 }
+/* FIX CFT — VISIBILIDAD DEL RESUMEN */
+#pantallaInicio {
+    display: block !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    gap: 0 !important;
+}
+
+#pantallaInicio[style*="display: none"] {
+    display: none !important;
+}
+/* =========================================
+   CFT — CALENDARIO MODERNO APROBAR
+   ========================================= */
+
+#cftModalFechaInicio input[type="date"] {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    font-size: 16px !important;
+    font-family: Inter, Arial, sans-serif !important;
+    color-scheme: light !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+#cftModalFechaInicio input[type="date"]:focus {
+    outline: none !important;
+    border-color: #ff6600 !important;
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.15) !important;
+}
+
+#cftModalFechaInicio input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 1 !important;
+    cursor: pointer !important;
+    filter: none !important;
+}
