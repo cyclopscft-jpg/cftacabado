@@ -277,4 +277,3 @@ self.addEventListener(
         );
     }
 );
-
