@@ -1,4 +1,4 @@
-let regresoDesdePantalla = false;
+ let regresoDesdePantalla = false;
 const SUPABASE_URL = "https://szugemossswdinahbxxc.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_tkep6QjStpeMFZtGtSNEWA_0Zenuh5V";
@@ -1557,6 +1557,539 @@ const vencimientoMostrar =
 
     `;
 
+    // ==============================
+    // 🥋 LUTA LIVRE
+    // ==============================
+
+async function cargarLutaLivreFicha() {
+
+    console.log("🥋 CARGANDO CARD LUTA LIVRE...");
+
+    const { data: graduaciones, error } = await supabaseClient
+        .from("CFT_LutaLivre_Graduaciones")
+        .select("*")
+        .eq("alumno_id", alumnoEditando)
+        .order("fecha_graduacion", { ascending: false });
+
+    if (error) {
+        console.error("❌ Error cargando Luta Livre:", error);
+        return;
+    }
+
+    console.log("🥋 LUTA LIVRE CARGADA:", graduaciones);
+
+    const cardAnterior = document.querySelector("[data-cft-luta]");
+
+    if (cardAnterior) {
+        cardAnterior.remove();
+    }
+
+    const card = document.createElement("div");
+
+    card.className = "card";
+    card.setAttribute("data-cft-luta", "");
+
+    card.innerHTML = `
+        <h3 style="
+            margin:0 0 16px;
+            color:#fff;
+            font-size:18px;
+            font-weight:700;
+        ">
+            🥋 LUTA LIVRE
+        </h3>
+
+        <div style="
+            display:flex;
+            flex-direction:column;
+            gap:12px;
+        ">
+
+            <div>
+                <label style="
+                    display:block;
+                    margin-bottom:6px;
+                    color:#aaa;
+                    font-size:13px;
+                ">
+                    CINTURÓN
+                </label>
+
+                <select
+                    id="cftLutaCinturon"
+                    style="
+                        width:100%;
+                        box-sizing:border-box;
+                        padding:12px;
+                        border-radius:10px;
+                        border:1px solid #444;
+                        background:#111;
+                        color:#fff;
+                        font-size:15px;
+                    "
+                >
+                    <option value="">Seleccionar cinturón</option>
+                    <option value="Blanco">Blanco</option>
+                    <option value="Amarillo">Amarillo</option>
+                    <option value="Naranja">Naranja</option>
+                    <option value="Azul">Azul</option>
+                    <option value="Morado">Morado</option>
+                    <option value="Marrón">Marrón</option>
+                    <option value="Negro">Negro</option>
+                </select>
+            </div>
+
+            <div>
+                <label style="
+                    display:block;
+                    margin-bottom:6px;
+                    color:#aaa;
+                    font-size:13px;
+                ">
+                    FECHA DE GRADUACIÓN
+                </label>
+
+                <input
+                    type="date"
+                    id="cftLutaFecha"
+                    style="
+                        width:100%;
+                        box-sizing:border-box;
+                        padding:12px;
+                        border-radius:10px;
+                        border:1px solid #444;
+                        background:#111;
+                        color:#fff;
+                        font-size:15px;
+                    "
+                >
+            </div>
+
+            <button
+                type="button"
+                id="btnGuardarLuta"
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-top:2px;
+                    border:none;
+                    border-radius:10px;
+                    background:#ff6600;
+                    color:#fff;
+                    font-size:14px;
+                    font-weight:800;
+                    cursor:pointer;
+                "
+            >
+                GUARDAR GRADUACIÓN
+            </button>
+
+        </div>
+
+        <div
+            style="
+                margin-top:22px;
+                padding-top:16px;
+                border-top:1px solid #333;
+            "
+        >
+
+            <div style="
+                color:#fff;
+                font-size:14px;
+                font-weight:700;
+                margin-bottom:12px;
+            ">
+                HISTORIAL
+            </div>
+
+            <div data-cft-luta-historial></div>
+
+        </div>
+    `;
+
+    const historialPagos = [...document.querySelectorAll(".card")]
+        .find(el =>
+            el.textContent.includes("Historial de pagos")
+        );
+
+    if (historialPagos) {
+        historialPagos.after(card);
+    } else {
+        document
+            .querySelector("#contenidoFichaAlumno")
+            ?.appendChild(card);
+    }
+
+    const historial =
+        card.querySelector("[data-cft-luta-historial]");
+
+    const formatearFecha = fecha => {
+
+        if (!fecha) return "";
+
+        const partes = fecha.split("-");
+
+        if (partes.length !== 3) {
+            return fecha;
+        }
+
+        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    };
+
+    function renderHistorial() {
+
+        historial.innerHTML = "";
+
+        if (!graduaciones.length) {
+
+            historial.innerHTML = `
+                <div style="
+                    padding:14px;
+                    border-radius:10px;
+                    background:#171717;
+                    color:#888;
+                    text-align:center;
+                    font-size:13px;
+                ">
+                    No hay graduaciones registradas.
+                </div>
+            `;
+
+            return;
+        }
+
+        graduaciones.forEach(graduacion => {
+
+            const wrapper = document.createElement("div");
+
+            wrapper.style.cssText = `
+                position:relative;
+                width:100%;
+                height:76px;
+                overflow:hidden;
+                margin-bottom:10px;
+                border-radius:10px;
+                background:#111;
+            `;
+
+            const botonEliminar =
+                document.createElement("button");
+
+            botonEliminar.type = "button";
+
+            botonEliminar.style.cssText = `
+                position:absolute;
+                right:0;
+                top:0;
+                width:78px;
+                height:76px;
+                border:none;
+                background:#111;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                z-index:1;
+                cursor:pointer;
+            `;
+
+            botonEliminar.innerHTML = `
+                <span style="
+                    width:46px;
+                    height:46px;
+                    border-radius:50%;
+                    background:#e53935;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    color:#fff;
+                    font-size:21px;
+                ">
+                    🗑
+                </span>
+            `;
+
+            const fila = document.createElement("div");
+
+            fila.style.cssText = `
+                position:absolute;
+                inset:0;
+                z-index:2;
+                box-sizing:border-box;
+                background:#171717;
+                border:1px solid #292929;
+                border-radius:10px;
+                padding:12px 16px;
+                touch-action:pan-y;
+                transition:transform .22s ease;
+                cursor:grab;
+            `;
+
+            fila.innerHTML = `
+                <div style="
+                    color:#fff;
+                    font-size:15px;
+                    font-weight:700;
+                    line-height:20px;
+                ">
+                    🥋 ${graduacion.cinturon}
+                </div>
+
+                <div style="
+                    margin-top:4px;
+                    color:#aaa;
+                    font-size:13px;
+                ">
+                    ${formatearFecha(
+                        graduacion.fecha_graduacion
+                    )}
+                </div>
+            `;
+
+            wrapper.appendChild(botonEliminar);
+            wrapper.appendChild(fila);
+            historial.appendChild(wrapper);
+
+            let inicioX = 0;
+            let inicioY = 0;
+            let moviendo = false;
+
+            fila.addEventListener("pointerdown", e => {
+
+                inicioX = e.clientX;
+                inicioY = e.clientY;
+
+                moviendo = true;
+
+                fila.setPointerCapture?.(
+                    e.pointerId
+                );
+            });
+
+            fila.addEventListener("pointermove", e => {
+
+                if (!moviendo) return;
+
+                const dx = e.clientX - inicioX;
+                const dy = e.clientY - inicioY;
+
+                if (Math.abs(dy) > Math.abs(dx)) {
+                    return;
+                }
+
+                if (dx < 0) {
+
+                    const desplazamiento =
+                        Math.max(-78, dx);
+
+                    fila.style.transform =
+                        `translateX(${desplazamiento}px)`;
+                }
+            });
+
+            fila.addEventListener("pointerup", e => {
+
+                if (!moviendo) return;
+
+                moviendo = false;
+
+                const dx =
+                    e.clientX - inicioX;
+
+                if (dx < -35) {
+
+                    fila.style.transform =
+                        "translateX(-78px)";
+
+                    document
+                        .querySelectorAll(
+                            "[data-cft-luta-row-open]"
+                        )
+                        .forEach(otra => {
+
+                            if (otra !== fila) {
+
+                                otra.style.transform =
+                                    "translateX(0)";
+
+                                otra.removeAttribute(
+                                    "data-cft-luta-row-open"
+                                );
+                            }
+                        });
+
+                    fila.setAttribute(
+                        "data-cft-luta-row-open",
+                        "true"
+                    );
+
+                } else {
+
+                    fila.style.transform =
+                        "translateX(0)";
+
+                    fila.removeAttribute(
+                        "data-cft-luta-row-open"
+                    );
+                }
+            });
+
+            fila.addEventListener(
+                "pointercancel",
+                () => {
+
+                    moviendo = false;
+
+                    fila.style.transform =
+                        "translateX(0)";
+
+                    fila.removeAttribute(
+                        "data-cft-luta-row-open"
+                    );
+                }
+            );
+
+            botonEliminar.addEventListener(
+                "click",
+                async () => {
+
+                    const confirmar = confirm(
+                        `¿Eliminar la graduación ${graduacion.cinturon} del ${formatearFecha(graduacion.fecha_graduacion)}?`
+                    );
+
+                    if (!confirmar) return;
+
+                    botonEliminar.disabled = true;
+
+                    const {
+                        error: errorDelete
+                    } = await supabaseClient
+                        .from(
+                            "CFT_LutaLivre_Graduaciones"
+                        )
+                        .delete()
+                        .eq(
+                            "id",
+                            graduacion.id
+                        );
+
+                    if (errorDelete) {
+
+                        console.error(
+                            "❌ Error eliminando:",
+                            errorDelete
+                        );
+
+                        alert(
+                            "No se pudo eliminar."
+                        );
+
+                        botonEliminar.disabled =
+                            false;
+
+                        return;
+                    }
+
+                    console.log(
+                        "🗑️ Graduación eliminada:",
+                        graduacion.id
+                    );
+
+                    await cargarLutaLivreFicha();
+                }
+            );
+        });
+    }
+
+    renderHistorial();
+
+    const btnGuardar =
+        document.getElementById(
+            "btnGuardarLuta"
+        );
+
+    btnGuardar.addEventListener(
+        "click",
+        async () => {
+
+            const cinturon =
+                document.getElementById(
+                    "cftLutaCinturon"
+                ).value;
+
+            const fecha =
+                document.getElementById(
+                    "cftLutaFecha"
+                ).value;
+
+            if (!cinturon) {
+
+                alert(
+                    "Selecciona un cinturón."
+                );
+
+                return;
+            }
+
+            if (!fecha) {
+
+                alert(
+                    "Selecciona una fecha."
+                );
+
+                return;
+            }
+
+            btnGuardar.disabled = true;
+
+            btnGuardar.textContent =
+                "GUARDANDO...";
+
+            const {
+                error: errorInsert
+            } = await supabaseClient
+                .from(
+                    "CFT_LutaLivre_Graduaciones"
+                )
+                .insert({
+                    alumno_id: alumnoEditando,
+                    cinturon: cinturon,
+                    fecha_graduacion: fecha
+                });
+
+            if (errorInsert) {
+
+                console.error(
+                    "❌ Error guardando graduación:",
+                    errorInsert
+                );
+
+                alert(
+                    "No se pudo guardar la graduación."
+                );
+
+                btnGuardar.disabled = false;
+
+                btnGuardar.textContent =
+                    "GUARDAR GRADUACIÓN";
+
+                return;
+            }
+
+            console.log(
+                "✅ Graduación guardada"
+            );
+
+            await cargarLutaLivreFicha();
+        }
+    );
+
+    console.log(
+        "✅ CARD LUTA LIVRE COMPLETO CARGADO"
+    );
+}
+
+    await cargarLutaLivreFicha();
 
     document.getElementById(
         "pantallaAlumnos"
