@@ -3451,3 +3451,7 @@ input[type="date"] {
         margin-right: 0 !important;
     }
 }
+.bottom-nav .texto-smooth {
+    font-size: 8px !important;
+    white-space: nowrap !important;
+}
