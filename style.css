@@ -3439,3 +3439,15 @@ body {
 input[type="date"] {
     color-scheme: dark;
 }
+/* =====================================================
+   CFT — ANCHO COMPLETO EN PWA / INICIO
+   ===================================================== */
+
+@media (display-mode: standalone) {
+    .app {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
