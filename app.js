@@ -15230,13 +15230,13 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
         "section";
 
     pantalla.style.cssText = `
-
         position:fixed;
-        top:0;
+        top:159px;
         bottom:70px;
         left:0;
         right:0;
         z-index:10000;
+        overflow-x:hidden;
         overflow-y:auto;
         background:#080808;
         color:#fff;
