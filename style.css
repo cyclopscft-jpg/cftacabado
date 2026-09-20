@@ -2833,6 +2833,10 @@ body {
    BARRA INFERIOR CFT — SOBRE LAS PANTALLAS
    ===================================================== */
 
+/* =====================================================
+   BARRA INFERIOR CFT — DENTRO DE LA APP
+   ===================================================== */
+
 .bottom-nav {
     position: absolute !important;
     bottom: 0 !important;
@@ -2842,7 +2846,8 @@ body {
     transform: none !important;
 
     width: 100% !important;
-    max-width: none !important;
+    max-width: 100% !important;
+
     height: 70px !important;
 
     box-sizing: border-box !important;
@@ -2857,7 +2862,6 @@ body {
     width: auto !important;
     overflow: hidden !important;
 }
-
 /* Espacio para que el contenido de Pagos no quede
    debajo de la barra */
 #pantallaPagos {
