@@ -2834,10 +2834,13 @@ body {
 .bottom-nav {
     position: fixed !important;
     bottom: 0 !important;
+
     left: 50% !important;
+    right: auto !important;
     transform: translateX(-50%) !important;
 
-    width: min(480px, 100vw) !important;
+    width: min(100%, 480px) !important;
+    max-width: 480px !important;
     height: 70px !important;
 
     z-index: 1000003 !important;
