@@ -3417,3 +3417,7 @@ body {
     cursor: pointer !important;
     filter: none !important;
 }
+/* CFT - controles Luta Livre */
+input[type="date"] {
+    color-scheme: dark;
+}
