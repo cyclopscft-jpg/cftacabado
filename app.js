@@ -1,4 +1,3 @@
-
 let regresoDesdePantalla = false;
 const SUPABASE_URL = "https://szugemossswdinahbxxc.supabase.co";
 
@@ -15231,11 +15230,12 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
         "section";
 
     pantalla.style.cssText = `
+
         position:fixed;
-        top:159px;
+        top:0;
         bottom:70px;
-        left:180px;
-        right:180px;
+        left:0;
+        right:0;
         z-index:10000;
         overflow-y:auto;
         background:#080808;
