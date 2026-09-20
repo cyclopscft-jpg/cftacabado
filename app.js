@@ -15580,7 +15580,23 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
     document.body.appendChild(pantalla);
 
+    const bloquePrincipal = pantalla.firstElementChild;
+    const encabezado = bloquePrincipal.children[0];
+    const formulario = bloquePrincipal.children[1];
 
+    bloquePrincipal.style.height = "100%";
+    bloquePrincipal.style.display = "flex";
+    bloquePrincipal.style.flexDirection = "column";
+
+    encabezado.style.flex = "0 0 auto";
+
+    formulario.style.flex = "1 1 auto";
+    formulario.style.minHeight = "0";
+    formulario.style.overflowY = "auto";
+    formulario.style.overflowX = "hidden";
+    formulario.style.overscrollBehavior = "contain";
+    formulario.style.webkitOverflowScrolling = "touch";
+    
     let alumnoSeleccionado = null;
     let archivoImagen = null;
 
@@ -16137,4 +16153,4 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
         };
 
-};
+}; 
