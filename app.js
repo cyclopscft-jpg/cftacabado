@@ -1,4 +1,5 @@
- let regresoDesdePantalla = false;
+
+let regresoDesdePantalla = false;
 const SUPABASE_URL = "https://szugemossswdinahbxxc.supabase.co";
 
 const SUPABASE_KEY = "sb_publishable_tkep6QjStpeMFZtGtSNEWA_0Zenuh5V";
@@ -15201,3 +15202,939 @@ setTimeout(
     },
     1500
 );
+
+/* =========================================================
+   CFT — NOTIFICACIONES EN NAVEGACIÓN INFERIOR
+   INTEGRACIÓN AISLADA — NO MODIFICA FUNCIONES EXISTENTES
+========================================================= */
+
+/* =========================================================
+   CFT MANAGER — CREAR Y ENVIAR NOTIFICACIÓN
+   ========================================================= */
+
+window.mostrarNotificacionesCFTDesdeNav = function () {
+
+    const existente =
+        document.getElementById("pantallaCrearNotificacionCFT");
+
+    if (existente) {
+        existente.remove();
+    }
+
+    const pantalla =
+        document.createElement("section");
+
+    pantalla.id =
+        "pantallaCrearNotificacionCFT";
+
+    pantalla.className =
+        "section";
+
+    pantalla.style.cssText = `
+        position:fixed;
+        top:159px;
+        bottom:70px;
+        left:180px;
+        right:180px;
+        z-index:10000;
+        overflow-y:auto;
+        background:#080808;
+        color:#fff;
+        padding:20px 16px 40px;
+        box-sizing:border-box;
+        font-family:Inter,Arial,sans-serif;
+    `;
+
+    pantalla.innerHTML = `
+
+        <div style="
+            max-width:520px;
+            margin:0 auto;
+        ">
+
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                margin-bottom:22px;
+            ">
+
+                <div>
+                    <div style="
+                        color:#ff6600;
+                        font-size:22px;
+                        font-weight:800;
+                    ">
+                        🔔 Notificaciones
+                    </div>
+
+                    <div style="
+                        color:#888;
+                        font-size:12px;
+                        margin-top:4px;
+                    ">
+                        Crear y enviar mensaje
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    id="cftCerrarCrearNotificacion"
+                    style="
+                        width:42px;
+                        height:42px;
+                        border:1px solid #333;
+                        border-radius:12px;
+                        background:#111;
+                        color:#fff;
+                        font-size:20px;
+                    "
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div style="
+                background:#111;
+                border:1px solid #292929;
+                border-radius:18px;
+                padding:18px;
+            ">
+
+                <label style="
+                    display:block;
+                    margin-bottom:7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Tipo
+                </label>
+
+                <select
+                    id="cftNotifTipo"
+                    style="
+                        width:100%;
+                        height:48px;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#080808;
+                        color:#fff;
+                        padding:0 12px;
+                        box-sizing:border-box;
+                    "
+                >
+                    <option value="Comunicado">📢 Comunicado</option>
+                    <option value="Promoción">🎁 Promoción</option>
+                    <option value="Renovación">🔄 Renovación</option>
+                    <option value="Seminario">🥋 Seminario</option>
+                    <option value="Evento">📅 Evento</option>
+                    <option value="Aviso importante">⚠️ Aviso importante</option>
+                </select>
+
+
+                <label style="
+                    display:block;
+                    margin:18px 0 7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Título
+                </label>
+
+                <input
+                    id="cftNotifTitulo"
+                    type="text"
+                    placeholder="Ej: Promoción especial CFT"
+                    style="
+                        width:100%;
+                        height:48px;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#080808;
+                        color:#fff;
+                        padding:0 12px;
+                        box-sizing:border-box;
+                    "
+                >
+
+
+                <label style="
+                    display:block;
+                    margin:18px 0 7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Mensaje
+                </label>
+
+                <textarea
+                    id="cftNotifMensaje"
+                    rows="6"
+                    placeholder="Escribe aquí el mensaje..."
+                    style="
+                        width:100%;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#080808;
+                        color:#fff;
+                        padding:12px;
+                        box-sizing:border-box;
+                        resize:vertical;
+                        font-family:inherit;
+                    "
+                ></textarea>
+
+
+                <label style="
+                    display:block;
+                    margin:18px 0 7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Destinatarios
+                </label>
+
+                <select
+                    id="cftNotifDestinatario"
+                    style="
+                        width:100%;
+                        height:48px;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#080808;
+                        color:#fff;
+                        padding:0 12px;
+                        box-sizing:border-box;
+                    "
+                >
+                    <option value="todos">👥 Todos</option>
+                    <option value="activos">🟢 Alumnos activos</option>
+                    <option value="por_vencer">🟠 Por vencer</option>
+                    <option value="alumno">👤 Alumno específico</option>
+                </select>
+
+
+                <div
+                    id="cftNotifAlumnoBox"
+                    style="
+                        display:none;
+                        margin-top:14px;
+                    "
+                >
+
+                    <input
+                        id="cftNotifBuscarAlumno"
+                        type="text"
+                        placeholder="🔎 Buscar por nombre o DNI..."
+                        style="
+                            width:100%;
+                            height:48px;
+                            border-radius:12px;
+                            border:1px solid #333;
+                            background:#080808;
+                            color:#fff;
+                            padding:0 12px;
+                            box-sizing:border-box;
+                        "
+                    >
+
+                    <div
+                        id="cftNotifResultadosAlumno"
+                        style="
+                            margin-top:8px;
+                        "
+                    ></div>
+
+                    <div
+                        id="cftNotifAlumnoSeleccionado"
+                        style="
+                            display:none;
+                            margin-top:10px;
+                            padding:12px;
+                            border:1px solid #ff6600;
+                            border-radius:12px;
+                            background:#17100b;
+                            color:#fff;
+                        "
+                    ></div>
+
+                </div>
+
+
+                <label style="
+                    display:block;
+                    margin:18px 0 7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Imagen
+                </label>
+
+                <label
+                    for="cftNotifImagen"
+                    style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        min-height:90px;
+                        border:1px dashed #555;
+                        border-radius:14px;
+                        background:#0b0b0b;
+                        color:#999;
+                        cursor:pointer;
+                        text-align:center;
+                    "
+                >
+                    <span id="cftNotifImagenTexto">
+                        ＋ Agregar imagen
+                    </span>
+                </label>
+
+                <input
+                    id="cftNotifImagen"
+                    type="file"
+                    accept="image/*"
+                    style="display:none;"
+                >
+
+                <div
+                    id="cftNotifImagenPreview"
+                    style="
+                        display:none;
+                        margin-top:10px;
+                    "
+                ></div>
+
+
+                <label style="
+                    display:block;
+                    margin:18px 0 7px;
+                    color:#aaa;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Duración
+                </label>
+
+                <select
+                    id="cftNotifDuracion"
+                    style="
+                        width:100%;
+                        height:48px;
+                        border-radius:12px;
+                        border:1px solid #333;
+                        background:#080808;
+                        color:#fff;
+                        padding:0 12px;
+                        box-sizing:border-box;
+                    "
+                >
+                    <option value="6">6 horas</option>
+                    <option value="12">12 horas</option>
+                    <option value="24" selected>24 horas</option>
+                    <option value="48">48 horas</option>
+                    <option value="72">72 horas</option>
+                </select>
+
+
+                <button
+                    type="button"
+                    id="cftNotifEnviar"
+                    style="
+                        width:100%;
+                        height:54px;
+                        margin-top:22px;
+                        border:none;
+                        border-radius:14px;
+                        background:#ff6600;
+                        color:#fff;
+                        font-size:15px;
+                        font-weight:800;
+                        cursor:pointer;
+                    "
+                >
+                    🔔 ENVIAR NOTIFICACIÓN
+                </button>
+
+                <div
+                    id="cftNotifEstado"
+                    style="
+                        margin-top:12px;
+                        text-align:center;
+                        font-size:13px;
+                        color:#999;
+                    "
+                ></div>
+
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(pantalla);
+
+
+    let alumnoSeleccionado = null;
+    let archivoImagen = null;
+
+
+    const destinatario =
+        document.getElementById(
+            "cftNotifDestinatario"
+        );
+
+    const alumnoBox =
+        document.getElementById(
+            "cftNotifAlumnoBox"
+        );
+
+    const buscarAlumno =
+        document.getElementById(
+            "cftNotifBuscarAlumno"
+        );
+
+    const resultadosAlumno =
+        document.getElementById(
+            "cftNotifResultadosAlumno"
+        );
+
+    const alumnoSeleccionadoBox =
+        document.getElementById(
+            "cftNotifAlumnoSeleccionado"
+        );
+
+    const imagen =
+        document.getElementById(
+            "cftNotifImagen"
+        );
+
+    const imagenTexto =
+        document.getElementById(
+            "cftNotifImagenTexto"
+        );
+
+    const imagenPreview =
+        document.getElementById(
+            "cftNotifImagenPreview"
+        );
+
+    const estado =
+        document.getElementById(
+            "cftNotifEstado"
+        );
+
+
+    document
+        .getElementById(
+            "cftCerrarCrearNotificacion"
+        )
+        .onclick = function () {
+
+            pantalla.remove();
+
+        };
+
+
+    destinatario.onchange =
+        function () {
+
+            if (
+                destinatario.value ===
+                "alumno"
+            ) {
+
+                alumnoBox.style.display =
+                    "block";
+
+            } else {
+
+                alumnoBox.style.display =
+                    "none";
+
+                alumnoSeleccionado =
+                    null;
+
+                alumnoSeleccionadoBox.style.display =
+                    "none";
+
+            }
+
+        };
+
+
+    let timerBusqueda = null;
+
+
+    buscarAlumno.oninput =
+        function () {
+
+            clearTimeout(
+                timerBusqueda
+            );
+
+            const texto =
+                buscarAlumno.value.trim();
+
+            if (texto.length < 2) {
+
+                resultadosAlumno.innerHTML =
+                    "";
+
+                return;
+
+            }
+
+            timerBusqueda =
+                setTimeout(
+                    async function () {
+
+                        try {
+
+                            const {
+                                data,
+                                error
+                            } =
+                                await supabaseClient
+                                    .from("Alumnos")
+                                    .select(
+                                        "id,NOMBRE,DNI,CELULAR"
+                                    )
+                                    .or(
+                                        `NOMBRE.ilike.%${texto}%,DNI.ilike.%${texto}%`
+                                    )
+                                    .order(
+                                        "NOMBRE",
+                                        {
+                                            ascending:true
+                                        }
+                                    )
+                                    .limit(15);
+
+                            if (error) {
+                                throw error;
+                            }
+
+                            resultadosAlumno.innerHTML =
+                                "";
+
+                            (data || []).forEach(
+                                function (alumno) {
+
+                                    const boton =
+                                        document.createElement(
+                                            "button"
+                                        );
+
+                                    boton.type =
+                                        "button";
+
+                                    boton.style.cssText = `
+                                        width:100%;
+                                        padding:12px;
+                                        margin-bottom:6px;
+                                        border:1px solid #292929;
+                                        border-radius:12px;
+                                        background:#151515;
+                                        color:#fff;
+                                        text-align:left;
+                                    `;
+
+                                    boton.innerHTML = `
+                                        <strong>
+                                            ${alumno.NOMBRE || "Sin nombre"}
+                                        </strong>
+                                        <br>
+                                        <small style="color:#888;">
+                                            DNI: ${alumno.DNI || "—"}
+                                            ${alumno.CELULAR ? " · " + alumno.CELULAR : ""}
+                                        </small>
+                                    `;
+
+                                    boton.onclick =
+                                        function () {
+
+                                            alumnoSeleccionado =
+                                                alumno;
+
+                                            alumnoSeleccionadoBox.innerHTML =
+                                                `
+                                                <strong>
+                                                    👤 ${alumno.NOMBRE}
+                                                </strong>
+                                                <br>
+                                                <small>
+                                                    DNI: ${alumno.DNI || "—"}
+                                                </small>
+                                                `;
+
+                                            alumnoSeleccionadoBox.style.display =
+                                                "block";
+
+                                            resultadosAlumno.innerHTML =
+                                                "";
+
+                                            buscarAlumno.value =
+                                                alumno.NOMBRE || "";
+
+                                        };
+
+                                    resultadosAlumno.appendChild(
+                                        boton
+                                    );
+
+                                }
+                            );
+
+                        } catch (error) {
+
+                            console.error(
+                                "❌ Error buscando alumno:",
+                                error
+                            );
+
+                            resultadosAlumno.innerHTML =
+                                `
+                                <div style="color:#ff5757;">
+                                    Error buscando alumno.
+                                </div>
+                                `;
+
+                        }
+
+                    },
+                    300
+                );
+
+        };
+
+
+    imagen.onchange =
+        function () {
+
+            archivoImagen =
+                imagen.files &&
+                imagen.files[0]
+                    ? imagen.files[0]
+                    : null;
+
+            if (!archivoImagen) {
+
+                imagenTexto.textContent =
+                    "＋ Agregar imagen";
+
+                imagenPreview.style.display =
+                    "none";
+
+                imagenPreview.innerHTML =
+                    "";
+
+                return;
+
+            }
+
+            imagenTexto.textContent =
+                archivoImagen.name;
+
+            const url =
+                URL.createObjectURL(
+                    archivoImagen
+                );
+
+            imagenPreview.innerHTML = `
+                <img
+                    src="${url}"
+                    style="
+                        width:100%;
+                        max-height:240px;
+                        object-fit:cover;
+                        border-radius:14px;
+                        border:1px solid #333;
+                    "
+                >
+            `;
+
+            imagenPreview.style.display =
+                "block";
+
+        };
+
+
+    document
+        .getElementById(
+            "cftNotifEnviar"
+        )
+        .onclick =
+        async function () {
+
+            const boton =
+                this;
+
+            const tipo =
+                document.getElementById(
+                    "cftNotifTipo"
+                ).value;
+
+            const titulo =
+                document.getElementById(
+                    "cftNotifTitulo"
+                ).value.trim();
+
+            const mensaje =
+                document.getElementById(
+                    "cftNotifMensaje"
+                ).value.trim();
+
+            const destino =
+                destinatario.value;
+
+            const horas =
+                Number(
+                    document.getElementById(
+                        "cftNotifDuracion"
+                    ).value
+                );
+
+            if (!titulo) {
+
+                alert(
+                    "Escribe un título."
+                );
+
+                return;
+
+            }
+
+            if (!mensaje) {
+
+                alert(
+                    "Escribe el mensaje."
+                );
+
+                return;
+
+            }
+
+            if (
+                destino === "alumno" &&
+                !alumnoSeleccionado
+            ) {
+
+                alert(
+                    "Selecciona un alumno."
+                );
+
+                return;
+
+            }
+
+
+            boton.disabled =
+                true;
+
+            boton.textContent =
+                "ENVIANDO...";
+
+            estado.textContent =
+                "Preparando notificación...";
+
+
+            try {
+
+                let imagenUrl =
+                    null;
+
+
+                if (archivoImagen) {
+
+                    estado.textContent =
+                        "Subiendo imagen...";
+
+                    const extension =
+                        archivoImagen.name
+                            .split(".")
+                            .pop()
+                            .toLowerCase();
+
+                    const nombreArchivo =
+                        `notif-${Date.now()}-${Math.random()
+                            .toString(36)
+                            .substring(2)}.${extension}`;
+
+
+                    const {
+                        error:
+                            errorUpload
+                    } =
+                        await supabaseClient
+                            .storage
+                            .from(
+                                "cft-notificaciones"
+                            )
+                            .upload(
+                                nombreArchivo,
+                                archivoImagen,
+                                {
+                                    cacheControl:
+                                        "3600",
+                                    upsert:false
+                                }
+                            );
+
+
+                    if (errorUpload) {
+                        throw errorUpload;
+                    }
+
+
+                    const {
+                        data:
+                            urlData
+                    } =
+                        supabaseClient
+                            .storage
+                            .from(
+                                "cft-notificaciones"
+                            )
+                            .getPublicUrl(
+                                nombreArchivo
+                            );
+
+                    imagenUrl =
+                        urlData.publicUrl;
+
+                }
+
+
+                const ahora =
+                    new Date();
+
+                const expiracion =
+                    new Date(
+                        ahora.getTime() +
+                        horas *
+                        60 *
+                        60 *
+                        1000
+                    );
+
+
+                estado.textContent =
+                    "Guardando notificación...";
+
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient
+                        .from(
+                            "CFT_Notificaciones"
+                        )
+                        .insert([
+                            {
+                                tipo:
+                                    tipo,
+
+                                titulo:
+                                    titulo,
+
+                                mensaje:
+                                    mensaje,
+
+                                destinatario_tipo:
+                                    destino,
+
+                                alumno_id:
+                                    destino === "alumno"
+                                        ? Number(
+                                            alumnoSeleccionado.id
+                                        )
+                                        : null,
+
+                                fecha_envio:
+                                    ahora.toISOString(),
+
+                                created_at:
+                                    ahora.toISOString(),
+
+                                leida:
+                                    false,
+
+                                imagen_url:
+                                    imagenUrl,
+
+                                fecha_expiracion:
+                                    expiracion.toISOString()
+                            }
+                        ])
+                        .select()
+                        .single();
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                console.log(
+                    "✅ NOTIFICACIÓN CFT CREADA:",
+                    data
+                );
+
+
+                estado.style.color =
+                    "#65d66f";
+
+                estado.textContent =
+                    "✅ Notificación enviada correctamente.";
+
+
+                boton.textContent =
+                    "✅ ENVIADA";
+
+
+                setTimeout(
+                    function () {
+
+                        pantalla.remove();
+
+                    },
+                    1200
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "❌ ERROR ENVIANDO NOTIFICACIÓN:",
+                    error
+                );
+
+                estado.style.color =
+                    "#ff5757";
+
+                estado.textContent =
+                    "❌ " +
+                    (
+                        error.message ||
+                        "No se pudo enviar."
+                    );
+
+                boton.disabled =
+                    false;
+
+                boton.textContent =
+                    "🔔 ENVIAR NOTIFICACIÓN";
+
+            }
+
+        };
+
+};
