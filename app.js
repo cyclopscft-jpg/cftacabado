@@ -15211,39 +15211,39 @@ setTimeout(
    CFT MANAGER — CREAR Y ENVIAR NOTIFICACIÓN
    ========================================================= */
 
-window.mostrarNotificacionesCFTDesdeNav = function () {
+function mostrarNotificacionesCFTDesdeNav() {
 
-    const existente =
-        document.getElementById("pantallaCrearNotificacionCFT");
+    const pantallas = document.querySelectorAll(".section");
 
-    if (existente) {
-        existente.remove();
+    pantallas.forEach(function(pantalla) {
+        pantalla.style.display = "none";
+    });
+
+    const dashboard =
+        document.getElementById("dashboardPrincipal");
+
+    if (dashboard) {
+        dashboard.style.display = "none";
     }
 
     const pantalla =
-        document.createElement("section");
+        document.getElementById(
+            "pantallaNotificacionesCFT"
+        );
 
-    pantalla.id =
-        "pantallaCrearNotificacionCFT";
+    if (!pantalla) {
+        alert(
+            "No se encontró la pantalla de Notificaciones."
+        );
+        return;
+    }
 
-    pantalla.className =
-        "section";
+    pantalla.style.display = "block";
 
-    pantalla.style.cssText = `
-        position:fixed;
-        top:159px;
-        bottom:70px;
-        left:0;
-        right:0;
-        z-index:10000;
-        overflow-x:hidden;
-        overflow-y:auto;
-        background:#080808;
-        color:#fff;
-        padding:20px 16px 40px;
-        box-sizing:border-box;
-        font-family:Inter,Arial,sans-serif;
-    `;
+    document.querySelector(
+        "main.content"
+    ).scrollTop = 0;
+
 
     pantalla.innerHTML = `
 
@@ -15253,45 +15253,24 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
         ">
 
             <div style="
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
                 margin-bottom:22px;
             ">
 
-                <div>
-                    <div style="
-                        color:#ff6600;
-                        font-size:22px;
-                        font-weight:800;
-                    ">
-                        🔔 Notificaciones
-                    </div>
-
-                    <div style="
-                        color:#888;
-                        font-size:12px;
-                        margin-top:4px;
-                    ">
-                        Crear y enviar mensaje
-                    </div>
+                <div style="
+                    color:#ff6600;
+                    font-size:22px;
+                    font-weight:800;
+                ">
+                    🔔 Notificaciones
                 </div>
 
-                <button
-                    type="button"
-                    id="cftCerrarCrearNotificacion"
-                    style="
-                        width:42px;
-                        height:42px;
-                        border:1px solid #333;
-                        border-radius:12px;
-                        background:#111;
-                        color:#fff;
-                        font-size:20px;
-                    "
-                >
-                    ×
-                </button>
+                <div style="
+                    color:#888;
+                    font-size:12px;
+                    margin-top:4px;
+                ">
+                    Crear y enviar mensaje
+                </div>
 
             </div>
 
@@ -15326,12 +15305,30 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                         box-sizing:border-box;
                     "
                 >
-                    <option value="Comunicado">📢 Comunicado</option>
-                    <option value="Promoción">🎁 Promoción</option>
-                    <option value="Renovación">🔄 Renovación</option>
-                    <option value="Seminario">🥋 Seminario</option>
-                    <option value="Evento">📅 Evento</option>
-                    <option value="Aviso importante">⚠️ Aviso importante</option>
+                    <option value="Comunicado">
+                        📢 Comunicado
+                    </option>
+
+                    <option value="Promoción">
+                        🎁 Promoción
+                    </option>
+
+                    <option value="Renovación">
+                        🔄 Renovación
+                    </option>
+
+                    <option value="Seminario">
+                        🥋 Seminario
+                    </option>
+
+                    <option value="Evento">
+                        📅 Evento
+                    </option>
+
+                    <option value="Aviso importante">
+                        ⚠️ Aviso importante
+                    </option>
+
                 </select>
 
 
@@ -15413,10 +15410,22 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                         box-sizing:border-box;
                     "
                 >
-                    <option value="todos">👥 Todos</option>
-                    <option value="activos">🟢 Alumnos activos</option>
-                    <option value="por_vencer">🟠 Por vencer</option>
-                    <option value="alumno">👤 Alumno específico</option>
+                    <option value="todos">
+                        👥 Todos
+                    </option>
+
+                    <option value="activos">
+                        🟢 Alumnos activos
+                    </option>
+
+                    <option value="por_vencer">
+                        🟠 Por vencer
+                    </option>
+
+                    <option value="alumno">
+                        👤 Alumno específico
+                    </option>
+
                 </select>
 
 
@@ -15536,11 +15545,26 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                         box-sizing:border-box;
                     "
                 >
-                    <option value="6">6 horas</option>
-                    <option value="12">12 horas</option>
-                    <option value="24" selected>24 horas</option>
-                    <option value="48">48 horas</option>
-                    <option value="72">72 horas</option>
+                    <option value="6">
+                        6 horas
+                    </option>
+
+                    <option value="12">
+                        12 horas
+                    </option>
+
+                    <option value="24" selected>
+                        24 horas
+                    </option>
+
+                    <option value="48">
+                        48 horas
+                    </option>
+
+                    <option value="72">
+                        72 horas
+                    </option>
+
                 </select>
 
 
@@ -15578,25 +15602,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
         </div>
     `;
 
-    document.body.appendChild(pantalla);
 
-    const bloquePrincipal = pantalla.firstElementChild;
-    const encabezado = bloquePrincipal.children[0];
-    const formulario = bloquePrincipal.children[1];
-
-    bloquePrincipal.style.height = "100%";
-    bloquePrincipal.style.display = "flex";
-    bloquePrincipal.style.flexDirection = "column";
-
-    encabezado.style.flex = "0 0 auto";
-
-    formulario.style.flex = "1 1 auto";
-    formulario.style.minHeight = "0";
-    formulario.style.overflowY = "auto";
-    formulario.style.overflowX = "hidden";
-    formulario.style.overscrollBehavior = "contain";
-    formulario.style.webkitOverflowScrolling = "touch";
-    
     let alumnoSeleccionado = null;
     let archivoImagen = null;
 
@@ -15647,19 +15653,8 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
         );
 
 
-    document
-        .getElementById(
-            "cftCerrarCrearNotificacion"
-        )
-        .onclick = function () {
-
-            pantalla.remove();
-
-        };
-
-
     destinatario.onchange =
-        function () {
+        function() {
 
             if (
                 destinatario.value ===
@@ -15689,7 +15684,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
 
     buscarAlumno.oninput =
-        function () {
+        function() {
 
             clearTimeout(
                 timerBusqueda
@@ -15698,7 +15693,9 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
             const texto =
                 buscarAlumno.value.trim();
 
-            if (texto.length < 2) {
+            if (
+                texto.length < 2
+            ) {
 
                 resultadosAlumno.innerHTML =
                     "";
@@ -15707,9 +15704,10 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
             }
 
+
             timerBusqueda =
                 setTimeout(
-                    async function () {
+                    async function() {
 
                         try {
 
@@ -15733,15 +15731,20 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                     )
                                     .limit(15);
 
+
                             if (error) {
                                 throw error;
                             }
 
+
                             resultadosAlumno.innerHTML =
                                 "";
 
-                            (data || []).forEach(
-                                function (alumno) {
+
+                            (
+                                data || []
+                            ).forEach(
+                                function(alumno) {
 
                                     const boton =
                                         document.createElement(
@@ -15750,6 +15753,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
                                     boton.type =
                                         "button";
+
 
                                     boton.style.cssText = `
                                         width:100%;
@@ -15762,6 +15766,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                         text-align:left;
                                     `;
 
+
                                     boton.innerHTML = `
                                         <strong>
                                             ${alumno.NOMBRE || "Sin nombre"}
@@ -15769,15 +15774,21 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                         <br>
                                         <small style="color:#888;">
                                             DNI: ${alumno.DNI || "—"}
-                                            ${alumno.CELULAR ? " · " + alumno.CELULAR : ""}
+                                            ${
+                                                alumno.CELULAR
+                                                    ? " · " + alumno.CELULAR
+                                                    : ""
+                                            }
                                         </small>
                                     `;
 
+
                                     boton.onclick =
-                                        function () {
+                                        function() {
 
                                             alumnoSeleccionado =
                                                 alumno;
+
 
                                             alumnoSeleccionadoBox.innerHTML =
                                                 `
@@ -15790,16 +15801,20 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                                 </small>
                                                 `;
 
+
                                             alumnoSeleccionadoBox.style.display =
                                                 "block";
 
+
                                             resultadosAlumno.innerHTML =
                                                 "";
+
 
                                             buscarAlumno.value =
                                                 alumno.NOMBRE || "";
 
                                         };
+
 
                                     resultadosAlumno.appendChild(
                                         boton
@@ -15808,12 +15823,14 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                 }
                             );
 
+
                         } catch (error) {
 
                             console.error(
                                 "❌ Error buscando alumno:",
                                 error
                             );
+
 
                             resultadosAlumno.innerHTML =
                                 `
@@ -15832,13 +15849,14 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
 
     imagen.onchange =
-        function () {
+        function() {
 
             archivoImagen =
                 imagen.files &&
                 imagen.files[0]
                     ? imagen.files[0]
                     : null;
+
 
             if (!archivoImagen) {
 
@@ -15855,13 +15873,16 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
             }
 
+
             imagenTexto.textContent =
                 archivoImagen.name;
+
 
             const url =
                 URL.createObjectURL(
                     archivoImagen
                 );
+
 
             imagenPreview.innerHTML = `
                 <img
@@ -15876,6 +15897,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                 >
             `;
 
+
             imagenPreview.style.display =
                 "block";
 
@@ -15887,28 +15909,33 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
             "cftNotifEnviar"
         )
         .onclick =
-        async function () {
+        async function() {
 
             const boton =
                 this;
+
 
             const tipo =
                 document.getElementById(
                     "cftNotifTipo"
                 ).value;
 
+
             const titulo =
                 document.getElementById(
                     "cftNotifTitulo"
                 ).value.trim();
+
 
             const mensaje =
                 document.getElementById(
                     "cftNotifMensaje"
                 ).value.trim();
 
+
             const destino =
                 destinatario.value;
+
 
             const horas =
                 Number(
@@ -15916,6 +15943,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                         "cftNotifDuracion"
                     ).value
                 );
+
 
             if (!titulo) {
 
@@ -15927,6 +15955,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
             }
 
+
             if (!mensaje) {
 
                 alert(
@@ -15936,6 +15965,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                 return;
 
             }
+
 
             if (
                 destino === "alumno" &&
@@ -15957,6 +15987,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
             boton.textContent =
                 "ENVIANDO...";
 
+
             estado.textContent =
                 "Preparando notificación...";
 
@@ -15972,11 +16003,13 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                     estado.textContent =
                         "Subiendo imagen...";
 
+
                     const extension =
                         archivoImagen.name
                             .split(".")
                             .pop()
                             .toLowerCase();
+
 
                     const nombreArchivo =
                         `notif-${Date.now()}-${Math.random()
@@ -16022,6 +16055,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                                 nombreArchivo
                             );
 
+
                     imagenUrl =
                         urlData.publicUrl;
 
@@ -16030,6 +16064,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
                 const ahora =
                     new Date();
+
 
                 const expiracion =
                     new Date(
@@ -16108,6 +16143,7 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                 estado.style.color =
                     "#65d66f";
 
+
                 estado.textContent =
                     "✅ Notificación enviada correctamente.";
 
@@ -16117,14 +16153,13 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
 
                 setTimeout(
-                    function () {
+    function() {
 
-                        pantalla.remove();
+        mostrarNotificacionesCFTDesdeNav();
 
-                    },
-                    1200
-                );
-
+    },
+    1200
+);
 
             } catch (error) {
 
@@ -16133,8 +16168,10 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                     error
                 );
 
+
                 estado.style.color =
                     "#ff5757";
+
 
                 estado.textContent =
                     "❌ " +
@@ -16143,8 +16180,10 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
                         "No se pudo enviar."
                     );
 
+
                 boton.disabled =
                     false;
+
 
                 boton.textContent =
                     "🔔 ENVIAR NOTIFICACIÓN";
@@ -16153,4 +16192,4 @@ window.mostrarNotificacionesCFTDesdeNav = function () {
 
         };
 
-}; 
+}
