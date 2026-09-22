@@ -5326,7 +5326,7 @@ async function abrirSemaforoConScroll(funcion, idContenedor) {
 
             contenedor.scrollIntoView({
                 behavior: "smooth",
-                block: "start"
+                block: "nearest"
             });
 
         }, 150);
