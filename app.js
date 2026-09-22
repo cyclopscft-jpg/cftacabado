@@ -14273,7 +14273,7 @@ window.cftOrigenPagosMes = "inicio";
    ========================================= */
 
 window.CFT_VAPID_PUBLIC_KEY =
-    "BKfwaaR9uHkoCxEfV24rJajrvGKLPKt9n-3fKlRkCcPk3hsowpQdF_i-3yF3Sol9Wsvi2E6zsvRFnNO5KMFPg6w";
+    "BEkr7swEZVj8lIUPFqjtMXHPF7Qmd_9WwoQpIKYHsXBnLmJt3v55RLJRkDRGIsX4Oj7G4BoqV9tnia7JeP4m7ng";
 
 
 /* =========================================
@@ -16193,4 +16193,3 @@ function mostrarNotificacionesCFTDesdeNav() {
         };
 
 }
-                                
