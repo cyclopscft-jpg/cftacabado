@@ -192,10 +192,14 @@ self.addEventListener(
                     },
 
                     tag:
-                        "cft-renovacion",
+    "cft-renovacion-" +
+    (datos.solicitud_id || Date.now()),
 
-                    renotify:
-                        true
+renotify:
+    true,
+
+silent:
+    false
                 }
             )
 
