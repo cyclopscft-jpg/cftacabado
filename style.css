@@ -3491,6 +3491,7 @@ input[type="date"] {
         bottom: 0 !important;
         overflow-y: auto !important;
         overscroll-behavior: contain !important;
+        padding-top: 90px !important;
     }
 
     .app > .bottom-nav {
