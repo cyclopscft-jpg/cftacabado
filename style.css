@@ -3524,3 +3524,14 @@ input[type="date"] {
     }
 
 }
+@media (max-width: 768px) {
+
+    .app > .bottom-nav {
+        visibility: hidden;
+    }
+
+    .app > .bottom-nav.cft-nav-lista {
+        visibility: visible;
+    }
+
+}
