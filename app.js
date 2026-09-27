@@ -14490,7 +14490,7 @@ window.cftOrigenPagosMes = "inicio";
    ========================================= */
 
 window.CFT_VAPID_PUBLIC_KEY =
-    "BEkr7swEZVj8lIUPFqjtMXHPF7Qmd_9WwoQpIKYHsXBnLmJt3v55RLJRkDRGIsX4Oj7G4BoqV9tnia7JeP4m7ng";
+    "BKT29wSqleOyngCHeqm2eCRyrGzE-MmMJa2fv7MBgIuXsEDMH8BrttdQ5xwCHVtzB8qYjWgPRMCa6-VEf5CQtl4";
 
 
 /* =========================================
