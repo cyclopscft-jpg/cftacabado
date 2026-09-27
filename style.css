@@ -3456,7 +3456,7 @@ input[type="date"] {
     white-space: nowrap !important;
 }
 /* =========================================================
-   CFT MARCADOR — ESTRUCTURA FIJA EN MÓVIL
+   CFT MARCADOR — MÓVIL
    Encabezado y menú inferior fijos
    Solo el contenido central hace scroll
    ========================================================= */
@@ -3475,6 +3475,7 @@ input[type="date"] {
         overflow: hidden !important;
     }
 
+    /* ENCABEZADO FIJO */
     .app > .header {
         position: fixed !important;
         top: 0 !important;
@@ -3483,22 +3484,30 @@ input[type="date"] {
         z-index: 1000 !important;
     }
 
+    /* CONTENIDO CENTRAL */
     .app > main.content {
         position: absolute !important;
-        top: 0 !important;
+        top: 130px !important;
         left: 0 !important;
         right: 0 !important;
-        bottom: 0 !important;
+        bottom: 70px !important;
         overflow-y: auto !important;
         overscroll-behavior: contain !important;
-        padding-top: 90px !important;
+        padding-top: 0 !important;
     }
 
+    /* MENÚ INFERIOR FIJO */
     .app > .bottom-nav {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
+        height: 70px !important;
         z-index: 1001 !important;
+    }
+
+    /* PAGOS NO DEBE TAPAR EL ENCABEZADO */
+    #pantallaPagos {
+        z-index: 1 !important;
     }
 }
