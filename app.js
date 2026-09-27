@@ -5063,7 +5063,16 @@ async function actualizarAlertasMembresias(alumnosExternos = null) {
             return;
         }
 
-        if (vencimiento < hoy) {
+        const diferenciaDias =
+            Math.round(
+                (hoy - vencimiento) /
+                (1000 * 60 * 60 * 24)
+            );
+
+        if (
+            diferenciaDias >= 1 &&
+            diferenciaDias <= 7
+        ) {
 
             vencidos++;
 
@@ -5353,9 +5362,7 @@ async function mostrarAlumnosVencidos() {
     }
 
     contenedor.dataset.abierto = "true";
-
-    contenedor.innerHTML =
-        "<p>Cargando...</p>";
+    contenedor.innerHTML = "<p>Cargando...</p>";
 
     const { data: alumnos, error } =
         await supabaseClient
@@ -5377,62 +5384,87 @@ async function mostrarAlumnosVencidos() {
         return;
     }
 
+    // =========================
+    // FILTRAR VENCIDOS
+    // =========================
+
     const hoy = new Date();
 
-    hoy.setHours(0, 0, 0, 0);
+    hoy.setHours(
+        0,
+        0,
+        0,
+        0
+    );
 
-    const convertirFecha = function(fechaTexto) {
+    const convertirFecha =
+        function(fechaTexto) {
 
-        const texto =
-            String(fechaTexto || "").trim();
+            const texto =
+                String(
+                    fechaTexto || ""
+                ).trim();
 
-        if (!texto) {
-            return null;
-        }
-
-        const partes =
-            texto.split(/[\/-]/);
-
-        if (partes.length !== 3) {
-            return null;
-        }
-
-        let dia;
-        let mes;
-        let anio;
-
-        if (partes[0].length === 4) {
-
-            anio = Number(partes[0]);
-            mes = Number(partes[1]);
-            dia = Number(partes[2]);
-
-        } else {
-
-            dia = Number(partes[0]);
-            mes = Number(partes[1]);
-            anio = Number(partes[2]);
-
-            if (anio < 100) {
-                anio += 2000;
+            if (!texto) {
+                return null;
             }
-        }
 
-        if (!dia || !mes || !anio) {
-            return null;
-        }
+            const partes =
+                texto.split(/[-\/]/);
 
-        const fecha =
-            new Date(
-                anio,
-                mes - 1,
-                dia
+            if (partes.length !== 3) {
+                return null;
+            }
+
+            let dia;
+            let mes;
+            let anio;
+
+            if (partes[0].length === 4) {
+
+                anio = Number(partes[0]);
+                mes = Number(partes[1]);
+                dia = Number(partes[2]);
+
+            } else {
+
+                dia = Number(partes[0]);
+                mes = Number(partes[1]);
+                anio = Number(partes[2]);
+
+                if (anio < 100) {
+                    anio += 2000;
+                }
+            }
+
+            if (
+                !dia ||
+                !mes ||
+                !anio ||
+                mes < 1 ||
+                mes > 12 ||
+                dia < 1 ||
+                dia > 31
+            ) {
+                return null;
+            }
+
+            const fecha =
+                new Date(
+                    anio,
+                    mes - 1,
+                    dia
+                );
+
+            fecha.setHours(
+                0,
+                0,
+                0,
+                0
             );
 
-        fecha.setHours(0, 0, 0, 0);
-
-        return fecha;
-    };
+            return fecha;
+        };
 
     const vencidos =
         (alumnos || []).filter(function(alumno) {
@@ -5447,21 +5479,20 @@ async function mostrarAlumnosVencidos() {
             }
 
             const vencimiento =
-                convertirFecha(fechaTexto);
+                convertirFecha(
+                    fechaTexto
+                );
 
             if (!vencimiento) {
                 return false;
             }
 
-            const diasVencido =
-    Math.floor(
-        (hoy - vencimiento) /
-        (1000 * 60 * 60 * 24)
-    );
-
-return diasVencido >= 1 &&
-       diasVencido <= 5;
+            return vencimiento < hoy;
         });
+
+    // =========================
+    // ORDENAR
+    // =========================
 
     vencidos.sort(function(a, b) {
 
@@ -5478,10 +5509,13 @@ return diasVencido >= 1 &&
         return fechaB - fechaA;
     });
 
+    // =========================
+    // SIN RESULTADOS
+    // =========================
+
     if (vencidos.length === 0) {
 
-        contenedor.innerHTML =
-            `
+        contenedor.innerHTML = `
             <div class="card">
 
                 <h3>
@@ -5493,65 +5527,112 @@ return diasVencido >= 1 &&
                 </p>
 
             </div>
-            `;
+        `;
 
         return;
     }
 
-    contenedor.innerHTML = `
+    // =========================
+    // CARGAR MÁS
+    // =========================
 
-        <div class="card">
+    let cantidadVisible = 25;
 
-            <h3>
-                🔴 Membresías vencidas (${vencidos.length})
-            </h3>
+    function renderVencidos() {
 
-            ${vencidos.map(function(alumno) {
+        const visibles =
+            vencidos.slice(
+                0,
+                cantidadVisible
+            );
 
-                return `
+        contenedor.innerHTML = `
+            <div class="card">
 
-                    <div class="row">
+                <h3>
+                    🔴 Membresías vencidas (${vencidos.length})
+                </h3>
 
-                        <span>
+                ${visibles.map(function(alumno) {
 
-                            <strong>
-                                ${alumno["NOMBRE"] || ""}
-                            </strong>
+                    return `
+                        <div class="row">
 
-                            <br>
+                            <span>
 
-                            <small>
-                                Venció:
-                                ${alumno["FECHA VENCIMIENTO"] || ""}
-                            </small>
+                                <strong>
+                                    ${alumno["NOMBRE"] || ""}
+                                </strong>
 
-                        </span>
+                                <br>
 
-                        <button
-                            type="button"
-                            onclick="verAlumno('${alumno["id"]}')">
+                                <small>
+                                    Venció:
+                                    ${alumno["FECHA VENCIMIENTO"] || ""}
+                                </small>
 
-                            👤 Ver ficha
+                            </span>
 
-                        </button>
+                            <button
+                                type="button"
+                                onclick="verAlumno('${alumno["id"]}')">
+                                👤 Ver ficha
+                            </button>
 
-                        <button
-                            type="button"
-                            onclick="whatsappRenovacion('${alumno["id"]}')">
+                            <button
+                                type="button"
+                                onclick="whatsappRenovacion('${alumno["id"]}')">
+                                📲 WhatsApp
+                            </button>
 
-                            📲 WhatsApp
+                        </div>
+                    `;
 
-                        </button>
+                }).join("")}
 
-                    </div>
+                ${
+                    cantidadVisible < vencidos.length
+                        ? `
+                            <button
+                                type="button"
+                                id="btnCargarMasVencidos"
+                                style="
+                                    width:100%;
+                                    margin-top:12px;
+                                    padding:12px;
+                                    border-radius:12px;
+                                    border:1px solid #ff6a00;
+                                    background:#111;
+                                    color:#fff;
+                                    font-weight:600;
+                                    cursor:pointer;
+                                ">
+                                CARGAR MÁS
+                            </button>
+                        `
+                        : ""
+                }
 
-                `;
+            </div>
+        `;
 
-            }).join("")}
+        const boton =
+            document.getElementById(
+                "btnCargarMasVencidos"
+            );
 
-        </div>
+        if (boton) {
 
-    `;
+            boton.onclick = function() {
+
+                cantidadVisible += 25;
+
+                renderVencidos();
+            };
+        }
+    }
+
+    renderVencidos();
 }
 
 async function enviarWhatsAppRenovacion(dni) {
@@ -5663,19 +5744,22 @@ async function mostrarAlumnosPorVencer() {
         document.getElementById("listaAlumnosPorVencer");
 
     if (!contenedor) return;
-// ABRIR / CERRAR
-if (
-    contenedor.innerHTML.trim() !== "" &&
-    contenedor.dataset.abierto === "true"
-) {
-    contenedor.innerHTML = "";
-    contenedor.dataset.abierto = "false";
-    return;
-}
 
-contenedor.dataset.abierto = "true";
-    contenedor.innerHTML =
-        "<p>Cargando...</p>";
+    // =========================
+    // ABRIR / CERRAR
+    // =========================
+
+    if (
+        contenedor.innerHTML.trim() !== "" &&
+        contenedor.dataset.abierto === "true"
+    ) {
+        contenedor.innerHTML = "";
+        contenedor.dataset.abierto = "false";
+        return;
+    }
+
+    contenedor.dataset.abierto = "true";
+    contenedor.innerHTML = "<p>Cargando...</p>";
 
     const { data: alumnos, error } =
         await supabaseClient
@@ -5697,16 +5781,92 @@ contenedor.dataset.abierto = "true";
         return;
     }
 
-    const porVencer =
-    (alumnos || []).filter(function(alumno) {
+    // =========================
+    // FILTRAR POR VENCER
+    // =========================
 
-        const estado =
-            obtenerEstadoMembresia(
-                alumno["FECHA VENCIMIENTO"]
+    const porVencer =
+        (alumnos || []).filter(function(alumno) {
+
+            const fechaTexto =
+                String(
+                    alumno["FECHA VENCIMIENTO"] || ""
+                ).trim();
+
+            if (!fechaTexto) {
+                return false;
+            }
+
+            const partes =
+                fechaTexto.split(/[-\/]/);
+
+            if (partes.length !== 3) {
+                return false;
+            }
+
+            let dia;
+            let mes;
+            let anio;
+
+            if (partes[0].length === 4) {
+
+                anio = Number(partes[0]);
+                mes = Number(partes[1]);
+                dia = Number(partes[2]);
+
+            } else {
+
+                dia = Number(partes[0]);
+                mes = Number(partes[1]);
+                anio = Number(partes[2]);
+
+                if (anio < 100) {
+                    anio += 2000;
+                }
+            }
+
+            if (
+                !dia ||
+                !mes ||
+                !anio ||
+                mes < 1 ||
+                mes > 12 ||
+                dia < 1 ||
+                dia > 31
+            ) {
+                return false;
+            }
+
+            const vencimiento =
+                new Date(
+                    anio,
+                    mes - 1,
+                    dia
+                );
+
+            vencimiento.setHours(0, 0, 0, 0);
+
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+
+            const limite =
+                new Date(hoy);
+
+            limite.setDate(
+                limite.getDate() + 7
             );
 
-        return estado.clase === "por-vencer";
-    });
+            limite.setHours(0, 0, 0, 0);
+
+            return (
+                vencimiento >= hoy &&
+                vencimiento <= limite
+            );
+        });
+
+    // =========================
+    // SIN RESULTADOS
+    // =========================
 
     if (porVencer.length === 0) {
 
@@ -5716,50 +5876,107 @@ contenedor.dataset.abierto = "true";
         return;
     }
 
-    contenedor.innerHTML = `
-        <div class="card">
+    // =========================
+    // CARGAR MÁS
+    // =========================
 
-            <h3>🟡 Membresías por vencer</h3>
+    let cantidadVisible = 25;
 
-            ${porVencer.map(function(alumno) {
+    function renderPorVencer() {
 
-                return `
-                    <div class="row">
+        const visibles =
+            porVencer.slice(
+                0,
+                cantidadVisible
+            );
 
-                        <span>
+        contenedor.innerHTML = `
+            <div class="card">
 
-                            <strong>
-                                ${alumno["NOMBRE"] || ""}
-                            </strong>
+                <h3>
+                    🟡 Membresías por vencer
+                </h3>
 
-                            <br>
+                ${visibles.map(function(alumno) {
 
-                            <small>
-                                Vence:
-                                ${alumno["FECHA VENCIMIENTO"] || ""}
-                            </small>
+                    return `
+                        <div class="row">
 
-                        </span>
+                            <span>
 
-                        <button
-    type="button"
-    onclick="verAlumno('${alumno["id"]}')">
-    👤 Ver ficha
-</button>
+                                <strong>
+                                    ${alumno["NOMBRE"] || ""}
+                                </strong>
 
-                        <button
-    type="button"
-    onclick="whatsappRenovacion('${alumno["id"]}')">
-    📲 WhatsApp
-</button>
+                                <br>
 
-                    </div>
-                `;
+                                <small>
+                                    Vence:
+                                    ${alumno["FECHA VENCIMIENTO"] || ""}
+                                </small>
 
-            }).join("")}
+                            </span>
 
-        </div>
-    `;
+                            <button
+                                type="button"
+                                onclick="verAlumno('${alumno["id"]}')">
+                                👤 Ver ficha
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="whatsappRenovacion('${alumno["id"]}')">
+                                📲 WhatsApp
+                            </button>
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+                ${
+                    cantidadVisible < porVencer.length
+                        ? `
+                            <button
+                                type="button"
+                                id="btnCargarMasPorVencer"
+                                style="
+                                    width:100%;
+                                    margin-top:12px;
+                                    padding:12px;
+                                    border-radius:12px;
+                                    border:1px solid #ff6a00;
+                                    background:#111;
+                                    color:#fff;
+                                    font-weight:600;
+                                    cursor:pointer;
+                                ">
+                                CARGAR MÁS
+                            </button>
+                        `
+                        : ""
+                }
+
+            </div>
+        `;
+
+        const boton =
+            document.getElementById(
+                "btnCargarMasPorVencer"
+            );
+
+        if (boton) {
+
+            boton.onclick = function() {
+
+                cantidadVisible += 25;
+
+                renderPorVencer();
+            };
+        }
+    }
+
+    renderPorVencer();
 }
 
 async function mostrarAlumnosSinAsistencia() {
@@ -16193,3 +16410,91 @@ function mostrarNotificacionesCFTDesdeNav() {
         };
 
 }
+/* =========================================================
+   CFT — BARRA INFERIOR FIJA AL DISPLAY
+   ========================================================= */
+
+function fijarBarraInferiorCFT() {
+
+    const barra = document.querySelector(".bottom-nav");
+    const app = document.querySelector(".app");
+
+    if (!barra || !app) return;
+
+    const rectApp = app.getBoundingClientRect();
+
+    barra.style.setProperty(
+        "position",
+        "fixed",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "left",
+        rectApp.left + "px",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "right",
+        "auto",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "width",
+        rectApp.width + "px",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "max-width",
+        rectApp.width + "px",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "top",
+        "auto",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "bottom",
+        "0px",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "transform",
+        "none",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "background",
+        "#111",
+        "important"
+    );
+
+    barra.style.setProperty(
+        "z-index",
+        "1000003",
+        "important"
+    );
+}
+
+window.addEventListener(
+    "load",
+    fijarBarraInferiorCFT
+);
+
+window.addEventListener(
+    "resize",
+    fijarBarraInferiorCFT
+);
+
+setTimeout(
+    fijarBarraInferiorCFT,
+    500
+);
