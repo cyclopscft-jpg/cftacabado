@@ -10474,7 +10474,7 @@ function configurarNavegacionInferior() {
     if (navItems[0]) {
         activarNav(navItems[0]);
     }
-
+nav.classList.add("cft-nav-lista");
     console.log("✅ Navegación inferior configurada");
 }
 window.addEventListener("load", function () {
