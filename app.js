@@ -16122,293 +16122,399 @@ function mostrarNotificacionesCFTDesdeNav() {
 
 
     document
-        .getElementById(
-            "cftNotifEnviar"
-        )
-        .onclick =
-        async function() {
+    .getElementById("cftNotifEnviar")
+    .onclick = async function() {
 
-            const boton =
-                this;
+        const boton = this;
+
+        const tipo =
+            document.getElementById("cftNotifTipo").value;
+
+        const titulo =
+            document.getElementById("cftNotifTitulo").value.trim();
+
+        const mensaje =
+            document.getElementById("cftNotifMensaje").value.trim();
+
+        const destino =
+            destinatario.value;
+
+        const horas =
+            Number(
+                document.getElementById("cftNotifDuracion").value
+            );
+
+        /*
+         * LEER DIRECTAMENTE EL ARCHIVO
+         * DESDE EL INPUT AL MOMENTO DE ENVIAR
+         */
+        const inputImagen =
+            document.getElementById("cftNotifImagen");
+
+        const archivoSeleccionado =
+            inputImagen &&
+            inputImagen.files &&
+            inputImagen.files.length > 0
+                ? inputImagen.files[0]
+                : archivoImagen;
 
 
-            const tipo =
-                document.getElementById(
-                    "cftNotifTipo"
-                ).value;
+        /*
+         * VALIDACIONES
+         */
+
+        if (!titulo) {
+
+            alert("Escribe un título.");
+
+            return;
+        }
 
 
-            const titulo =
-                document.getElementById(
-                    "cftNotifTitulo"
-                ).value.trim();
+        if (!mensaje) {
+
+            alert("Escribe el mensaje.");
+
+            return;
+        }
 
 
-            const mensaje =
-                document.getElementById(
-                    "cftNotifMensaje"
-                ).value.trim();
+        if (
+            destino === "alumno" &&
+            !alumnoSeleccionado
+        ) {
+
+            alert("Selecciona un alumno.");
+
+            return;
+        }
 
 
-            const destino =
-                destinatario.value;
+        /*
+         * BLOQUEAR BOTÓN
+         */
+
+        boton.disabled = true;
+
+        boton.textContent = "ENVIANDO...";
+
+        estado.style.color = "#999";
+
+        estado.textContent =
+            "Preparando notificación...";
 
 
-            const horas =
-                Number(
-                    document.getElementById(
-                        "cftNotifDuracion"
-                    ).value
+        try {
+
+            /*
+             * URL DE LA IMAGEN
+             */
+
+            let imagenUrl = null;
+
+
+            /*
+             * SUBIR IMAGEN SI EXISTE
+             */
+
+            if (archivoSeleccionado) {
+
+                console.log(
+                    "🖼️ IMAGEN DETECTADA:",
+                    archivoSeleccionado.name,
+                    archivoSeleccionado.type,
+                    archivoSeleccionado.size
                 );
 
-
-            if (!titulo) {
-
-                alert(
-                    "Escribe un título."
-                );
-
-                return;
-
-            }
+                estado.textContent =
+                    "Subiendo imagen...";
 
 
-            if (!mensaje) {
+                /*
+                 * OBTENER EXTENSIÓN
+                 */
 
-                alert(
-                    "Escribe el mensaje."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                destino === "alumno" &&
-                !alumnoSeleccionado
-            ) {
-
-                alert(
-                    "Selecciona un alumno."
-                );
-
-                return;
-
-            }
+                let extension =
+                    archivoSeleccionado.name
+                        .split(".")
+                        .pop()
+                        .toLowerCase();
 
 
-            boton.disabled =
-                true;
+                /*
+                 * SI NO HAY EXTENSIÓN,
+                 * USAR EL TIPO MIME
+                 */
 
-            boton.textContent =
-                "ENVIANDO...";
+                if (
+                    !extension ||
+                    extension ===
+                        archivoSeleccionado.name.toLowerCase()
+                ) {
 
+                    if (
+                        archivoSeleccionado.type ===
+                        "image/jpeg"
+                    ) {
 
-            estado.textContent =
-                "Preparando notificación...";
+                        extension = "jpg";
 
+                    } else if (
+                        archivoSeleccionado.type ===
+                        "image/png"
+                    ) {
 
-            try {
+                        extension = "png";
 
-                let imagenUrl =
-                    null;
+                    } else if (
+                        archivoSeleccionado.type ===
+                        "image/webp"
+                    ) {
 
+                        extension = "webp";
 
-                if (archivoImagen) {
+                    } else if (
+                        archivoSeleccionado.type ===
+                        "image/heic"
+                    ) {
 
-                    estado.textContent =
-                        "Subiendo imagen...";
+                        extension = "heic";
 
+                    } else {
 
-                    const extension =
-                        archivoImagen.name
-                            .split(".")
-                            .pop()
-                            .toLowerCase();
-
-
-                    const nombreArchivo =
-                        `notif-${Date.now()}-${Math.random()
-                            .toString(36)
-                            .substring(2)}.${extension}`;
-
-
-                    const {
-                        error:
-                            errorUpload
-                    } =
-                        await supabaseClient
-                            .storage
-                            .from(
-                                "cft-notificaciones"
-                            )
-                            .upload(
-                                nombreArchivo,
-                                archivoImagen,
-                                {
-                                    cacheControl:
-                                        "3600",
-                                    upsert:false
-                                }
-                            );
-
-
-                    if (errorUpload) {
-                        throw errorUpload;
+                        extension = "jpg";
                     }
-
-
-                    const {
-                        data:
-                            urlData
-                    } =
-                        supabaseClient
-                            .storage
-                            .from(
-                                "cft-notificaciones"
-                            )
-                            .getPublicUrl(
-                                nombreArchivo
-                            );
-
-
-                    imagenUrl =
-                        urlData.publicUrl;
-
                 }
 
 
-                const ahora =
-                    new Date();
+                /*
+                 * NOMBRE ÚNICO
+                 */
+
+                const nombreArchivo =
+                    `notif-${Date.now()}-${Math.random()
+                        .toString(36)
+                        .substring(2)}.${extension}`;
 
 
-                const expiracion =
-                    new Date(
-                        ahora.getTime() +
-                        horas *
-                        60 *
-                        60 *
-                        1000
-                    );
+                /*
+                 * SUBIR A SUPABASE STORAGE
+                 */
 
-
-                estado.textContent =
-                    "Guardando notificación...";
-
-
-                const {
-                    data,
-                    error
-                } =
+                const resultadoUpload =
                     await supabaseClient
-                        .from(
-                            "CFT_Notificaciones"
-                        )
-                        .insert([
+                        .storage
+                        .from("cft-notificaciones")
+                        .upload(
+                            nombreArchivo,
+                            archivoSeleccionado,
                             {
-                                tipo:
-                                    tipo,
-
-                                titulo:
-                                    titulo,
-
-                                mensaje:
-                                    mensaje,
-
-                                destinatario_tipo:
-                                    destino,
-
-                                alumno_id:
-                                    destino === "alumno"
-                                        ? Number(
-                                            alumnoSeleccionado.id
-                                        )
-                                        : null,
-
-                                fecha_envio:
-                                    ahora.toISOString(),
-
-                                created_at:
-                                    ahora.toISOString(),
-
-                                leida:
-                                    false,
-
-                                imagen_url:
-                                    imagenUrl,
-
-                                fecha_expiracion:
-                                    expiracion.toISOString()
+                                cacheControl: "3600",
+                                upsert: false,
+                                contentType:
+                                    archivoSeleccionado.type ||
+                                    undefined
                             }
-                        ])
-                        .select()
-                        .single();
+                        );
 
 
-                if (error) {
-                    throw error;
+                const errorUpload =
+                    resultadoUpload.error;
+
+
+                if (errorUpload) {
+
+                    throw errorUpload;
                 }
 
 
                 console.log(
-                    "✅ NOTIFICACIÓN CFT CREADA:",
-                    data
+                    "✅ IMAGEN SUBIDA:",
+                    nombreArchivo
                 );
 
 
-                estado.style.color =
-                    "#65d66f";
+                /*
+                 * OBTENER URL PÚBLICA
+                 */
+
+                const resultadoUrl =
+                    supabaseClient
+                        .storage
+                        .from("cft-notificaciones")
+                        .getPublicUrl(
+                            nombreArchivo
+                        );
 
 
-                estado.textContent =
-                    "✅ Notificación enviada correctamente.";
+                const urlData =
+                    resultadoUrl.data;
 
 
-                boton.textContent =
-                    "✅ ENVIADA";
+                if (
+                    !urlData ||
+                    !urlData.publicUrl
+                ) {
 
-
-                setTimeout(
-    function() {
-
-        mostrarNotificacionesCFTDesdeNav();
-
-    },
-    1200
-);
-
-            } catch (error) {
-
-                console.error(
-                    "❌ ERROR ENVIANDO NOTIFICACIÓN:",
-                    error
-                );
-
-
-                estado.style.color =
-                    "#ff5757";
-
-
-                estado.textContent =
-                    "❌ " +
-                    (
-                        error.message ||
-                        "No se pudo enviar."
+                    throw new Error(
+                        "No se pudo obtener la URL pública de la imagen."
                     );
+                }
 
 
-                boton.disabled =
-                    false;
+                imagenUrl =
+                    urlData.publicUrl;
 
 
-                boton.textContent =
-                    "🔔 ENVIAR NOTIFICACIÓN";
+                console.log(
+                    "🖼️ URL DE IMAGEN:",
+                    imagenUrl
+                );
 
             }
 
-        };
 
+            /*
+             * FECHAS
+             */
+
+            const ahora =
+                new Date();
+
+
+            const expiracion =
+                new Date(
+                    ahora.getTime() +
+                    horas * 60 * 60 * 1000
+                );
+
+
+            estado.textContent =
+                "Guardando notificación...";
+
+
+            /*
+             * INSERTAR NOTIFICACIÓN
+             */
+
+            const resultadoInsert =
+                await supabaseClient
+                    .from("CFT_Notificaciones")
+                    .insert([
+                        {
+                            tipo: tipo,
+
+                            titulo: titulo,
+
+                            mensaje: mensaje,
+
+                            destinatario_tipo: destino,
+
+                            alumno_id:
+                                destino === "alumno"
+                                    ? Number(
+                                        alumnoSeleccionado.id
+                                    )
+                                    : null,
+
+                            fecha_envio:
+                                ahora.toISOString(),
+
+                            created_at:
+                                ahora.toISOString(),
+
+                            leida: false,
+
+                            imagen_url:
+                                imagenUrl,
+
+                            fecha_expiracion:
+                                expiracion.toISOString()
+                        }
+                    ])
+                    .select()
+                    .single();
+
+
+            const data =
+                resultadoInsert.data;
+
+            const error =
+                resultadoInsert.error;
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            /*
+             * CONFIRMACIÓN
+             */
+
+            console.log(
+                "✅ NOTIFICACIÓN CFT CREADA:",
+                data
+            );
+
+            console.log(
+                "🖼️ IMAGEN GUARDADA:",
+                data.imagen_url
+            );
+
+
+            estado.style.color =
+                "#65d66f";
+
+            estado.textContent =
+                "✅ Notificación enviada correctamente.";
+
+            boton.textContent =
+                "✅ ENVIADA";
+
+
+            /*
+             * VOLVER A NOTIFICACIONES
+             */
+
+            setTimeout(
+                function() {
+
+                    mostrarNotificacionesCFTDesdeNav();
+
+                },
+                1200
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR ENVIANDO NOTIFICACIÓN:",
+                error
+            );
+
+
+            estado.style.color =
+                "#ff5757";
+
+            estado.textContent =
+                "❌ " +
+                (
+                    error.message ||
+                    "No se pudo enviar."
+                );
+
+
+            boton.disabled =
+                false;
+
+            boton.textContent =
+                "🔔 ENVIAR NOTIFICACIÓN";
+        }
+
+    };
 }
 /* =========================================================
    CFT — BARRA INFERIOR FIJA AL DISPLAY
