@@ -3511,3 +3511,16 @@ input[type="date"] {
         z-index: 1 !important;
     }
 }
+/* =========================================================
+   CFT MARCADOR — EVITAR ZOOM EN CAMPOS DE TEXTO
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .app input,
+    .app textarea,
+    .app select {
+        font-size: 16px !important;
+    }
+
+}
