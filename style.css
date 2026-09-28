@@ -3535,3 +3535,40 @@ input[type="date"] {
     }
 
 }
+#pantallaEditarAlumno {
+    margin-top: 61px !important;
+    z-index: 999 !important;
+}
+
+#pantallaEditarAlumno .section-title {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    margin-top: 0 !important;
+}
+#pantallaAlumnos .cft-alumno-moderno .cft-btn-eliminar {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    margin: 0 0 0 6px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+    border: none !important;
+
+    background: #d92d20 !important;
+    color: #ffffff !important;
+
+    font-family: Arial, sans-serif !important;
+    font-size: 18px !important;
+    font-weight: normal !important;
+    line-height: 1 !important;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.35) !important;
+    cursor: pointer !important;
+}
