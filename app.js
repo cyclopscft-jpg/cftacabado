@@ -5382,15 +5382,7 @@ async function abrirSemaforoConScroll(funcion, idContenedor) {
         !estabaAbierto &&
         contenedor.dataset.abierto === "true"
     ) {
-
-        setTimeout(function() {
-
-            contenedor.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
-
-        }, 150);
+        console.log("✅ SEMÁFORO ABIERTO SIN SCROLL");
     }
 }
 async function mostrarAlumnosVencidos() {
