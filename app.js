@@ -815,11 +815,11 @@ async function mostrarAlumnos() {
             );
 
         const ordenEstado = {
-    "activo": 1,
-    "por-vencer": 2,
-    "vencido": 3,
-    "sin-fecha": 4
-};
+            "activo": 1,
+            "por-vencer": 2,
+            "vencido": 3,
+            "sin-fecha": 4
+        };
 
         const prioridadA =
             ordenEstado[estadoA.clase] || 5;
@@ -877,69 +877,74 @@ async function mostrarAlumnos() {
                 alumno["CELULAR"] || ""
             );
 
-        let monto = Number(alumno["MONTO"]);
+        let monto =
+            Number(alumno["MONTO"]);
 
-if (!monto || isNaN(monto)) {
-    monto = 0;
-}
-
-
-const fechaOriginal =
-    alumno["FECHA VENCIMIENTO"] || "";
-
-let vencimiento = fechaOriginal;
-
-if (fechaOriginal) {
-
-    const partes =
-        String(fechaOriginal).split("-");
-
-    if (partes.length === 3) {
-
-        // Si Supabase tiene YYYY-MM-DD
-        if (partes[0].length === 4) {
-
-            vencimiento =
-                partes[2] + "-" +
-                partes[1] + "-" +
-                partes[0];
-
-        } else {
-
-            // Si tiene DD-MM-YY o DD-MM-YYYY
-            let anio = partes[2];
-
-            if (anio.length === 2) {
-                anio = "20" + anio;
-            }
-
-            vencimiento =
-                partes[0] + "-" +
-                partes[1] + "-" +
-                anio;
+        if (!monto || isNaN(monto)) {
+            monto = 0;
         }
-    }
-}
+
+        const fechaOriginal =
+            alumno["FECHA VENCIMIENTO"] || "";
+
+        let vencimiento =
+            fechaOriginal;
+
+        if (fechaOriginal) {
+
+            const partes =
+                String(fechaOriginal).split("-");
+
+            if (partes.length === 3) {
+
+                if (partes[0].length === 4) {
+
+                    vencimiento =
+                        partes[2] + "-" +
+                        partes[1] + "-" +
+                        partes[0];
+
+                } else {
+
+                    let anio =
+                        partes[2];
+
+                    if (anio.length === 2) {
+                        anio = "20" + anio;
+                    }
+
+                    vencimiento =
+                        partes[0] + "-" +
+                        partes[1] + "-" +
+                        anio;
+                }
+            }
+        }
 
         const estado =
-    obtenerEstadoMembresia(
-        fechaOriginal
-
+            obtenerEstadoMembresia(
+                fechaOriginal
             );
 
-        // COMPROBAR DNI QUE RECIBE CADA TARJETA
+        // ==============================
+        // ID Y NOMBRE SEGUROS
+        // ==============================
 
+        const idSeguro =
+            JSON.stringify(alumno["id"]);
+
+        const nombreSeguro =
+            JSON.stringify(nombre);
+
+        // ==============================
+        // CREAR TARJETA
+        // ==============================
 
         const tarjeta =
             document.createElement("div");
 
         tarjeta.className =
-    "alumno-card cft-alumno-moderno";
-
-        // Convertimos el DNI a una cadena segura
-        // para enviarlo al botón
-         const idSeguro =
-         JSON.stringify(alumno["id"]);
+            "alumno-card cft-alumno-moderno";
 
         tarjeta.innerHTML = `
 
@@ -951,19 +956,21 @@ if (fechaOriginal) {
                     <strong>DNI:</strong>
                     ${dni || "Sin DNI"}
                 </p>
-<p>
-    <strong>Plan:</strong>
-    ${
-        alumno["DURACIONPLAN"]
-            ? alumno["DURACIONPLAN"]
-            : "Sin plan"
-    }
-</p>
 
-<p>
-    <strong>Monto:</strong>
-    S/${monto}
-</p>
+                <p>
+                    <strong>Plan:</strong>
+                    ${
+                        alumno["DURACIONPLAN"]
+                            ? alumno["DURACIONPLAN"]
+                            : "Sin plan"
+                    }
+                </p>
+
+                <p>
+                    <strong>Monto:</strong>
+                    S/${monto}
+                </p>
+
                 <p>
                     <strong>Vencimiento:</strong>
                     ${vencimiento || "Sin fecha"}
@@ -997,14 +1004,70 @@ if (fechaOriginal) {
                         : ""
                 }
 
+              <button
+    type="button"
+    class="cft-btn-eliminar"
+    title="Eliminar alumno"
+    onclick='eliminarAlumnoModerno(${idSeguro}, ${nombreSeguro})'
+>
+    🗑︎
+</button>
+
             </div>
         `;
 
         lista.appendChild(tarjeta);
     });
 }
+async function eliminarAlumnoModerno(id, nombre) {
 
+    const confirmar = confirm(
+        "¿Eliminar a " + nombre + "?\n\nEsta acción no se puede deshacer."
+    );
 
+    if (!confirmar) {
+        return;
+    }
+
+    console.log("🗑️ ELIMINANDO ALUMNO:", {
+        id: id,
+        nombre: nombre
+    });
+
+    const { error } =
+        await supabaseClient
+            .from("Alumnos")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+
+        console.error(
+            "❌ ERROR ELIMINANDO ALUMNO:",
+            error
+        );
+
+        alert(
+            "No se pudo eliminar al alumno.\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    console.log(
+        "✅ ALUMNO ELIMINADO:",
+        nombre
+    );
+
+    alert(
+        "✅ " +
+        nombre +
+        " fue eliminado correctamente."
+    );
+
+    await mostrarAlumnos();
+}
 function abrirAlumnos() {
 
     const pantallas = document.querySelectorAll(".section");
@@ -4405,160 +4468,149 @@ async function editarAlumno() {
         "block";
 }
 
-function obtenerEstadoMembresia(vencimiento) {
+function obtenerEstadoMembresia(fechaVencimiento) {
 
-    if (!vencimiento) {
+    if (!fechaVencimiento) {
         return {
-            texto: "🔴 VENCIDO",
-            clase: "vencido",
+            texto: "⚪ SIN FECHA",
+            clase: "sin-fecha",
             dias: null,
-            detalle: "Membresía vencida"
+            detalle: "Sin fecha de vencimiento"
+        };
+    }
+
+    const textoFecha = String(fechaVencimiento).trim();
+
+    let dia;
+    let mes;
+    let anio;
+
+    // YYYY-MM-DD
+    if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(textoFecha)) {
+
+        const partes = textoFecha.split("-");
+
+        anio = Number(partes[0]);
+        mes = Number(partes[1]);
+        dia = Number(partes[2]);
+
+    } else {
+
+        // D/M/YYYY
+        // DD/MM/YYYY
+        // D-M-YYYY
+        // DD-MM-YYYY
+
+        const partes =
+            textoFecha.split(/[\/-]/);
+
+        if (partes.length !== 3) {
+
+            return {
+                texto: "⚪ SIN FECHA",
+                clase: "sin-fecha",
+                dias: null,
+                detalle: "Fecha no reconocida"
+            };
+        }
+
+        dia = Number(partes[0]);
+        mes = Number(partes[1]);
+        anio = Number(partes[2]);
+
+        if (anio < 100) {
+            anio += 2000;
+        }
+    }
+
+    if (
+        !Number.isInteger(dia) ||
+        !Number.isInteger(mes) ||
+        !Number.isInteger(anio)
+    ) {
+
+        return {
+            texto: "⚪ SIN FECHA",
+            clase: "sin-fecha",
+            dias: null,
+            detalle: "Fecha no válida"
+        };
+    }
+
+    const fecha =
+        new Date(anio, mes - 1, dia);
+
+    if (
+        fecha.getFullYear() !== anio ||
+        fecha.getMonth() !== mes - 1 ||
+        fecha.getDate() !== dia
+    ) {
+
+        return {
+            texto: "⚪ SIN FECHA",
+            clase: "sin-fecha",
+            dias: null,
+            detalle: "Fecha no válida"
         };
     }
 
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
 
-    const textoFecha = String(vencimiento).trim();
-const fechaNormalizada = textoFecha.replace(/\//g, "-");
-    let fechaVencimiento;
+    const hoyLocal =
+        new Date(
+            hoy.getFullYear(),
+            hoy.getMonth(),
+            hoy.getDate()
+        );
 
-    // ==========================================
-    // FORMATO PRINCIPAL: DD-MM-YYYY
-    // Ejemplo: 15-12-2026
-    // ==========================================
+    const diferencia =
+        fecha.getTime() -
+        hoyLocal.getTime();
 
-    if (/^\d{2}-\d{2}-\d{4}$/.test(fechaNormalizada)) {
+    const dias =
+        Math.round(
+            diferencia / 86400000
+        );
 
-    const partes = fechaNormalizada.split("-");
+    if (dias < 0) {
 
-    const dia = Number(partes[0]);
-    const mes = Number(partes[1]);
-    const anio = Number(partes[2]);
-
-    fechaVencimiento = new Date(
-        anio,
-        mes - 1,
-        dia
-    );
-
-} else if (/^\d{4}-\d{2}-\d{2}$/.test(fechaNormalizada)) {
-
-    const partes = fechaNormalizada.split("-");
-
-    const anio = Number(partes[0]);
-    const mes = Number(partes[1]);
-    const dia = Number(partes[2]);
-
-    fechaVencimiento = new Date(
-        anio,
-        mes - 1,
-        dia
-    );
-
-} else if (/^\d{2}-\d{2}-\d{2}$/.test(fechaNormalizada)) {
-
-    const partes = fechaNormalizada.split("-");
-
-    const dia = Number(partes[0]);
-    const mes = Number(partes[1]);
-    const anio = 2000 + Number(partes[2]);
-
-    fechaVencimiento = new Date(
-        anio,
-        mes - 1,
-        dia
-    );
-
-} else {
-
-    fechaVencimiento = new Date(fechaNormalizada);
-}
-
-    // ==========================================
-    // VALIDAR FECHA
-    // ==========================================
-
-    if (isNaN(fechaVencimiento.getTime())) {
+        const diasVencido =
+            Math.abs(dias);
 
         return {
             texto: "🔴 VENCIDO",
             clase: "vencido",
-            dias: null,
-            detalle: "Fecha de vencimiento inválida"
+            dias: dias,
+            detalle:
+                "Venció hace " +
+                diasVencido +
+                " días"
         };
     }
 
-    fechaVencimiento.setHours(0, 0, 0, 0);
-
-    const diferencia = Math.round(
-        (fechaVencimiento - hoy) /
-        (1000 * 60 * 60 * 24)
-    );
-
-    // ==========================================
-    // VENCIDO
-    // ==========================================
-
-    if (diferencia < 0) {
-
-        const diasVencido = Math.abs(diferencia);
-
-        return {
-            texto: "🔴 VENCIDO",
-            clase: "vencido",
-            dias: diferencia,
-            detalle: diasVencido === 1
-                ? "Venció hace 1 día"
-                : "Venció hace " +
-                  diasVencido +
-                  " días"
-        };
-    }
-
-    // ==========================================
-    // VENCE HOY
-    // ==========================================
-
-    if (diferencia === 0) {
+    if (dias <= 7) {
 
         return {
             texto: "🟠 POR VENCER",
             clase: "por-vencer",
-            dias: 0,
-            detalle: "Vence hoy"
+            dias: dias,
+            detalle:
+                dias === 0
+                    ? "Vence hoy"
+                    : "Faltan " +
+                      dias +
+                      " días para vencer"
         };
     }
-
-    // ==========================================
-    // POR VENCER: 1 A 7 DÍAS
-    // ==========================================
-
-    if (diferencia <= 7) {
-
-        return {
-            texto: "🟠 POR VENCER",
-            clase: "por-vencer",
-            dias: diferencia,
-            detalle: diferencia === 1
-                ? "Falta 1 día para vencer"
-                : "Faltan " +
-                  diferencia +
-                  " días para vencer"
-        };
-    }
-
-    // ==========================================
-    // ACTIVO
-    // ==========================================
 
     return {
         texto: "🟢 ACTIVO",
         clase: "activo",
-        dias: diferencia,
-        detalle: "Faltan " +
-                 diferencia +
-                 " días para vencer"
+        dias: dias,
+        detalle:
+            "Faltan " +
+            dias +
+            " días para vencer"
     };
 }
 function registrarPagoDesdeFicha() {
@@ -5467,29 +5519,35 @@ async function mostrarAlumnosVencidos() {
         };
 
     const vencidos =
-        (alumnos || []).filter(function(alumno) {
+    (alumnos || []).filter(function(alumno) {
 
-            const fechaTexto =
-                String(
-                    alumno["FECHA VENCIMIENTO"] || ""
-                ).trim();
+        const fechaTexto =
+            String(
+                alumno["FECHA VENCIMIENTO"] || ""
+            ).trim();
 
-            if (!fechaTexto) {
-                return false;
-            }
+        if (!fechaTexto) {
+            return false;
+        }
 
-            const vencimiento =
-                convertirFecha(
-                    fechaTexto
-                );
+        const vencimiento =
+            convertirFecha(
+                fechaTexto
+            );
 
-            if (!vencimiento) {
-                return false;
-            }
+        if (!vencimiento) {
+            return false;
+        }
 
-            return vencimiento < hoy;
-        });
+        const diasVencido =
+            Math.floor(
+                (hoy - vencimiento) /
+                (1000 * 60 * 60 * 24)
+            );
 
+        return diasVencido >= 1 && diasVencido <= 7;
+    });
+    
     // =========================
     // ORDENAR
     // =========================
@@ -9486,14 +9544,24 @@ listaAlumnos.forEach(function(alumno) {
         0
     );
 
-    // VENCIDO
-    if (vencimiento < hoy) {
+    // VENCIDO — SOLO ÚLTIMOS 7 DÍAS
+if (vencimiento < hoy) {
 
+    const diferenciaDias =
+        Math.round(
+            (hoy - vencimiento) /
+            (1000 * 60 * 60 * 24)
+        );
+
+    if (
+        diferenciaDias >= 1 &&
+        diferenciaDias <= 7
+    ) {
         vencidos++;
-
-        return;
     }
 
+    return;
+}
     // ACTIVO
     activos++;
 
