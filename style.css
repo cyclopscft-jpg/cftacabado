@@ -536,9 +536,6 @@ max-width: 100% !important;
     content: "✅";
 }
 
-#pantallaInicio .card:nth-of-type(3)::after {
-    content: "💰";
-}
 
 #pantallaInicio .card:nth-of-type(4)::after {
     content: "💳";
