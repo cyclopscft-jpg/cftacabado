@@ -448,6 +448,197 @@
     </p>
 </div>
 
+<!-- MOVIMIENTO DEL MES -->
+<div
+    class="card"
+    id="cftMovimientoMensual"
+    style="
+        padding:14px;
+        border-radius:18px;
+    "
+>
+
+    <div
+        style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:10px;
+        "
+    >
+
+        <h3
+            style="
+                margin:0;
+                font-size:8px;
+            "
+        >
+            📊 Movimiento del mes
+        </h3>
+
+       <div
+    style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:4px;
+        white-space:nowrap;
+    "
+>
+
+    <button
+        type="button"
+        id="cftMovimientoMesAnterior"
+        style="
+            width:22px;
+            height:22px;
+            min-width:22px;
+            padding:0;
+            margin:0;
+            border:1px solid rgba(255,106,0,.55);
+            border-radius:7px;
+            background:#111;
+            color:#fff;
+            font-size:14px;
+            font-weight:500;
+            line-height:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            box-sizing:border-box;
+            flex-shrink:0;
+        "
+    >‹</button>
+
+    <span
+        id="cftMovimientoMesTexto"
+        style="
+            width:auto;
+            min-width:0;
+            margin:0;
+            padding:0 2px;
+            text-align:center;
+            color:#fff;
+            font-size:13px;
+            font-weight:700;
+            white-space:nowrap;
+        "
+    >Octubre 2026</span>
+
+    <button
+        type="button"
+        id="cftMovimientoMesSiguiente"
+        style="
+            width:22px;
+            height:22px;
+            min-width:22px;
+            padding:0;
+            margin:0;
+            border:1px solid rgba(255,106,0,.55);
+            border-radius:7px;
+            background:#111;
+            color:#fff;
+            font-size:14px;
+            font-weight:500;
+            line-height:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            cursor:pointer;
+            box-sizing:border-box;
+            flex-shrink:0;
+        "
+    >›</button>
+
+</div>
+    </div>
+
+    <div
+        id="cftMovimientoCajas"
+        style="
+            display:grid;
+            grid-template-columns:1fr;
+            gap:8px;
+        "
+    >
+
+        <div
+            style="
+                padding:8px 12px;
+                min-height:0;
+                border-radius:12px;
+                background:#111;
+                border:1px solid rgba(0,255,120,.35);
+                font-size:14px;
+                line-height:1.2;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+            "
+        >
+            <span>🟢 Nuevos</span>
+            <strong id="cftMovimientoNuevos">0</strong>
+        </div>
+
+        <div
+            style="
+                padding:8px 12px;
+                min-height:0;
+                border-radius:12px;
+                background:#111;
+                border:1px solid rgba(0,150,255,.35);
+                font-size:14px;
+                line-height:1.2;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+            "
+        >
+            <span>🔵 Renovaciones</span>
+            <strong id="cftMovimientoRenovaciones">0</strong>
+        </div>
+
+        <div
+            style="
+                padding:8px 12px;
+                min-height:0;
+                border-radius:12px;
+                background:#111;
+                border:1px solid rgba(170,80,255,.35);
+                font-size:14px;
+                line-height:1.2;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+            "
+        >
+            <span>🟣 Exalumnos</span>
+            <strong id="cftMovimientoExalumnos">0</strong>
+        </div>
+
+        <div
+            style="
+                padding:8px 12px;
+                min-height:0;
+                border-radius:12px;
+                background:#111;
+                border:1px solid rgba(255,60,60,.35);
+                font-size:14px;
+                line-height:1.2;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+            "
+        >
+            <span>🔴 Salieron</span>
+            <strong id="cftMovimientoSalieron">0</strong>
+        </div>
+
+    </div>
+
+</div>
 
 <!-- ASISTENCIA DE HOY -->
 <div class="card">
