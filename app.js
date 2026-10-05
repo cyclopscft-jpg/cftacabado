@@ -3040,12 +3040,11 @@ async function registrarRenovacion(
         await actualizarDashboardInicio();
     }
 
-
     // ==============================
-    // VOLVER A CARGAR LA FICHA
-    // ==============================
+// VOLVER AL DASHBOARD MODERNO
+// ==============================
 
-    await verAlumno(alumno["id"]);
+abrirInicio();
 }
 
 
@@ -12247,7 +12246,10 @@ window.cftOrigenPagosMes = "inicio";
     window.mostrarResumenDashboard = function () {
 
         original();
-
+setTimeout(
+    cargarCalendarioIngresos,
+    150
+);
         setTimeout(function () {
 
             const pagina =
@@ -13639,41 +13641,132 @@ window.cftOrigenPagosMes = "inicio";
             buscador.querySelector("input");
 
         input.addEventListener(
-            "input",
-            async function () {
+    "input",
+    async function () {
 
-                const texto =
-                    this.value
-                        .trim()
+        const texto =
+            this.value
+                .trim()
+                .toLowerCase();
+
+        /*
+         * Si no hay búsqueda:
+         * vuelve al comportamiento normal.
+         */
+        if (!texto) {
+
+            contenedor.innerHTML = "";
+
+            contenedor.dataset.abierto = "false";
+
+            await window.mostrarAlumnosPorVencerOriginal();
+
+            return;
+        }
+
+        console.log(
+            "🔎 BUSCANDO EN TODO EL SEMÁFORO:",
+            texto
+        );
+
+        /*
+         * Buscamos también entre los alumnos que todavía
+         * están detrás del límite visual de 25.
+         */
+        let contador = 0;
+
+        while (contador < 100) {
+
+            const filasActuales =
+                contenedor.querySelectorAll(".row");
+
+            let encontrado = false;
+
+            filasActuales.forEach(
+                function (fila) {
+
+                    const contenido =
+                        fila.textContent
+                            .toLowerCase();
+
+                    const dni =
+                        String(
+                            fila.dataset.cftDni || ""
+                        ).toLowerCase();
+
+                    if (
+                        contenido.includes(texto) ||
+                        dni.includes(texto)
+                    ) {
+                        encontrado = true;
+                    }
+                }
+            );
+
+            if (encontrado) {
+                break;
+            }
+
+            const boton =
+                document.getElementById(
+                    "btnCargarMasPorVencer"
+                );
+
+            if (!boton) {
+                break;
+            }
+
+            boton.click();
+
+            await new Promise(
+                function(resolve) {
+                    setTimeout(resolve, 30);
+                }
+            );
+
+            contador++;
+        }
+
+        /*
+         * Filtrar todas las filas actualmente cargadas.
+         */
+        const filasFinales =
+            contenedor.querySelectorAll(".row");
+
+        let encontrados = 0;
+
+        filasFinales.forEach(
+            function (fila) {
+
+                const contenido =
+                    fila.textContent
                         .toLowerCase();
 
-                const filasActuales =
-                    contenedor.querySelectorAll(".row");
+                const dni =
+                    String(
+                        fila.dataset.cftDni || ""
+                    ).toLowerCase();
 
-                filasActuales.forEach(
-                    function (fila) {
+                const coincide =
+                    contenido.includes(texto) ||
+                    dni.includes(texto);
 
-                        const contenido =
-                            fila.textContent
-                                .toLowerCase();
+                fila.style.display =
+                    coincide ? "" : "none";
 
-                        const dni =
-                            String(
-                                fila.dataset.cftDni || ""
-                            ).toLowerCase();
-
-                        fila.style.display =
-                            (
-                                contenido.includes(texto) ||
-                                dni.includes(texto)
-                            )
-                                ? ""
-                                : "none";
-                    }
-                );
+                if (coincide) {
+                    encontrados++;
+                }
             }
         );
 
+        console.log(
+            encontrados > 0
+                ? "✅ ENCONTRADOS: " + encontrados
+                : "❌ NO ENCONTRADO"
+        );
+    }
+);
         /*
          * IMPORTANTE:
          * El buscador queda DENTRO del contenedor.
@@ -16664,3 +16757,1957 @@ setTimeout(
     fijarBarraInferiorCFT,
     500
 );
+// =====================================================
+// CFT MANAGER — CALENDARIO DE INGRESOS EN RESUMEN
+// =====================================================
+
+async function cargarCalendarioIngresos() {
+
+    const resumen =
+        document.getElementById("pantallaInicio");
+
+    if (!resumen) {
+        return;
+    }
+
+    const anterior =
+        document.getElementById(
+            "cftCalendarioIngresosPrueba"
+        );
+
+    if (anterior) {
+        anterior.remove();
+    }
+
+    const { data: pagos, error } =
+        await supabaseClient
+            .from("Pagos")
+            .select(
+                "id, NOMBRE, MONTO, FECHA, PLAN, DURACIONPLAN, DNI"
+            )
+            .order("FECHA", {
+                ascending: true
+            });
+
+    if (error) {
+
+        console.error(
+            "❌ ERROR CALENDARIO INGRESOS:",
+            error
+        );
+
+        return;
+    }
+
+    function obtenerFecha(fecha) {
+
+        if (!fecha) {
+            return null;
+        }
+
+        const texto =
+            String(fecha)
+                .trim()
+                .split("T")[0];
+
+        let partes =
+            texto.split("-");
+
+        if (
+            partes.length === 3 &&
+            partes[0].length === 4
+        ) {
+
+            return {
+                año: Number(partes[0]),
+                mes: Number(partes[1]),
+                dia: Number(partes[2])
+            };
+        }
+
+        if (
+            partes.length === 3 &&
+            partes[2].length === 4
+        ) {
+
+            return {
+                año: Number(partes[2]),
+                mes: Number(partes[1]),
+                dia: Number(partes[0])
+            };
+        }
+
+        partes =
+            texto.split("/");
+
+        if (
+            partes.length === 3 &&
+            partes[2].length === 4
+        ) {
+
+            return {
+                año: Number(partes[2]),
+                mes: Number(partes[1]),
+                dia: Number(partes[0])
+            };
+        }
+
+        return null;
+    }
+
+    const registros =
+        (pagos || [])
+            .map(pago => {
+
+                const fecha =
+                    obtenerFecha(pago.FECHA);
+
+                const monto =
+                    Number(
+                        String(
+                            pago.MONTO ?? 0
+                        ).replace(",", ".")
+                    ) || 0;
+
+                return {
+                    ...pago,
+                    fecha,
+                    monto
+                };
+
+            })
+            .filter(pago => pago.fecha);
+
+    let ahora = new Date();
+
+    let año =
+        ahora.getFullYear();
+
+    let mes =
+        ahora.getMonth() + 1;
+
+    const meses = [
+        "ENERO",
+        "FEBRERO",
+        "MARZO",
+        "ABRIL",
+        "MAYO",
+        "JUNIO",
+        "JULIO",
+        "AGOSTO",
+        "SEPTIEMBRE",
+        "OCTUBRE",
+        "NOVIEMBRE",
+        "DICIEMBRE"
+    ];
+
+    const dias = [
+        "DOM",
+        "LUN",
+        "MAR",
+        "MIÉ",
+        "JUE",
+        "VIE",
+        "SÁB"
+    ];
+
+    const bloque =
+        document.createElement("div");
+
+    bloque.id =
+        "cftCalendarioIngresosPrueba";
+
+    bloque.style.cssText = `
+        margin: 20px 0;
+        padding: 20px;
+        background: #111;
+        border: 1px solid rgba(255,102,0,.35);
+        border-radius: 18px;
+        box-sizing: border-box;
+        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+        color: #f5f5f5;
+    `;
+
+    const tarjetas =
+        Array.from(
+            resumen.querySelectorAll(".card")
+        );
+
+    const tarjetaIngresos =
+        tarjetas.find(card =>
+            (card.innerText || "")
+                .includes("Ingresos del mes")
+        );
+
+    if (!tarjetaIngresos) {
+
+        console.error(
+            "❌ No encontré la tarjeta Ingresos del mes"
+        );
+
+        return;
+    }
+
+    tarjetaIngresos.insertAdjacentElement(
+        "afterend",
+        bloque
+    );
+
+    function renderizar() {
+
+        const pagosMes =
+            registros.filter(pago =>
+                pago.fecha.año === año &&
+                pago.fecha.mes === mes
+            );
+
+        const totalMes =
+            pagosMes.reduce(
+                (total, pago) =>
+                    total + pago.monto,
+                0
+            );
+
+        const primerDia =
+            new Date(
+                año,
+                mes - 1,
+                1
+            ).getDay();
+
+        const diasMes =
+            new Date(
+                año,
+                mes,
+                0
+            ).getDate();
+
+        bloque.innerHTML = `
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+                margin-bottom:16px;
+            ">
+
+                <div>
+
+                    <div style="
+                        color:#ff6500;
+                        font-size:11px;
+                        font-weight:900;
+                        letter-spacing:1.3px;
+                    ">
+                        📊 MOVIMIENTO DE INGRESOS
+                    </div>
+
+                    <div style="
+                        font-size:23px;
+                        font-weight:900;
+                        margin-top:4px;
+                    ">
+                        ${meses[mes - 1]} ${año}
+                    </div>
+
+                </div>
+
+                <div style="
+                    display:flex;
+                    gap:7px;
+                ">
+
+                    <button
+                        id="cftIngresoAnterior"
+                        style="
+                            width:42px;
+                            height:42px;
+                            border-radius:12px;
+                            border:1px solid rgba(255,102,0,.45);
+                            background:#181818;
+                            color:#fff;
+                            font-size:22px;
+                            cursor:pointer;
+                        "
+                    >‹</button>
+
+                    <button
+                        id="cftIngresoSiguiente"
+                        style="
+                            width:42px;
+                            height:42px;
+                            border-radius:12px;
+                            border:1px solid rgba(255,102,0,.45);
+                            background:#181818;
+                            color:#fff;
+                            font-size:22px;
+                            cursor:pointer;
+                        "
+                    >›</button>
+
+                </div>
+
+            </div>
+
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(2,1fr);
+                gap:10px;
+                margin-bottom:16px;
+            ">
+
+                <div style="
+                    background:#181818;
+                    border-radius:13px;
+                    padding:13px;
+                ">
+
+                    <div style="
+                        font-size:10px;
+                        color:#888;
+                    ">
+                        TOTAL DEL MES
+                    </div>
+
+                    <div style="
+                        color:#ff6500;
+                        font-size:21px;
+                        font-weight:900;
+                        margin-top:4px;
+                    ">
+                        S/${totalMes.toFixed(2)}
+                    </div>
+
+                </div>
+
+                <div style="
+                    background:#181818;
+                    border-radius:13px;
+                    padding:13px;
+                ">
+
+                    <div style="
+                        font-size:10px;
+                        color:#888;
+                    ">
+                        PAGOS
+                    </div>
+
+                    <div style="
+                        font-size:21px;
+                        font-weight:900;
+                        margin-top:4px;
+                    ">
+                        ${pagosMes.length}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(7,1fr);
+                gap:4px;
+                margin-bottom:5px;
+            ">
+
+                ${dias.map(dia => `
+                    <div style="
+                        text-align:center;
+                        color:#777;
+                        font-size:9px;
+                        font-weight:900;
+                        padding:5px 0;
+                    ">
+                        ${dia}
+                    </div>
+                `).join("")}
+
+            </div>
+
+            <div
+                id="cftCalendarioDias"
+                style="
+                    display:grid;
+                    grid-template-columns:repeat(7,1fr);
+                    gap:5px;
+                "
+            ></div>
+
+            <div
+                id="cftDetalleDia"
+                style="
+                    margin-top:16px;
+                "
+            ></div>
+        `;
+
+        const calendario =
+            document.getElementById(
+                "cftCalendarioDias"
+            );
+
+        for (
+            let i = 0;
+            i < primerDia;
+            i++
+        ) {
+
+            calendario.appendChild(
+                document.createElement("div")
+            );
+        }
+
+        for (
+            let dia = 1;
+            dia <= diasMes;
+            dia++
+        ) {
+
+            const pagosDia =
+                pagosMes.filter(pago =>
+                    pago.fecha.dia === dia
+                );
+
+            const totalDia =
+                pagosDia.reduce(
+                    (total, pago) =>
+                        total + pago.monto,
+                    0
+                );
+
+            const boton =
+                document.createElement("button");
+
+            boton.type = "button";
+
+            boton.style.cssText = `
+                min-height:72px;
+                padding:6px 3px;
+                border-radius:11px;
+                border:1px solid ${
+                    pagosDia.length
+                        ? "rgba(255,102,0,.55)"
+                        : "rgba(255,255,255,.06)"
+                };
+                background:${
+                    pagosDia.length
+                        ? "rgba(255,102,0,.08)"
+                        : "#181818"
+                };
+                color:#fff;
+                cursor:pointer;
+                font-family:inherit;
+            `;
+
+            boton.innerHTML = `
+
+                <div style="
+                    font-size:14px;
+                    font-weight:900;
+                ">
+                    ${dia}
+                </div>
+
+                ${
+                    pagosDia.length
+                    ? `
+                        <div style="
+                            color:#ff6500;
+                            font-size:10px;
+                            font-weight:900;
+                            margin-top:3px;
+                        ">
+                            S/${totalDia.toFixed(0)}
+                        </div>
+
+                        <div style="
+                            color:#888;
+                            font-size:8px;
+                            margin-top:2px;
+                        ">
+                            ${pagosDia.length}
+                            ${
+                                pagosDia.length === 1
+                                    ? "pago"
+                                    : "pagos"
+                            }
+                        </div>
+                    `
+                    : `
+                        <div style="
+                            color:#444;
+                            font-size:9px;
+                            margin-top:4px;
+                        ">
+                            —
+                        </div>
+                    `
+                }
+            `;
+
+            boton.onclick = function() {
+
+                mostrarDetalleDiaIngresos(
+                    dia,
+                    pagosDia,
+                    totalDia,
+                    año,
+                    mes
+                );
+
+            };
+
+            calendario.appendChild(
+                boton
+            );
+        }
+
+        document
+            .getElementById(
+                "cftIngresoAnterior"
+            )
+            .onclick = function() {
+
+                mes--;
+
+                if (mes < 1) {
+                    mes = 12;
+                    año--;
+                }
+
+                renderizar();
+            };
+
+        document
+            .getElementById(
+                "cftIngresoSiguiente"
+            )
+            .onclick = function() {
+
+                mes++;
+
+                if (mes > 12) {
+                    mes = 1;
+                    año++;
+                }
+
+                renderizar();
+            };
+    }
+
+    renderizar();
+
+    console.log(
+        "✅ CALENDARIO DE INGRESOS CARGADO EN RESUMEN"
+    );
+}
+
+
+// =====================================================
+// DETALLE DE INGRESOS POR DÍA
+// =====================================================
+
+function mostrarDetalleDiaIngresos(
+    dia,
+    pagosDia,
+    totalDia,
+    año,
+    mes
+) {
+
+    const detalle =
+        document.getElementById(
+            "cftDetalleDia"
+        );
+
+    if (!detalle) {
+        return;
+    }
+
+    if (!pagosDia.length) {
+
+        detalle.innerHTML = `
+            <div style="
+                padding:16px;
+                border-radius:13px;
+                background:#181818;
+                color:#777;
+                text-align:center;
+            ">
+                No hubo pagos este día.
+            </div>
+        `;
+
+        return;
+    }
+
+    detalle.innerHTML = `
+
+    
+        <div style="
+            background:#181818;
+            border-radius:15px;
+            padding:16px;
+            border:1px solid rgba(255,102,0,.35);
+        ">
+
+            <div style="
+                color:#ff6500;
+                font-size:11px;
+                font-weight:900;
+                letter-spacing:1px;
+            ">
+                DETALLE DEL DÍA
+            </div>
+
+            <div style="
+                font-size:21px;
+                font-weight:900;
+                margin-top:4px;
+            ">
+                ${String(dia).padStart(2,"0")}/
+                ${String(mes).padStart(2,"0")}/
+                ${año}
+            </div>
+
+            <div style="
+                display:flex;
+                gap:10px;
+                margin:13px 0;
+            ">
+
+                <div style="
+                    flex:1;
+                    background:#111;
+                    border-radius:11px;
+                    padding:11px;
+                ">
+
+                    <div style="
+                        font-size:9px;
+                        color:#777;
+                    ">
+                        TOTAL
+                    </div>
+
+                    <div style="
+                        color:#ff6500;
+                        font-size:19px;
+                        font-weight:900;
+                    ">
+                        S/${totalDia.toFixed(2)}
+                    </div>
+
+                </div>
+
+                <div style="
+                    flex:1;
+                    background:#111;
+                    border-radius:11px;
+                    padding:11px;
+                ">
+
+                    <div style="
+                        font-size:9px;
+                        color:#777;
+                    ">
+                        PAGOS
+                    </div>
+
+                    <div style="
+                        font-size:19px;
+                        font-weight:900;
+                    ">
+                        ${pagosDia.length}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div style="
+                display:flex;
+                flex-direction:column;
+                gap:7px;
+            ">
+
+                ${pagosDia.map(pago => `
+
+                    <div style="
+                        background:#111;
+                        border-radius:11px;
+                        padding:11px;
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:10px;
+                    ">
+
+                        <div style="
+                            min-width:0;
+                        ">
+
+                            <div style="
+                                font-size:13px;
+                                font-weight:800;
+                            ">
+                                ${
+                                    pago.NOMBRE ||
+                                    "SIN NOMBRE"
+                                }
+                            </div>
+
+                            <div style="
+                                color:#777;
+                                font-size:9px;
+                                margin-top:3px;
+                            ">
+                                ${
+                                    pago.PLAN ||
+                                    "SIN PLAN"
+                                }
+                                ${
+                                    pago.DURACIONPLAN
+                                        ? " • " +
+                                          pago.DURACIONPLAN
+                                        : ""
+                                }
+                            </div>
+
+                        </div>
+
+                        <div style="
+                            color:#ff6500;
+                            font-size:15px;
+                            font-weight:900;
+                            white-space:nowrap;
+                        ">
+                            S/${pago.monto.toFixed(2)}
+                        </div>
+
+                    </div>
+
+                `).join("")}
+
+            </div>
+
+        </div>
+    `;
+    const botonVolverModerno = document.createElement("button");
+
+botonVolverModerno.type = "button";
+botonVolverModerno.innerHTML = "‹&nbsp;&nbsp;Calendario";
+
+botonVolverModerno.style.cssText = `
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    height:32px;
+    padding:0 14px;
+    margin:0 auto 10px auto;
+    border-radius:9px;
+    border:1px solid rgba(255,102,0,.45);
+    background:#181818;
+    color:#fff;
+    font-family:inherit;
+    font-size:11px;
+    font-weight:700;
+    line-height:1;
+    cursor:pointer;
+    box-sizing:border-box;
+`;
+
+botonVolverModerno.onclick = function() {
+    detalle.innerHTML = "";
+};
+
+detalle.prepend(botonVolverModerno);
+}
+/* =========================================================
+   CFT — AUDITORÍA DE MOVIMIENTO MENSUAL
+   ========================================================= */
+
+async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
+
+    console.log(
+        "🔎 AUDITORÍA MOVIMIENTO:",
+        mesObjetivo
+    );
+
+    const inicioMes = mesObjetivo + "-01";
+
+    const partesMes = mesObjetivo.split("-");
+
+    const anioObjetivo =
+        Number(partesMes[0]);
+
+    const numeroMes =
+        Number(partesMes[1]);
+
+    const siguienteMes =
+        numeroMes === 12
+            ? `${anioObjetivo + 1}-01-01`
+            : `${anioObjetivo}-${String(numeroMes + 1).padStart(2, "0")}-01`;
+
+    async function cargarTodos(nombreTabla) {
+
+        let todos = [];
+        let desde = 0;
+        const cantidad = 1000;
+
+        while (true) {
+
+            const hasta =
+                desde + cantidad - 1;
+
+            const resultado =
+                await supabaseClient
+                    .from(nombreTabla)
+                    .select("*")
+                    .range(desde, hasta);
+
+            if (resultado.error) {
+                throw resultado.error;
+            }
+
+            const filas =
+                resultado.data || [];
+
+            todos = todos.concat(filas);
+
+            if (filas.length < cantidad) {
+                break;
+            }
+
+            desde += cantidad;
+
+        }
+
+        return todos;
+
+    }
+
+
+    const alumnos =
+        await cargarTodos("Alumnos");
+
+    const pagos =
+        await cargarTodos("Pagos");
+
+
+    console.log(
+        "👥 ALUMNOS CONSULTADOS:",
+        alumnos.length
+    );
+
+    console.log(
+        "💳 PAGOS CONSULTADOS:",
+        pagos.length
+    );
+
+
+    function fechaSolo(valor) {
+
+        if (!valor) {
+            return null;
+        }
+
+        const texto =
+            String(valor).trim();
+
+        if (!texto) {
+            return null;
+        }
+
+        const coincidencia =
+            texto.match(
+                /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
+            );
+
+        if (coincidencia) {
+
+            return (
+                coincidencia[1] +
+                "-" +
+                String(
+                    coincidencia[2]
+                ).padStart(2, "0") +
+                "-" +
+                String(
+                    coincidencia[3]
+                ).padStart(2, "0")
+            );
+
+        }
+
+        const partes =
+            texto.split(/[-\/]/);
+
+        if (partes.length === 3) {
+
+            let dia;
+            let mes;
+            let anio;
+
+            if (partes[0].length === 4) {
+
+                anio = Number(partes[0]);
+                mes = Number(partes[1]);
+                dia = Number(partes[2]);
+
+            } else {
+
+                dia = Number(partes[0]);
+                mes = Number(partes[1]);
+                anio = Number(partes[2]);
+
+                if (anio < 100) {
+                    anio += 2000;
+                }
+
+            }
+
+            if (
+                anio &&
+                mes >= 1 &&
+                mes <= 12 &&
+                dia >= 1 &&
+                dia <= 31
+            ) {
+
+                return (
+                    String(anio) +
+                    "-" +
+                    String(mes).padStart(2, "0") +
+                    "-" +
+                    String(dia).padStart(2, "0")
+                );
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+
+    function fechaUTC(fecha) {
+
+        if (!fecha) {
+            return null;
+        }
+
+        const partes =
+            fecha.split("-");
+
+        if (partes.length !== 3) {
+            return null;
+        }
+
+        return new Date(
+            Date.UTC(
+                Number(partes[0]),
+                Number(partes[1]) - 1,
+                Number(partes[2])
+            )
+        );
+
+    }
+
+
+    function diasEntre(
+        fechaA,
+        fechaB
+    ) {
+
+        const a =
+            fechaUTC(fechaA);
+
+        const b =
+            fechaUTC(fechaB);
+
+        if (!a || !b) {
+            return null;
+        }
+
+        return Math.round(
+            (
+                b.getTime() -
+                a.getTime()
+            ) /
+            (
+                1000 *
+                60 *
+                60 *
+                24
+            )
+        );
+
+    }
+
+
+    function restarUnDia(fecha) {
+
+        const f =
+            fechaUTC(fecha);
+
+        if (!f) {
+            return null;
+        }
+
+        f.setUTCDate(
+            f.getUTCDate() - 1
+        );
+
+        return (
+            f.getUTCFullYear() +
+            "-" +
+            String(
+                f.getUTCMonth() + 1
+            ).padStart(2, "0") +
+            "-" +
+            String(
+                f.getUTCDate()
+            ).padStart(2, "0")
+        );
+
+    }
+
+
+    function normalizar(valor) {
+
+        return String(
+            valor || ""
+        )
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            )
+            .replace(
+                /\s+/g,
+                " "
+            );
+
+    }
+
+
+    const mapaAlumnos =
+        new Map();
+
+
+    alumnos.forEach(function(alumno) {
+
+        const dni =
+            normalizar(
+                alumno["DNI"]
+            );
+
+        const nombre =
+            normalizar(
+                alumno["NOMBRE"]
+            );
+
+        const clave =
+            dni
+                ? "DNI:" + dni
+                : (
+                    nombre
+                        ? "NOMBRE:" + nombre
+                        : null
+                );
+
+        if (!clave) {
+            return;
+        }
+
+        mapaAlumnos.set(
+            clave,
+            alumno
+        );
+
+    });
+
+
+    function buscarAlumno(pago) {
+
+        const dni =
+            normalizar(
+                pago["DNI"]
+            );
+
+        if (dni) {
+
+            const encontrado =
+                mapaAlumnos.get(
+                    "DNI:" + dni
+                );
+
+            if (encontrado) {
+                return encontrado;
+            }
+
+        }
+
+        const nombre =
+            normalizar(
+                pago["NOMBRE"]
+            );
+
+        if (nombre) {
+
+            return mapaAlumnos.get(
+                "NOMBRE:" + nombre
+            ) || null;
+
+        }
+
+        return null;
+
+    }
+
+
+    const pagosMes =
+        pagos.filter(function(pago) {
+
+            const fecha =
+                fechaSolo(
+                    pago["FECHA"]
+                );
+
+            return (
+                fecha &&
+                fecha >= inicioMes &&
+                fecha < siguienteMes
+            );
+
+        });
+
+
+    console.log(
+        "💳 PAGOS DEL MES:",
+        pagosMes.length
+    );
+
+
+    const nuevos = [];
+    const renovaciones = [];
+    const exalumnos = [];
+    const salieron = [];
+
+
+    const idsNuevos =
+        new Set();
+
+    const idsRenovaciones =
+        new Set();
+
+    const idsExalumnos =
+        new Set();
+
+
+    /*
+     * 🟢 NUEVOS
+     */
+
+    alumnos.forEach(function(alumno) {
+
+        const creado =
+            fechaSolo(
+                alumno["created_at"]
+            );
+
+        const esNuevoReal =
+            creado &&
+            creado >= inicioMes &&
+            creado < siguienteMes &&
+            !(
+                mesObjetivo === "2026-09" &&
+                creado === "2026-09-05"
+            );
+
+        if (!esNuevoReal) {
+            return;
+        }
+
+        const clave =
+            String(
+                alumno["id"] ||
+                alumno["DNI"] ||
+                alumno["NOMBRE"]
+            );
+
+        if (
+            idsNuevos.has(clave)
+        ) {
+            return;
+        }
+
+        idsNuevos.add(clave);
+
+        nuevos.push({
+            id: alumno["id"],
+            nombre: alumno["NOMBRE"],
+            dni: alumno["DNI"],
+            created_at: creado,
+            fechaInicio:
+                alumno["FECHA INICIO"],
+            fechaVencimiento:
+                alumno["FECHA VENCIMIENTO"]
+        });
+
+    });
+
+
+    /*
+     * 🔵 RENOVACIONES
+     * 🟣 EXALUMNOS
+     */
+
+    pagosMes.forEach(function(pago) {
+
+        const alumno =
+            buscarAlumno(pago);
+
+        if (!alumno) {
+            return;
+        }
+
+
+        const clave =
+            String(
+                alumno["id"] ||
+                alumno["DNI"] ||
+                alumno["NOMBRE"]
+            );
+
+
+        /*
+         * Los alumnos creados durante
+         * el mes ya son NUEVOS.
+         * No se vuelven renovación.
+         */
+
+        if (
+            idsNuevos.has(clave)
+        ) {
+            return;
+        }
+
+
+        const fechaInicio =
+            fechaSolo(
+                alumno["FECHA INICIO"]
+            );
+
+        const fechaVencimiento =
+            fechaSolo(
+                alumno["FECHA VENCIMIENTO"]
+            );
+
+
+        /*
+         * Sin fechas = EXALUMNO
+         */
+
+        if (
+            !fechaInicio &&
+            !fechaVencimiento
+        ) {
+
+            if (
+                !idsExalumnos.has(clave)
+            ) {
+
+                idsExalumnos.add(clave);
+
+                exalumnos.push({
+
+                    id: alumno["id"],
+
+                    nombre:
+                        alumno["NOMBRE"],
+
+                    dni:
+                        alumno["DNI"],
+
+                    fechaPago:
+                        fechaSolo(
+                            pago["FECHA"]
+                        ),
+
+                    fechaVencimiento:
+                        null
+
+                });
+
+            }
+
+            return;
+
+        }
+
+
+        /*
+         * La fecha anterior de vencimiento
+         * se reconstruye como un día antes
+         * del inicio del ciclo actual.
+         */
+
+        const vencimientoAnterior =
+            restarUnDia(
+                fechaInicio
+            );
+
+
+        if (!vencimientoAnterior) {
+            return;
+        }
+
+
+        const fechaPago =
+            fechaSolo(
+                pago["FECHA"]
+            );
+
+
+        const diferencia =
+            diasEntre(
+                vencimientoAnterior,
+                fechaPago
+            );
+
+
+        /*
+         * 0 o menos = antes / mismo día
+         * 1 a 6 = renovación
+         * 7 o más = exalumno
+         */
+
+        if (
+            diferencia !== null &&
+            diferencia <= 6
+        ) {
+
+            if (
+                !idsRenovaciones.has(clave)
+            ) {
+
+                idsRenovaciones.add(
+                    clave
+                );
+
+                renovaciones.push({
+
+                    id: alumno["id"],
+
+                    nombre:
+                        alumno["NOMBRE"],
+
+                    dni:
+                        alumno["DNI"],
+
+                    fechaPago:
+                        fechaPago,
+
+                    fechaVencimiento:
+                        vencimientoAnterior,
+
+                    diasDiferencia:
+                        diferencia
+
+                });
+
+            }
+
+        } else if (
+            diferencia !== null &&
+            diferencia >= 7
+        ) {
+
+            if (
+                !idsExalumnos.has(clave)
+            ) {
+
+                idsExalumnos.add(clave);
+
+                exalumnos.push({
+
+                    id: alumno["id"],
+
+                    nombre:
+                        alumno["NOMBRE"],
+
+                    dni:
+                        alumno["DNI"],
+
+                    fechaPago:
+                        fechaPago,
+
+                    fechaVencimiento:
+                        vencimientoAnterior,
+
+                    diasDiferencia:
+                        diferencia
+
+                });
+
+            }
+
+        }
+
+    });
+
+
+    /*
+     * 🔴 SALIERON
+     */
+
+    const ahora =
+        new Date();
+
+    const fechaHoy =
+        ahora.getFullYear() +
+        "-" +
+        String(
+            ahora.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            ahora.getDate()
+        ).padStart(2, "0");
+
+
+    alumnos.forEach(function(alumno) {
+
+        const fechaVencimiento =
+            fechaSolo(
+                alumno["FECHA VENCIMIENTO"]
+            );
+
+        if (!fechaVencimiento) {
+            return;
+        }
+
+
+        if (
+            fechaVencimiento < inicioMes ||
+            fechaVencimiento >= siguienteMes
+        ) {
+            return;
+        }
+
+
+        /*
+         * En el mes actual solamente
+         * contamos vencimientos que
+         * ya ocurrieron.
+         */
+
+        if (
+            mesObjetivo ===
+            (
+                ahora.getFullYear() +
+                "-" +
+                String(
+                    ahora.getMonth() + 1
+                ).padStart(2, "0")
+            )
+        ) {
+
+            if (
+                fechaVencimiento >
+                fechaHoy
+            ) {
+                return;
+            }
+
+        }
+
+
+        const clave =
+            String(
+                alumno["id"] ||
+                alumno["DNI"] ||
+                alumno["NOMBRE"]
+            );
+
+
+        /*
+         * Los nuevos no salen.
+         */
+
+        if (
+            idsNuevos.has(clave)
+        ) {
+            return;
+        }
+
+
+        /*
+         * Los que renovaron no salen.
+         */
+
+        if (
+            idsRenovaciones.has(clave)
+        ) {
+            return;
+        }
+
+
+        /*
+         * Los exalumnos que regresaron
+         * tampoco salen.
+         */
+
+        if (
+            idsExalumnos.has(clave)
+        ) {
+            return;
+        }
+
+
+        salieron.push({
+
+            id:
+                alumno["id"],
+
+            nombre:
+                alumno["NOMBRE"],
+
+            dni:
+                alumno["DNI"],
+
+            fechaVencimiento:
+                fechaVencimiento
+
+        });
+
+    });
+
+
+    const resultado = {
+
+        mes:
+            mesObjetivo,
+
+        pagosMes:
+            pagosMes,
+
+        nuevos:
+            nuevos,
+
+        renovaciones:
+            renovaciones,
+
+        exalumnos:
+            exalumnos,
+
+        salieron:
+            salieron,
+
+        total:
+            nuevos.length +
+            renovaciones.length +
+            exalumnos.length +
+            salieron.length
+
+    };
+
+
+    window.__CFT_AUDITORIA_MENSUAL__ =
+        resultado;
+
+
+    console.log(
+        "🟢 NUEVOS:",
+        nuevos.length
+    );
+
+    console.log(
+        "🔵 RENOVACIONES:",
+        renovaciones.length
+    );
+
+    console.log(
+        "🟣 EXALUMNOS:",
+        exalumnos.length
+    );
+
+    console.log(
+        "🔴 SALIERON:",
+        salieron.length
+    );
+
+
+    return resultado;
+
+}
+/* =========================================================
+   CFT — MOVIMIENTO MENSUAL DEL RESUMEN
+   ========================================================= */
+
+(function() {
+
+    let mesMovimientoActual = new Date();
+
+    function obtenerMesMovimiento() {
+
+        return (
+            mesMovimientoActual.getFullYear() +
+            "-" +
+            String(
+                mesMovimientoActual.getMonth() + 1
+            ).padStart(2, "0")
+        );
+
+    }
+
+    function nombreMesMovimiento(fecha) {
+
+        const meses = [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+        ];
+
+        return (
+            meses[fecha.getMonth()] +
+            " " +
+            fecha.getFullYear()
+        );
+
+    }
+
+    function actualizarTextoMesMovimiento() {
+
+        const elemento =
+            document.getElementById(
+                "cftMovimientoMesTexto"
+            );
+
+        if (!elemento) {
+            return;
+        }
+
+        elemento.textContent =
+            nombreMesMovimiento(
+                mesMovimientoActual
+            );
+
+    }
+
+    async function actualizarMovimientoMensual() {
+
+        const mesObjetivo =
+            obtenerMesMovimiento();
+
+        console.log(
+            "📊 MOVIMIENTO MENSUAL:",
+            mesObjetivo
+        );
+
+        if (
+            typeof auditarMovimientoMensual !==
+            "function"
+        ) {
+
+            console.error(
+                "❌ No existe auditarMovimientoMensual()"
+            );
+
+            return;
+
+        }
+
+        try {
+
+            const auditoria =
+                await auditarMovimientoMensual(
+                    mesObjetivo
+                );
+
+            if (!auditoria) {
+
+                console.error(
+                    "❌ La auditoría no devolvió resultados"
+                );
+
+                return;
+
+            }
+
+            const nuevos =
+                Array.isArray(auditoria.nuevos)
+                    ? auditoria.nuevos.length
+                    : 0;
+
+            const renovaciones =
+                Array.isArray(auditoria.renovaciones)
+                    ? auditoria.renovaciones.length
+                    : 0;
+
+            const exalumnos =
+                Array.isArray(auditoria.exalumnos)
+                    ? auditoria.exalumnos.length
+                    : 0;
+
+            let salieron =
+                Array.isArray(auditoria.salieron)
+                    ? auditoria.salieron.length
+                    : 0;
+
+
+            /*
+             * Para el mes actual:
+             * solamente contamos como "Salieron"
+             * los vencimientos que ya ocurrieron.
+             *
+             * Así no contamos como salidos los
+             * vencimientos futuros del mismo mes.
+             */
+
+            const ahora = new Date();
+
+            const esMesActual =
+                mesObjetivo ===
+                (
+                    ahora.getFullYear() +
+                    "-" +
+                    String(
+                        ahora.getMonth() + 1
+                    ).padStart(2, "0")
+                );
+
+            if (
+                esMesActual &&
+                Array.isArray(auditoria.salieron)
+            ) {
+
+                const fechaHoy =
+                    ahora.getFullYear() +
+                    "-" +
+                    String(
+                        ahora.getMonth() + 1
+                    ).padStart(2, "0") +
+                    "-" +
+                    String(
+                        ahora.getDate()
+                    ).padStart(2, "0");
+
+                salieron =
+                    auditoria.salieron.filter(
+                        function(alumno) {
+
+                            const fecha =
+                                String(
+                                    alumno.fechaVencimiento ||
+                                    alumno["FECHA VENCIMIENTO"] ||
+                                    ""
+                                ).trim();
+
+                            return (
+                                fecha &&
+                                fecha <= fechaHoy
+                            );
+
+                        }
+                    ).length;
+
+            }
+
+
+            const elementoNuevos =
+                document.getElementById(
+                    "cftMovimientoNuevos"
+                );
+
+            const elementoRenovaciones =
+                document.getElementById(
+                    "cftMovimientoRenovaciones"
+                );
+
+            const elementoExalumnos =
+                document.getElementById(
+                    "cftMovimientoExalumnos"
+                );
+
+            const elementoSalieron =
+                document.getElementById(
+                    "cftMovimientoSalieron"
+                );
+
+
+            if (elementoNuevos) {
+
+                elementoNuevos.textContent =
+                    nuevos;
+
+            }
+
+            if (elementoRenovaciones) {
+
+                elementoRenovaciones.textContent =
+                    renovaciones;
+
+            }
+
+            if (elementoExalumnos) {
+
+                elementoExalumnos.textContent =
+                    exalumnos;
+
+            }
+
+            if (elementoSalieron) {
+
+                elementoSalieron.textContent =
+                    salieron;
+
+            }
+
+
+            console.log(
+                "✅ MOVIMIENTO MENSUAL ACTUALIZADO:",
+                {
+                    mes: mesObjetivo,
+                    nuevos: nuevos,
+                    renovaciones: renovaciones,
+                    exalumnos: exalumnos,
+                    salieron: salieron
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ ERROR MOVIMIENTO MENSUAL:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function cambiarMesMovimiento(cantidad) {
+
+        mesMovimientoActual =
+            new Date(
+                mesMovimientoActual.getFullYear(),
+                mesMovimientoActual.getMonth() + cantidad,
+                1
+            );
+
+        actualizarTextoMesMovimiento();
+
+        actualizarMovimientoMensual();
+
+    }
+
+
+    function iniciarMovimientoMensual() {
+
+        const tarjeta =
+            document.getElementById(
+                "cftMovimientoMensual"
+            );
+
+        if (!tarjeta) {
+
+            console.log(
+                "ℹ️ Movimiento mensual: tarjeta todavía no disponible"
+            );
+
+            return;
+
+        }
+
+
+        const botonAnterior =
+            document.getElementById(
+                "cftMovimientoMesAnterior"
+            );
+
+        const botonSiguiente =
+            document.getElementById(
+                "cftMovimientoMesSiguiente"
+            );
+
+
+        if (botonAnterior) {
+
+            botonAnterior.addEventListener(
+                "click",
+                function() {
+
+                    cambiarMesMovimiento(-1);
+
+                }
+            );
+
+        }
+
+
+        if (botonSiguiente) {
+
+            botonSiguiente.addEventListener(
+                "click",
+                function() {
+
+                    cambiarMesMovimiento(1);
+
+                }
+            );
+
+        }
+
+
+        actualizarTextoMesMovimiento();
+
+        actualizarMovimientoMensual();
+
+        console.log(
+            "✅ MOVIMIENTO MENSUAL CONECTADO"
+        );
+
+    }
+
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            iniciarMovimientoMensual
+        );
+
+    } else {
+
+        iniciarMovimientoMensual();
+
+    }
+
+
+    window.actualizarMovimientoMensual =
+        actualizarMovimientoMensual;
+
+})();
