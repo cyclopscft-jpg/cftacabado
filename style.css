@@ -718,7 +718,7 @@ max-width: 100% !important;
 
 #pantallaInicio .primary-button:hover {
 
-    transform: translateY(-2px) !important;
+    transform: none !important;
 }
 
 #pantallaInicio .primary-button:active {
