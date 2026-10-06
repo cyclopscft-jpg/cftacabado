@@ -16918,15 +16918,16 @@ async function cargarCalendarioIngresos() {
         "cftCalendarioIngresosPrueba";
 
     bloque.style.cssText = `
-        margin: 20px 0;
-        padding: 20px;
-        background: #111;
-        border: 1px solid rgba(255,102,0,.35);
-        border-radius: 18px;
-        box-sizing: border-box;
-        font-family: Inter, "Helvetica Neue", Arial, sans-serif;
-        color: #f5f5f5;
-    `;
+    margin: 20px -6px;
+    width: calc(100% + 12px);
+    padding: 20px;
+    background: #111;
+    border: 1px solid rgba(255,102,0,.35);
+    border-radius: 18px;
+    box-sizing: border-box;
+    font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+    color: #f5f5f5;
+`;
 
     const tarjetas =
         Array.from(
@@ -18292,7 +18293,89 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
 
     });
 
+const hoyMovimiento =
+    new Date();
 
+const añoActualMovimiento =
+    hoyMovimiento.getFullYear();
+
+const mesActualMovimiento =
+    hoyMovimiento.getMonth() + 1;
+
+const partesMesMovimiento =
+    String(mesObjetivo).split("-");
+
+const añoObjetivoMovimiento =
+    Number(partesMesMovimiento[0]);
+
+const mesObjetivoMovimiento =
+    Number(partesMesMovimiento[1]);
+
+const indiceObjetivoMovimiento =
+    (
+        añoObjetivoMovimiento * 12
+    ) +
+    mesObjetivoMovimiento;
+
+const indiceActualMovimiento =
+    (
+        añoActualMovimiento * 12
+    ) +
+    mesActualMovimiento;
+
+
+/* =========================================
+   SALIERON — NO CONTAR MESES FUTUROS
+   ========================================= */
+
+if (
+    indiceObjetivoMovimiento >
+    indiceActualMovimiento
+) {
+
+    salieron.length = 0;
+
+} else if (
+    indiceObjetivoMovimiento ===
+    indiceActualMovimiento
+) {
+
+    const fechaHoyMovimiento =
+        hoyMovimiento.getFullYear() +
+        "-" +
+        String(
+            hoyMovimiento.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            hoyMovimiento.getDate()
+        ).padStart(2, "0");
+
+    const salieronReales =
+        salieron.filter(
+            alumno => {
+
+                const fecha =
+                    String(
+                        alumno.fechaVencimiento ||
+                        alumno["FECHA VENCIMIENTO"] ||
+                        ""
+                    ).trim();
+
+                return (
+                    fecha &&
+                    fecha <= fechaHoyMovimiento
+                );
+
+            }
+        );
+
+    salieron.length = 0;
+
+    salieron.push(
+        ...salieronReales
+    );
+}
     const resultado = {
 
         mes:
