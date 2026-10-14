@@ -640,7 +640,7 @@ const fechaPago =
         await actualizarAlertasMembresias();
 
         await actualizarAlumnosSinAsistencia();
-
+await actualizarMovimientoMensual();
 
         // ==============================
         // MENSAJE DE ÉXITO
@@ -2713,7 +2713,7 @@ console.log("📦 DATOS ALUMNO:", datosAlumno);
 
     await actualizarIngresosMes();
 
-
+await actualizarMovimientoMensual();
     // ==============================
     // VOLVER A LA FICHA
     // ==============================
@@ -3038,6 +3038,7 @@ async function registrarRenovacion(
     ) {
 
         await actualizarDashboardInicio();
+        await actualizarMovimientoMensual();
     }
 
     // ==============================
@@ -17532,72 +17533,142 @@ detalle.prepend(botonVolverModerno);
    CFT — AUDITORÍA DE MOVIMIENTO MENSUAL
    ========================================================= */
 
-async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
+async function auditarMovimientoMensual(
+    mesObjetivo = "2026-10"
+) {
 
     console.log(
         "🔎 AUDITORÍA MOVIMIENTO:",
         mesObjetivo
     );
 
-    const inicioMes = mesObjetivo + "-01";
 
-    const partesMes = mesObjetivo.split("-");
+    /* =========================================================
+       FECHAS DEL MES
+       ========================================================= */
 
-    const anioObjetivo =
+    const partesMes =
+        String(mesObjetivo)
+            .split("-");
+
+    const añoObjetivo =
         Number(partesMes[0]);
 
-    const numeroMes =
+    const mesNumeroObjetivo =
         Number(partesMes[1]);
 
-    const siguienteMes =
-        numeroMes === 12
-            ? `${anioObjetivo + 1}-01-01`
-            : `${anioObjetivo}-${String(numeroMes + 1).padStart(2, "0")}-01`;
+    if (
+        !añoObjetivo ||
+        !mesNumeroObjetivo
+    ) {
 
-    async function cargarTodos(nombreTabla) {
+        console.error(
+            "❌ MES OBJETIVO INVÁLIDO:",
+            mesObjetivo
+        );
 
-        let todos = [];
-        let desde = 0;
-        const cantidad = 1000;
-
-        while (true) {
-
-            const hasta =
-                desde + cantidad - 1;
-
-            const resultado =
-                await supabaseClient
-                    .from(nombreTabla)
-                    .select("*")
-                    .range(desde, hasta);
-
-            if (resultado.error) {
-                throw resultado.error;
-            }
-
-            const filas =
-                resultado.data || [];
-
-            todos = todos.concat(filas);
-
-            if (filas.length < cantidad) {
-                break;
-            }
-
-            desde += cantidad;
-
-        }
-
-        return todos;
+        return null;
 
     }
 
 
-    const alumnos =
-        await cargarTodos("Alumnos");
+    const inicioMes =
+        añoObjetivo +
+        "-" +
+        String(
+            mesNumeroObjetivo
+        ).padStart(2, "0") +
+        "-01";
 
-    const pagos =
-        await cargarTodos("Pagos");
+
+    let siguienteAño =
+        añoObjetivo;
+
+    let siguienteMesNumero =
+        mesNumeroObjetivo + 1;
+
+
+    if (
+        siguienteMesNumero > 12
+    ) {
+
+        siguienteMesNumero = 1;
+        siguienteAño++;
+
+    }
+
+
+    const siguienteMes =
+        siguienteAño +
+        "-" +
+        String(
+            siguienteMesNumero
+        ).padStart(2, "0") +
+        "-01";
+
+
+    /* =========================================================
+       CONSULTAR ALUMNOS
+       ========================================================= */
+
+    let alumnos = [];
+
+    let desdeAlumnos = 0;
+
+    const tamañoPagina = 1000;
+
+
+    while (true) {
+
+        const hastaAlumnos =
+            desdeAlumnos +
+            tamañoPagina -
+            1;
+
+        const { data, error } =
+            await supabaseClient
+                .from("Alumnos")
+                .select("*")
+                .range(
+                    desdeAlumnos,
+                    hastaAlumnos
+                );
+
+        if (error) {
+
+            console.error(
+                "❌ ERROR CONSULTANDO ALUMNOS:",
+                error
+            );
+
+            return null;
+
+        }
+
+        if (
+            Array.isArray(data)
+        ) {
+
+            alumnos.push(
+                ...data
+            );
+
+        }
+
+        if (
+            !data ||
+            data.length <
+            tamañoPagina
+        ) {
+
+            break;
+
+        }
+
+        desdeAlumnos +=
+            tamañoPagina;
+
+    }
 
 
     console.log(
@@ -17605,92 +17676,166 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
         alumnos.length
     );
 
+
+    /* =========================================================
+       CONSULTAR PAGOS
+       ========================================================= */
+
+    let pagos = [];
+
+    let desdePagos = 0;
+
+
+    while (true) {
+
+        const hastaPagos =
+            desdePagos +
+            tamañoPagina -
+            1;
+
+        const { data, error } =
+            await supabaseClient
+                .from("Pagos")
+                .select("*")
+                .range(
+                    desdePagos,
+                    hastaPagos
+                );
+
+        if (error) {
+
+            console.error(
+                "❌ ERROR CONSULTANDO PAGOS:",
+                error
+            );
+
+            return null;
+
+        }
+
+        if (
+            Array.isArray(data)
+        ) {
+
+            pagos.push(
+                ...data
+            );
+
+        }
+
+        if (
+            !data ||
+            data.length <
+            tamañoPagina
+        ) {
+
+            break;
+
+        }
+
+        desdePagos +=
+            tamañoPagina;
+
+    }
+
+
     console.log(
         "💳 PAGOS CONSULTADOS:",
         pagos.length
     );
 
 
-    function fechaSolo(valor) {
+    /* =========================================================
+       FUNCIONES AUXILIARES
+       ========================================================= */
 
-        if (!valor) {
+    function normalizar(valor) {
+
+        return String(
+            valor || ""
+        )
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            )
+            .replace(
+                /\s+/g,
+                " "
+            );
+
+    }
+
+
+    function fechaSolo(fecha) {
+
+        if (!fecha) {
             return null;
         }
 
         const texto =
-            String(valor).trim();
+            String(fecha)
+                .trim()
+                .split("T")[0];
 
-        if (!texto) {
-            return null;
-        }
 
-        const coincidencia =
-            texto.match(
-                /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
-            );
+        let partes =
+            texto.split("-");
 
-        if (coincidencia) {
+
+        if (
+            partes.length === 3 &&
+            partes[0].length === 4
+        ) {
 
             return (
-                coincidencia[1] +
+                String(partes[0]) +
                 "-" +
-                String(
-                    coincidencia[2]
-                ).padStart(2, "0") +
+                String(partes[1]).padStart(2, "0") +
                 "-" +
-                String(
-                    coincidencia[3]
-                ).padStart(2, "0")
+                String(partes[2]).padStart(2, "0")
             );
 
         }
 
-        const partes =
-            texto.split(/[-\/]/);
 
-        if (partes.length === 3) {
+        if (
+            partes.length === 3 &&
+            partes[2].length === 4
+        ) {
 
-            let dia;
-            let mes;
-            let anio;
-
-            if (partes[0].length === 4) {
-
-                anio = Number(partes[0]);
-                mes = Number(partes[1]);
-                dia = Number(partes[2]);
-
-            } else {
-
-                dia = Number(partes[0]);
-                mes = Number(partes[1]);
-                anio = Number(partes[2]);
-
-                if (anio < 100) {
-                    anio += 2000;
-                }
-
-            }
-
-            if (
-                anio &&
-                mes >= 1 &&
-                mes <= 12 &&
-                dia >= 1 &&
-                dia <= 31
-            ) {
-
-                return (
-                    String(anio) +
-                    "-" +
-                    String(mes).padStart(2, "0") +
-                    "-" +
-                    String(dia).padStart(2, "0")
-                );
-
-            }
+            return (
+                String(partes[2]) +
+                "-" +
+                String(partes[1]).padStart(2, "0") +
+                "-" +
+                String(partes[0]).padStart(2, "0")
+            );
 
         }
+
+
+        partes =
+            texto.split("/");
+
+
+        if (
+            partes.length === 3 &&
+            partes[2].length === 4
+        ) {
+
+            return (
+                String(partes[2]) +
+                "-" +
+                String(partes[1]).padStart(2, "0") +
+                "-" +
+                String(partes[0]).padStart(2, "0")
+            );
+
+        }
+
 
         return null;
 
@@ -17706,8 +17851,12 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
         const partes =
             fecha.split("-");
 
-        if (partes.length !== 3) {
+        if (
+            partes.length !== 3
+        ) {
+
             return null;
+
         }
 
         return new Date(
@@ -17732,8 +17881,13 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
         const b =
             fechaUTC(fechaB);
 
-        if (!a || !b) {
+        if (
+            !a ||
+            !b
+        ) {
+
             return null;
+
         }
 
         return Math.round(
@@ -17752,7 +17906,9 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
     }
 
 
-    function restarUnDia(fecha) {
+    function restarUnDia(
+        fecha
+    ) {
 
         const f =
             fechaUTC(fecha);
@@ -17780,116 +17936,130 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
     }
 
 
-    function normalizar(valor) {
+    /* =========================================================
+       IDENTIFICACIÓN DEL ALUMNO
+       NOMBRE = PRINCIPAL
+       DNI = RESPALDO
+       ========================================================= */
 
-        return String(
-            valor || ""
-        )
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(
-                /[\u0300-\u036f]/g,
-                ""
-            )
-            .replace(
-                /\s+/g,
-                " "
-            );
+    const mapaAlumnosPorNombre =
+        new Map();
 
-    }
-
-
-    const mapaAlumnos =
+    const mapaAlumnosPorDni =
         new Map();
 
 
-    alumnos.forEach(function(alumno) {
+    alumnos.forEach(
+        function(alumno) {
 
-        const dni =
-            normalizar(
-                alumno["DNI"]
-            );
-
-        const nombre =
-            normalizar(
-                alumno["NOMBRE"]
-            );
-
-        const clave =
-            dni
-                ? "DNI:" + dni
-                : (
-                    nombre
-                        ? "NOMBRE:" + nombre
-                        : null
+            const nombre =
+                normalizar(
+                    alumno["NOMBRE"]
                 );
 
-        if (!clave) {
-            return;
-        }
-
-        mapaAlumnos.set(
-            clave,
-            alumno
-        );
-
-    });
-
-
-    function buscarAlumno(pago) {
-
-        const dni =
-            normalizar(
-                pago["DNI"]
-            );
-
-        if (dni) {
-
-            const encontrado =
-                mapaAlumnos.get(
-                    "DNI:" + dni
+            const dni =
+                normalizar(
+                    alumno["DNI"]
                 );
 
-            if (encontrado) {
-                return encontrado;
+
+            if (nombre) {
+
+                mapaAlumnosPorNombre.set(
+                    nombre,
+                    alumno
+                );
+
+            }
+
+
+            if (dni) {
+
+                mapaAlumnosPorDni.set(
+                    dni,
+                    alumno
+                );
+
             }
 
         }
+    );
+
+
+    function buscarAlumno(
+        pago
+    ) {
 
         const nombre =
             normalizar(
                 pago["NOMBRE"]
             );
 
+
         if (nombre) {
 
-            return mapaAlumnos.get(
-                "NOMBRE:" + nombre
-            ) || null;
+            const alumnoPorNombre =
+                mapaAlumnosPorNombre.get(
+                    nombre
+                );
+
+            if (alumnoPorNombre) {
+
+                return alumnoPorNombre;
+
+            }
 
         }
+
+
+        const dni =
+            normalizar(
+                pago["DNI"]
+            );
+
+
+        if (dni) {
+
+            const alumnoPorDni =
+                mapaAlumnosPorDni.get(
+                    dni
+                );
+
+            if (alumnoPorDni) {
+
+                return alumnoPorDni;
+
+            }
+
+        }
+
 
         return null;
 
     }
 
 
-    const pagosMes =
-        pagos.filter(function(pago) {
+    /* =========================================================
+       PAGOS DEL MES
+       ========================================================= */
 
-            const fecha =
-                fechaSolo(
-                    pago["FECHA"]
+    const pagosMes =
+        pagos.filter(
+            function(pago) {
+
+                const fecha =
+                    fechaSolo(
+                        pago["FECHA"]
+                    );
+
+                return (
+                    fecha &&
+                    fecha >= inicioMes &&
+                    fecha < siguienteMes
                 );
 
-            return (
-                fecha &&
-                fecha >= inicioMes &&
-                fecha < siguienteMes
-            );
-
-        });
+            }
+        );
 
 
     console.log(
@@ -17914,475 +18084,660 @@ async function auditarMovimientoMensual(mesObjetivo = "2026-10") {
         new Set();
 
 
-    /*
-     * 🟢 NUEVOS
-     */
+    /* =========================================================
+       🟢 NUEVOS
+       ========================================================= */
 
-    alumnos.forEach(function(alumno) {
+    alumnos.forEach(
+        function(alumno) {
 
-        const creado =
-            fechaSolo(
-                alumno["created_at"]
-            );
-
-        const esNuevoReal =
-            creado &&
-            creado >= inicioMes &&
-            creado < siguienteMes &&
-            !(
-                mesObjetivo === "2026-09" &&
-                creado === "2026-09-05"
-            );
-
-        if (!esNuevoReal) {
-            return;
-        }
-
-        const clave =
-            String(
-                alumno["id"] ||
-                alumno["DNI"] ||
-                alumno["NOMBRE"]
-            );
-
-        if (
-            idsNuevos.has(clave)
-        ) {
-            return;
-        }
-
-        idsNuevos.add(clave);
-
-        nuevos.push({
-            id: alumno["id"],
-            nombre: alumno["NOMBRE"],
-            dni: alumno["DNI"],
-            created_at: creado,
-            fechaInicio:
-                alumno["FECHA INICIO"],
-            fechaVencimiento:
-                alumno["FECHA VENCIMIENTO"]
-        });
-
-    });
-
-
-    /*
-     * 🔵 RENOVACIONES
-     * 🟣 EXALUMNOS
-     */
-
-    pagosMes.forEach(function(pago) {
-
-        const alumno =
-            buscarAlumno(pago);
-
-        if (!alumno) {
-            return;
-        }
-
-
-        const clave =
-            String(
-                alumno["id"] ||
-                alumno["DNI"] ||
-                alumno["NOMBRE"]
-            );
-
-
-        /*
-         * Los alumnos creados durante
-         * el mes ya son NUEVOS.
-         * No se vuelven renovación.
-         */
-
-        if (
-            idsNuevos.has(clave)
-        ) {
-            return;
-        }
-
-
-        const fechaInicio =
-            fechaSolo(
-                alumno["FECHA INICIO"]
-            );
-
-        const fechaVencimiento =
-            fechaSolo(
-                alumno["FECHA VENCIMIENTO"]
-            );
-
-
-        /*
-         * Sin fechas = EXALUMNO
-         */
-
-        if (
-            !fechaInicio &&
-            !fechaVencimiento
-        ) {
-
-            if (
-                !idsExalumnos.has(clave)
-            ) {
-
-                idsExalumnos.add(clave);
-
-                exalumnos.push({
-
-                    id: alumno["id"],
-
-                    nombre:
-                        alumno["NOMBRE"],
-
-                    dni:
-                        alumno["DNI"],
-
-                    fechaPago:
-                        fechaSolo(
-                            pago["FECHA"]
-                        ),
-
-                    fechaVencimiento:
-                        null
-
-                });
-
-            }
-
-            return;
-
-        }
-
-
-        /*
-         * La fecha anterior de vencimiento
-         * se reconstruye como un día antes
-         * del inicio del ciclo actual.
-         */
-
-        const vencimientoAnterior =
-            restarUnDia(
-                fechaInicio
-            );
-
-
-        if (!vencimientoAnterior) {
-            return;
-        }
-
-
-        const fechaPago =
-            fechaSolo(
-                pago["FECHA"]
-            );
-
-
-        const diferencia =
-            diasEntre(
-                vencimientoAnterior,
-                fechaPago
-            );
-
-
-        /*
-         * 0 o menos = antes / mismo día
-         * 1 a 6 = renovación
-         * 7 o más = exalumno
-         */
-
-        if (
-            diferencia !== null &&
-            diferencia <= 6
-        ) {
-
-            if (
-                !idsRenovaciones.has(clave)
-            ) {
-
-                idsRenovaciones.add(
-                    clave
+            const creado =
+                fechaSolo(
+                    alumno["created_at"]
                 );
 
-                renovaciones.push({
 
-                    id: alumno["id"],
-
-                    nombre:
-                        alumno["NOMBRE"],
-
-                    dni:
-                        alumno["DNI"],
-
-                    fechaPago:
-                        fechaPago,
-
-                    fechaVencimiento:
-                        vencimientoAnterior,
-
-                    diasDiferencia:
-                        diferencia
-
-                });
-
-            }
-
-        } else if (
-            diferencia !== null &&
-            diferencia >= 7
-        ) {
-
-            if (
-                !idsExalumnos.has(clave)
-            ) {
-
-                idsExalumnos.add(clave);
-
-                exalumnos.push({
-
-                    id: alumno["id"],
-
-                    nombre:
-                        alumno["NOMBRE"],
-
-                    dni:
-                        alumno["DNI"],
-
-                    fechaPago:
-                        fechaPago,
-
-                    fechaVencimiento:
-                        vencimientoAnterior,
-
-                    diasDiferencia:
-                        diferencia
-
-                });
-
-            }
-
-        }
-
-    });
+            const esNuevoReal =
+                creado &&
+                creado >= inicioMes &&
+                creado < siguienteMes &&
+                !(
+                    mesObjetivo === "2026-09" &&
+                    creado === "2026-09-05"
+                );
 
 
-    /*
-     * 🔴 SALIERON
-     */
-
-    const ahora =
-        new Date();
-
-    const fechaHoy =
-        ahora.getFullYear() +
-        "-" +
-        String(
-            ahora.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            ahora.getDate()
-        ).padStart(2, "0");
-
-
-    alumnos.forEach(function(alumno) {
-
-        const fechaVencimiento =
-            fechaSolo(
-                alumno["FECHA VENCIMIENTO"]
-            );
-
-        if (!fechaVencimiento) {
-            return;
-        }
-
-
-        if (
-            fechaVencimiento < inicioMes ||
-            fechaVencimiento >= siguienteMes
-        ) {
-            return;
-        }
-
-
-        /*
-         * En el mes actual solamente
-         * contamos vencimientos que
-         * ya ocurrieron.
-         */
-
-        if (
-            mesObjetivo ===
-            (
-                ahora.getFullYear() +
-                "-" +
-                String(
-                    ahora.getMonth() + 1
-                ).padStart(2, "0")
-            )
-        ) {
-
-            if (
-                fechaVencimiento >
-                fechaHoy
-            ) {
+            if (!esNuevoReal) {
                 return;
             }
 
-        }
+
+            const clave =
+                String(
+                    alumno["id"] ||
+                    normalizar(
+                        alumno["NOMBRE"]
+                    )
+                );
 
 
-        const clave =
-            String(
-                alumno["id"] ||
-                alumno["DNI"] ||
-                alumno["NOMBRE"]
+            if (
+                idsNuevos.has(clave)
+            ) {
+
+                return;
+
+            }
+
+
+            idsNuevos.add(
+                clave
             );
 
 
-        /*
-         * Los nuevos no salen.
-         */
+            nuevos.push({
 
-        if (
-            idsNuevos.has(clave)
-        ) {
-            return;
+                id:
+                    alumno["id"],
+
+                nombre:
+                    alumno["NOMBRE"],
+
+                dni:
+                    alumno["DNI"],
+
+                created_at:
+                    creado,
+
+                fechaInicio:
+                    alumno["FECHA INICIO"],
+
+                fechaVencimiento:
+                    alumno["FECHA VENCIMIENTO"]
+
+            });
+
         }
+    );
 
 
-        /*
-         * Los que renovaron no salen.
-         */
+    /* =========================================================
+       🔵 RENOVACIONES
+       🟣 EXALUMNOS
+       ========================================================= */
 
-        if (
-            idsRenovaciones.has(clave)
-        ) {
-            return;
-        }
+    pagosMes.forEach(
+        function(pago) {
 
-
-        /*
-         * Los exalumnos que regresaron
-         * tampoco salen.
-         */
-
-        if (
-            idsExalumnos.has(clave)
-        ) {
-            return;
-        }
-
-
-        salieron.push({
-
-            id:
-                alumno["id"],
-
-            nombre:
-                alumno["NOMBRE"],
-
-            dni:
-                alumno["DNI"],
-
-            fechaVencimiento:
-                fechaVencimiento
-
-        });
-
-    });
-
-const hoyMovimiento =
-    new Date();
-
-const añoActualMovimiento =
-    hoyMovimiento.getFullYear();
-
-const mesActualMovimiento =
-    hoyMovimiento.getMonth() + 1;
-
-const partesMesMovimiento =
-    String(mesObjetivo).split("-");
-
-const añoObjetivoMovimiento =
-    Number(partesMesMovimiento[0]);
-
-const mesObjetivoMovimiento =
-    Number(partesMesMovimiento[1]);
-
-const indiceObjetivoMovimiento =
-    (
-        añoObjetivoMovimiento * 12
-    ) +
-    mesObjetivoMovimiento;
-
-const indiceActualMovimiento =
-    (
-        añoActualMovimiento * 12
-    ) +
-    mesActualMovimiento;
-
-
-/* =========================================
-   SALIERON — NO CONTAR MESES FUTUROS
-   ========================================= */
-
-if (
-    indiceObjetivoMovimiento >
-    indiceActualMovimiento
-) {
-
-    salieron.length = 0;
-
-} else if (
-    indiceObjetivoMovimiento ===
-    indiceActualMovimiento
-) {
-
-    const fechaHoyMovimiento =
-        hoyMovimiento.getFullYear() +
-        "-" +
-        String(
-            hoyMovimiento.getMonth() + 1
-        ).padStart(2, "0") +
-        "-" +
-        String(
-            hoyMovimiento.getDate()
-        ).padStart(2, "0");
-
-    const salieronReales =
-        salieron.filter(
-            alumno => {
-
-                const fecha =
-                    String(
-                        alumno.fechaVencimiento ||
-                        alumno["FECHA VENCIMIENTO"] ||
-                        ""
-                    ).trim();
-
-                return (
-                    fecha &&
-                    fecha <= fechaHoyMovimiento
+            const alumno =
+                buscarAlumno(
+                    pago
                 );
 
+
+            if (!alumno) {
+
+                console.warn(
+                    "⚠️ PAGO SIN ALUMNO:",
+                    pago
+                );
+
+                return;
+
             }
-        );
 
-    salieron.length = 0;
 
-    salieron.push(
-        ...salieronReales
+            const clave =
+                String(
+                    alumno["id"] ||
+                    normalizar(
+                        alumno["NOMBRE"]
+                    )
+                );
+
+
+            /* =================================================
+               LOS NUEVOS NO SON RENOVACIONES
+               ================================================= */
+
+            if (
+                idsNuevos.has(clave)
+            ) {
+
+                return;
+
+            }
+
+
+            const fechaPago =
+                fechaSolo(
+                    pago["FECHA"]
+                );
+
+
+            if (!fechaPago) {
+
+                return;
+
+            }
+
+
+            /* =================================================
+               HISTORIAL ANTERIOR DEL MISMO ALUMNO
+               POR NOMBRE PRINCIPAL
+               ================================================= */
+
+            const nombreAlumno =
+                normalizar(
+                    alumno["NOMBRE"]
+                );
+
+
+            const dniAlumno =
+                normalizar(
+                    alumno["DNI"]
+                );
+
+
+            const pagosAnteriores =
+                pagos.filter(
+                    function(
+                        pagoAnterior
+                    ) {
+
+                        const fechaAnterior =
+                            fechaSolo(
+                                pagoAnterior["FECHA"]
+                            );
+
+
+                        if (
+                            !fechaAnterior ||
+                            fechaAnterior >= fechaPago
+                        ) {
+
+                            return false;
+
+                        }
+
+
+                        const nombrePagoAnterior =
+                            normalizar(
+                                pagoAnterior["NOMBRE"]
+                            );
+
+
+                        if (
+                            nombreAlumno &&
+                            nombrePagoAnterior ===
+                            nombreAlumno
+                        ) {
+
+                            return true;
+
+                        }
+
+
+                        const dniPagoAnterior =
+                            normalizar(
+                                pagoAnterior["DNI"]
+                            );
+
+
+                        return (
+                            !nombreAlumno &&
+                            dniAlumno &&
+                            dniPagoAnterior ===
+                            dniAlumno
+                        );
+
+                    }
+                );
+
+
+            /* =================================================
+               SI EL ALUMNO HISTÓRICO NUNCA HABÍA TENIDO
+               UN PAGO ANTERIOR, ES EXALUMNO QUE REGRESA
+               ================================================= */
+
+            if (
+                pagosAnteriores.length === 0
+            ) {
+
+                if (
+                    !idsExalumnos.has(clave)
+                ) {
+
+                    idsExalumnos.add(
+                        clave
+                    );
+
+
+                    exalumnos.push({
+
+                        id:
+                            alumno["id"],
+
+                        nombre:
+                            alumno["NOMBRE"],
+
+                        dni:
+                            alumno["DNI"],
+
+                        fechaPago:
+                            fechaPago,
+
+                        fechaVencimiento:
+                            fechaSolo(
+                                alumno[
+                                    "FECHA VENCIMIENTO"
+                                ]
+                            )
+
+                    });
+
+                }
+
+                return;
+
+            }
+
+
+            /* =================================================
+               SIN FECHAS = EXALUMNO
+               ================================================= */
+
+            const fechaInicio =
+                fechaSolo(
+                    alumno[
+                        "FECHA INICIO"
+                    ]
+                );
+
+
+            const fechaVencimiento =
+                fechaSolo(
+                    alumno[
+                        "FECHA VENCIMIENTO"
+                    ]
+                );
+
+
+            if (
+                !fechaInicio &&
+                !fechaVencimiento
+            ) {
+
+                if (
+                    !idsExalumnos.has(clave)
+                ) {
+
+                    idsExalumnos.add(
+                        clave
+                    );
+
+
+                    exalumnos.push({
+
+                        id:
+                            alumno["id"],
+
+                        nombre:
+                            alumno["NOMBRE"],
+
+                        dni:
+                            alumno["DNI"],
+
+                        fechaPago:
+                            fechaPago,
+
+                        fechaVencimiento:
+                            null
+
+                    });
+
+                }
+
+                return;
+
+            }
+
+
+            /* =================================================
+               VENCIMIENTO ANTERIOR
+               ================================================= */
+
+            const vencimientoAnterior =
+                restarUnDia(
+                    fechaInicio
+                );
+
+
+            if (
+                !vencimientoAnterior
+            ) {
+
+                return;
+
+            }
+
+
+            const diferencia =
+                diasEntre(
+                    vencimientoAnterior,
+                    fechaPago
+                );
+
+
+            /* =================================================
+               REGLA DEL USUARIO
+
+               ANTES DE VENCER  = RENOVACIÓN
+               MISMO DÍA        = RENOVACIÓN
+               1 A 6 DÍAS DESPUÉS = RENOVACIÓN
+               7+ DÍAS DESPUÉS  = EXALUMNO
+               ================================================= */
+
+            if (
+                diferencia <= 6
+            ) {
+
+                if (
+                    !idsRenovaciones.has(
+                        clave
+                    )
+                ) {
+
+                    idsRenovaciones.add(
+                        clave
+                    );
+
+
+                    renovaciones.push({
+
+                        id:
+                            alumno["id"],
+
+                        nombre:
+                            alumno["NOMBRE"],
+
+                        dni:
+                            alumno["DNI"],
+
+                        fechaPago:
+                            fechaPago,
+
+                        fechaVencimientoAnterior:
+                            vencimientoAnterior,
+
+                        diferenciaDias:
+                            diferencia
+
+                    });
+
+                }
+
+                return;
+
+            }
+
+
+            if (
+                diferencia >= 7
+            ) {
+
+                if (
+                    !idsExalumnos.has(
+                        clave
+                    )
+                ) {
+
+                    idsExalumnos.add(
+                        clave
+                    );
+
+
+                    exalumnos.push({
+
+                        id:
+                            alumno["id"],
+
+                        nombre:
+                            alumno["NOMBRE"],
+
+                        dni:
+                            alumno["DNI"],
+
+                        fechaPago:
+                            fechaPago,
+
+                        fechaVencimientoAnterior:
+                            vencimientoAnterior,
+
+                        diferenciaDias:
+                            diferencia
+
+                    });
+
+                }
+
+            }
+
+        }
     );
-}
+
+
+    /* =========================================================
+       🔴 SALIERON
+       ========================================================= */
+
+    alumnos.forEach(
+        function(alumno) {
+
+            const fechaVencimiento =
+                fechaSolo(
+                    alumno[
+                        "FECHA VENCIMIENTO"
+                    ]
+                );
+
+
+            if (!fechaVencimiento) {
+
+                return;
+
+            }
+
+
+            const fechaInicio =
+                fechaSolo(
+                    alumno[
+                        "FECHA INICIO"
+                    ]
+                );
+
+
+            const creado =
+                fechaSolo(
+                    alumno["created_at"]
+                );
+
+
+            const esNuevoReal =
+                creado &&
+                creado >= inicioMes &&
+                creado < siguienteMes &&
+                !(
+                    mesObjetivo === "2026-09" &&
+                    creado === "2026-09-05"
+                );
+
+
+            if (
+                esNuevoReal
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                fechaVencimiento <
+                inicioMes ||
+                fechaVencimiento >=
+                siguienteMes
+            ) {
+
+                return;
+
+            }
+
+
+            /* =================================================
+               MESES FUTUROS = NO HAY SALIDAS TODAVÍA
+               ================================================= */
+
+            const hoy =
+                new Date();
+
+
+            const añoActual =
+                hoy.getFullYear();
+
+
+            const mesActual =
+                hoy.getMonth() + 1;
+
+
+            const indiceObjetivo =
+                (
+                    añoObjetivo * 12
+                ) +
+                mesNumeroObjetivo;
+
+
+            const indiceActual =
+                (
+                    añoActual * 12
+                ) +
+                mesActual;
+
+
+            if (
+                indiceObjetivo >
+                indiceActual
+            ) {
+
+                return;
+
+            }
+
+
+            /* =================================================
+               MES ACTUAL = SOLO HASTA HOY
+               ================================================= */
+
+            if (
+                indiceObjetivo ===
+                indiceActual
+            ) {
+
+                const fechaHoy =
+                    añoActual +
+                    "-" +
+                    String(
+                        mesActual
+                    ).padStart(2, "0") +
+                    "-" +
+                    String(
+                        hoy.getDate()
+                    ).padStart(2, "0");
+
+
+                if (
+                    fechaVencimiento >
+                    fechaHoy
+                ) {
+
+                    return;
+
+                }
+
+            }
+
+
+            const clave =
+                String(
+                    alumno["id"] ||
+                    normalizar(
+                        alumno["NOMBRE"]
+                    )
+                );
+
+
+            if (
+                idsRenovaciones.has(
+                    clave
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                idsExalumnos.has(
+                    clave
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            salieron.push({
+
+                id:
+                    alumno["id"],
+
+                nombre:
+                    alumno["NOMBRE"],
+
+                dni:
+                    alumno["DNI"],
+
+                fechaVencimiento:
+                    fechaVencimiento,
+
+                fechaInicio:
+                    fechaInicio
+
+            });
+
+        }
+    );
+
+
+    /* =========================================================
+       RESULTADO FINAL
+       ========================================================= */
+
     const resultado = {
 
         mes:
             mesObjetivo,
 
+        alumnosConsultados:
+            alumnos.length,
+
+        pagosConsultados:
+            pagos.length,
+
         pagosMes:
-            pagosMes,
+            pagosMes.length,
 
         nuevos:
             nuevos,
@@ -18394,13 +18749,7 @@ if (
             exalumnos,
 
         salieron:
-            salieron,
-
-        total:
-            nuevos.length +
-            renovaciones.length +
-            exalumnos.length +
-            salieron.length
+            salieron
 
     };
 
